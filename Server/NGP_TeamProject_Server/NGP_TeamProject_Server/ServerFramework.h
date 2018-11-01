@@ -10,7 +10,7 @@ public:
 	static void err_quit(const char*);
 	static void err_display(const char*);
 
-	void ServerThread();
+	void AcceptClient();
 	static DWORD WINAPI RecvThread(LPVOID);
 	void Update(float);
 	void SendPacket();

@@ -46,7 +46,7 @@ void CServerFramework::err_display(const char* msg)
 	LocalFree(lpMsgBuf);
 }
 
-void CServerFramework::ServerThread()
+void CServerFramework::AcceptClient()
 {
 	// 윈속 초기화
 	WSADATA wsa;

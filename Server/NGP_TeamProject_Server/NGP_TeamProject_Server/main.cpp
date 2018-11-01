@@ -7,9 +7,8 @@ int main()
 	Server = new CServerFramework;
 	if (Server == nullptr)
 		return 0;
-
-	Server->ServerThread();
-
+	Server->AcceptClient();
+	
 	delete Server;
 	Server = nullptr;
 }
