@@ -1,14 +1,14 @@
 서버와 주고받아야할 패킷
 
 계속 주고받아야할 패킷
-struct RUNTIME_PACKET
+struct RunPACKET
 {
-  byte	id;
-  short	x;
-  short	y;
-  bool	onSkill;
-  byte	key;
-  u_short	hp;
+byte ID_RUN
+short x
+short y
+bool onSkill
+byte key
+USHORT HP
 }
 1. 플레이어들의 위치 , X,Y 
 2. 스킬발생 여부
@@ -19,33 +19,39 @@ struct RUNTIME_PACKET
 
 ---------------------------------
 스킬이 발생했을때 패킷
-struct SKILL_PACKET
+struct SkillPacket
 {
-  byte	id;
-  byte	skillNum;
-  short	skillX;
-  short	skillY;
-  bool	isCrush;
+ byte ID_SKILL;
+ byte SkillNum;
+ short skillX
+ short skillY
+ bool isCrush?  
+ 
 } 
 1.파이어볼의 xy좌표
 2. 스킬 충돌 여부
 
+
+
 -----------------------------------
 서버가 클라에게 맨처음 보내는 패킷
-struct INIT_PACKET
+struct InitPacket
 {
-  byte	id;
-  bool 	isStart;
-  bool 	is1Player; 
+ byte ID_INIT
+  bool isStart
+  bool is1p? 
 }
 1. 게임 시작 여부 패킷
 2. 1p =TRUE인지 2p=FALSE인지
 
+
 -----------------------------------
 
 서버가 클라에게 게임 종료를 보내는 패킷
-struct END_PACKET
+struct EndPacket
 {
-  byte	id;
-  bool	is1PlayerWin;
+byte ID_END;
+bool 1P Win ?
 }
+1. 1p가 끝나는 
+    
