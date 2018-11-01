@@ -17,7 +17,8 @@ public:
 	void Destroy();
 
 private:
-	const u_short	ServerPort{ 9000 };
+	const char* serverIP = "127.0.0.1";
+	const u_short	serverPort{ 9000 };
 	// 대기 소켓
 	SOCKET			m_listen_socket;
 

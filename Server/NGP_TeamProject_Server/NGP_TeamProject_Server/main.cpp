@@ -10,7 +10,7 @@ int main()
 		return 0;
 
 	//DWORD WINAPI ServerThread()
-	Server->ServerThread();
+	Server->AcceptClient();
 
 	delete Server;
 	Server = nullptr;

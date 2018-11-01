@@ -68,7 +68,7 @@ void CServerFramework::AcceptClient()
 	ZeroMemory(&server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-	server_addr.sin_port = htons(ServerPort);
+	server_addr.sin_port = htons(serverPort);
 	// namespace std에 있는 bind 함수와 Winsock2에 있는 bind 함수와 겹쳐서 구분
 	data = ::bind(m_listen_socket, (SOCKADDR*)&server_addr, sizeof(server_addr));
 	if (data == SOCKET_ERROR)
