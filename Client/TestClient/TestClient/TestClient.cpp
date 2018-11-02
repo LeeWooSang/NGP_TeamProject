@@ -32,27 +32,34 @@ int main()
 	}
 
 	CS_RUN runPacket;
+
+	//runPacket 0으로 초기화
+	memset(&runPacket, 0, sizeof(runPacket));
 	while (true)
 	{
 		Input_Keyboard(runPacket);
 		
-		// 고정길이 : 패킷 크기 전송
-		size_t packetSize = sizeof(runPacket);
-		retval = send(sock, (char*)&packetSize, sizeof(packetSize), 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("send( )");
-			return 0;
-		}
-		//cout << "패킷 크기(고정길이) 전송 - " << retval << "Byte" << endl;
+		//키 입력이 있을경우에만 전송하게 구현하기위해 
+		if (runPacket.key != 0) {
+			// 고정길이 : 패킷 크기 전송
+			size_t packetSize = sizeof(runPacket);
+			retval = send(sock, (char*)&packetSize, sizeof(packetSize), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("send( )");
+				return 0;
+			}
+			//cout << "패킷 크기(고정길이) 전송 - " << retval << "Byte" << endl;
 
-		// 가변길이 : 실제 패킷 전송
-		retval = send(sock, (char*)&runPacket, sizeof(runPacket), 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("send( )");
-			return 0;
+			// 가변길이 : 실제 패킷 전송
+			retval = send(sock, (char*)&runPacket, sizeof(runPacket), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("send( )");
+				return 0;
+			}
 		}
+		Release_Key(runPacket);
 		//cout << "실제 패킷(가변길이) 전송 - " << retval << "Byte" << endl;
 
 	}
@@ -143,4 +150,16 @@ void Input_Keyboard(CS_RUN& runPacket)
 	//	break;
 	//}
 	
+}
+
+//Send 한 Key값 해제
+void Release_Key(CS_RUN& runPacket)
+{
+	if (runPacket.type == TYPE_RUN || runPacket.type == TYPE_SKILL)
+	{
+		if (runPacket.key == KEY_RIGHT || runPacket.key == KEY_UP || runPacket.key == KEY_SPACE || runPacket.key == KEY_LEFT)
+		{
+			runPacket.key = KEY_IDLE;
+		}
+	}
 }

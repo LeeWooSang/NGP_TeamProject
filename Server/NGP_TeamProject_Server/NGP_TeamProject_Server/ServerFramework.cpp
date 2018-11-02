@@ -141,15 +141,16 @@ void CServerFramework::AcceptClient()
 		{
 			// 고정길이 : 패킷크기 받기
 			retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);		
-			if (data == SOCKET_ERROR)
+			if (retval == SOCKET_ERROR)
 			{
 				err_display("recvn( )");
 				return;
 			}
 
 			// 가변길이 : 실제 패킷 받기
+			
 			retval = recvn(client_socket, (char*)&runPacket, sizeof(runPacket), 0);
-			if (data == SOCKET_ERROR)
+			if (retval == SOCKET_ERROR)
 			{
 				err_display("recvn( )");
 				return;
@@ -174,14 +175,21 @@ void CServerFramework::AcceptClient()
 				break;
 			}
 
-			runPacket.key = 0;
+			runPacket.key = KEY_IDLE;  // KEY_IDLE == 0x00과 0은 동일 해서 일단 수정 
 		}
+		
+		closesocket(client_socket);
 		//hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)client_socket, 0, NULL);
 		//if (hThread == nullptr)
 		//	break;
 		//else
 		//	CloseHandle(hThread);
 	}
+	closesocket(m_listen_socket);
+
+	WSACleanup();
+
+	//return 0;
 }
 
 DWORD WINAPI CServerFramework::RecvThread(LPVOID arg)
