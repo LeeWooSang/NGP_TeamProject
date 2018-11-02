@@ -46,8 +46,35 @@ void CServerFramework::err_display(const char* msg)
 	LocalFree(lpMsgBuf);
 }
 
+int CServerFramework::recvn(SOCKET s, char* buf, int len, int flags)
+{
+	int received;
+
+	char *ptr = buf;
+	int left = len;
+
+	while (left > 0)
+	{
+		received = recv(s, ptr, left, flags);
+		if (received == SOCKET_ERROR)
+		{
+			return SOCKET_ERROR;
+		}
+		else if (received == 0)
+		{
+			break;
+		}
+		left -= received;
+		ptr += received;
+	}
+
+	return (len - left);
+}
+
 void CServerFramework::AcceptClient()
 {
+	int retval = 0;
+
 	// 윈속 초기화
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -70,16 +97,16 @@ void CServerFramework::AcceptClient()
 	server_addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(serverPort);
 	// namespace std에 있는 bind 함수와 Winsock2에 있는 bind 함수와 겹쳐서 구분
-	data = ::bind(m_listen_socket, (SOCKADDR*)&server_addr, sizeof(server_addr));
-	if (data == SOCKET_ERROR)
+	retval = ::bind(m_listen_socket, (SOCKADDR*)&server_addr, sizeof(server_addr));
+	if (retval == SOCKET_ERROR)
 	{
 		err_quit("bind( )");
 		return;
 	}
 
 	// listen( )
-	data = listen(m_listen_socket, SOMAXCONN);
-	if (data == SOCKET_ERROR)
+	retval = listen(m_listen_socket, SOMAXCONN);
+	if (retval == SOCKET_ERROR)
 	{
 		err_quit("listen( )");
 		return;
@@ -93,6 +120,9 @@ void CServerFramework::AcceptClient()
 	int addrlen;
 	HANDLE hThread;
 
+	// CS_RUN 패킷
+	CS_RUN runPacket;
+	size_t packetSize = 0;
 	while (true)
 	{
 		// accept( )
@@ -104,10 +134,48 @@ void CServerFramework::AcceptClient()
 			break;
 		}
 
-		// 접속한 클라이언트 정보 출력
 		cout << endl << "[ TCP 서버 ] 클라이언트 접속 - IP : " << inet_ntoa(client_addr.sin_addr)
 			<< ", 포트 번호 : " << ntohs(client_addr.sin_port) << endl;
 
+		while (true)
+		{
+			// 고정길이 : 패킷크기 받기
+			retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);		
+			if (data == SOCKET_ERROR)
+			{
+				err_display("recvn( )");
+				return;
+			}
+
+			// 가변길이 : 실제 패킷 받기
+			retval = recvn(client_socket, (char*)&runPacket, sizeof(runPacket), 0);
+			if (data == SOCKET_ERROR)
+			{
+				err_display("recvn( )");
+				return;
+			}
+
+			switch (runPacket.key)
+			{
+			case KEY_IDLE:
+				cout << "Key - IDLE" << endl;
+				break;
+			case KEY_RIGHT:
+				cout << "Key - RIGHT" << endl;
+				break;
+			case KEY_LEFT:
+				cout << "Key - LEFT" << endl;
+				break;
+			case KEY_UP:
+				cout << "Key - UP" << endl;
+				break;
+			case KEY_SPACE:
+				cout << "Key - SPACE" << endl;
+				break;
+			}
+
+			runPacket.key = 0;
+		}
 		//hThread = CreateThread(NULL, 0, RecvThread, (LPVOID)client_socket, 0, NULL);
 		//if (hThread == nullptr)
 		//	break;

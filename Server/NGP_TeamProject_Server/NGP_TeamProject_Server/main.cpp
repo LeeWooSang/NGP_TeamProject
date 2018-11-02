@@ -1,7 +1,6 @@
 #include "Defines.h"
 #include "ServerFramework.h"
 
-
 int main()
 {
 	CServerFramework* Server = nullptr;

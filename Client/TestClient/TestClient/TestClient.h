@@ -1,20 +1,10 @@
 #pragma once
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#pragma comment(lib,"ws2_32")
+#include "Defines.h"
 
+void err_quit(const char *msg);
 
-#include <WinSock2.h>
-#include <iostream>
-#include <string>
-
-
-#define SERVERIP "127.0.0.1"
-#define SERVERPORT 9000
-
-using namespace std;
-
-void err_quit(char *msg);
-
-void err_display(char *msg);
+void err_display(const char *msg);
 
 int recvn(SOCKET s, char* buf, int len, int flags);
+
+void Input_Keyboard(CS_RUN&);
