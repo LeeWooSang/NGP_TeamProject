@@ -1,7 +1,6 @@
 #include "Defines.h"
 #include "TestClient.h"
 
-
 int main()
 {
 	int retval = 0;
@@ -32,107 +31,118 @@ int main()
 		return 0;
 	}
 
+	byte gameState = TYPE_INIT;
 
-	//////////////////////////////////////////////////////////////////////////
-	//Init 상태
 
+	// 변수 초기화
 	SC_INIT sc_initPacket;
 	memset(&sc_initPacket, 0, sizeof(sc_initPacket));
 	
-
-	while (true)
-	{
-		//루프를 돌며 대기 상태 
-		size_t packetSize = sizeof(sc_initPacket);
-		retval = recvn(sock, (char*)&sc_initPacket, sizeof(sc_initPacket),0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("send( )");
-			return 0;
-		}
-
-		if (sc_initPacket.type == TYPE_INIT)
-		{
-			if (sc_initPacket.isStart == true)
-			{
-				cout << "상대방과 연결 성공!" << endl;
-				break;
-			}
-			
-		}
-		else 
-		{
-			cout << "SC_INIT패킷이 아닙니다." << endl;
-		}
-	}
-
-	////////////////////////////////////////////////////////////////////
-	//Run 상태
-
-
-
 	CS_RUN cs_runPacket;
 	SC_RUN sc_runPacket;
 	//cs_runPacket,sc_runPacket 0으로 초기화
 	memset(&cs_runPacket, 0, sizeof(cs_runPacket));
 	memset(&sc_runPacket, 0, sizeof(sc_runPacket));
+	size_t packetSize = 0;
 
 	while (true)
 	{
-
-
-		//cs_runPacket에 player정보는 sc_initPacket에서 서버에서 받은 플레이어 번호를 그대로 대입
-		cs_runPacket.player = sc_initPacket.player;
-		Input_Keyboard(cs_runPacket);
-		
-		//키 입력이 있을경우에만 전송하게 구현하기위해 
-		if (cs_runPacket.key != 0) {
-			// 고정길이 : 패킷 크기 전송
-			size_t packetSize = sizeof(cs_runPacket);
-			retval = send(sock, (char*)&packetSize, sizeof(packetSize), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("send( )");
-				return 0;
-			}
-			//cout << "패킷 크기(고정길이) 전송 - " << retval << "Byte" << endl;
-
-			// 가변길이 : 실제 패킷 전송
-			retval = send(sock, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("send( )");
-				return 0;
-			}
-
-			
-			Release_Key(cs_runPacket);
-		}
-		//cout << "실제 패킷(가변길이) 전송 - " << retval << "Byte" << endl;
-
-
-		//여기에서 서버가 보내온 SC_RUN패킷을 받아야함?
-
-		retval = recvn(sock, (char*)&sc_runPacket, sizeof(sc_runPacket),0);
-		if (retval == SOCKET_ERROR)
+		switch (gameState)
 		{
-			err_display("recv()");
+		// Init 상태
+		case TYPE_INIT:
+			// 고정길이 받기
+			packetSize = sizeof(SC_INIT);
+			retval = recvn(sock, (char*)&packetSize, sizeof(packetSize), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("recvn( )");
+				return 0;
+			}
+			// 가변길이 받기
+			retval = recvn(sock, (char*)&sc_initPacket, sizeof(sc_initPacket), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("recvn( )");
+				return 0;
+			}
+
+			if (sc_initPacket.type == TYPE_INIT)
+			{
+				if (sc_initPacket.isStart == true)
+				{
+					cout << "상대방과 연결 성공!" << endl;
+					gameState = TYPE_RUN;
+					break;
+				}
+			}
+			else
+				cout << "SC_INIT패킷이 아닙니다." << endl;
+
+			break;
+
+		//Run 상태
+		case TYPE_RUN:
+			while (true)
+			{
+				packetSize = sizeof(SC_RUN);
+				// 서버에서 초기 플레이어 위치 받기
+				retval = recvn(sock, (char*)&packetSize, sizeof(packetSize), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("recv()");
+					break;
+				}
+				// 가변 길이
+				retval = recvn(sock, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("recv()");
+					break;
+				}
+				cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X << ",";
+				cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
+
+				cout << "상대방 위치 정보 x: " << sc_runPacket.pos[PLAYER_2].X << ",";
+				cout << "상대방 위치 정보 y: " << sc_runPacket.pos[PLAYER_2].Y << endl;
+
+				//cs_runPacket에 player정보는 sc_initPacket에서 서버에서 받은 플레이어 번호를 그대로 대입
+				cs_runPacket.player = sc_initPacket.player;
+
+				while (true)
+				{
+					Input_Keyboard(cs_runPacket);
+
+					//키 입력이 있을경우에만 전송하게 구현하기위해 
+					if (cs_runPacket.key != 0)
+					{
+						// 고정길이 : 패킷 크기 전송
+						packetSize = sizeof(cs_runPacket);
+						retval = send(sock, (char*)&packetSize, sizeof(packetSize), 0);
+						if (retval == SOCKET_ERROR)
+						{
+							err_display("send( )");
+							return 0;
+						}
+						//cout << "패킷 크기(고정길이) 전송 - " << retval << "Byte" << endl;
+
+						// 가변길이 : 실제 패킷 전송
+						retval = send(sock, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
+						if (retval == SOCKET_ERROR)
+						{
+							err_display("send( )");
+							return 0;
+						}
+						Release_Key(cs_runPacket);
+					}
+					//cout << "실제 패킷(가변길이) 전송 - " << retval << "Byte" << endl;
+				}
+			}
 			break;
 		}
-		else if (retval == 0)
-		{
-			//break;
-		}
-
-		cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X<<",";
-		cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
-
-		cout << "상대방 위치 정보 x: " << sc_runPacket.pos[PLAYER_2].X << ",";
-		cout << "상대방 위치 정보 y: " << sc_runPacket.pos[PLAYER_2].Y << endl;
-
 
 	}
-	
+
 	closesocket(sock);
 	WSACleanup();
 }

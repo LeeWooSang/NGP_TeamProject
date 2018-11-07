@@ -3,6 +3,7 @@
 #include <iostream>
 #include <WinSock2.h>
 #include <Windows.h>
+#include <vector>
 
 using namespace std;
 
@@ -29,6 +30,9 @@ struct SC_INIT
 
 struct CS_RUN
 {
+	CS_RUN() {}
+	CS_RUN(byte t, byte k, byte p) : type(t), key(k), player(p) { }
+
 	byte        type;
 	byte        key;
 	byte        player;

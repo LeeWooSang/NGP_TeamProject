@@ -2,6 +2,7 @@
 #pragma comment(lib,"ws2_32")
 
 #include <iostream>
+#include <vector>
 #include <WinSock2.h>
 #include <Windows.h>
 #include <conio.h>
