@@ -1,6 +1,9 @@
 #pragma once
 #include "Defines.h"
 
+
+DWORD WINAPI RecvThread(LPVOID);
+
 struct Client_Info
 {
 	Client_Info(SOCKET socket, byte num, COORD p) : client_socket(socket), player(num), pos(p)  {}
@@ -21,7 +24,7 @@ public:
 	int recvn(SOCKET, char*, int, int);
 
 	void AcceptClient();
-	static DWORD WINAPI RecvThread(LPVOID);
+	
 	
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
@@ -30,6 +33,8 @@ public:
 	void SendPacket();
 	void Destroy();
 
+	
+	
 private:
 	const char* serverIP = "127.0.0.1";
 	const u_short	serverPort{ 9000 };
@@ -44,5 +49,6 @@ private:
 	static COORD playerPos[2];
 
 	vector<Client_Info> vec_client_info;
+	//DWORD WINAPI RecvThread(LPVOID);
 };
 

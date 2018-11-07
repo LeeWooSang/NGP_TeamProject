@@ -122,7 +122,7 @@ void CServerFramework::AcceptClient()
 
 	// 클라이언트 정보를 저장한 공간 예약
 	vec_client_info.reserve(2); 
-	vec_cs_runPacket.reserve(100);
+	//vec_cs_runPacket.reserve(100);		미사용 
 
 	while (true)
 	{
@@ -137,6 +137,7 @@ void CServerFramework::AcceptClient()
 	
 		cout << endl << "[ TCP 서버 ] 클라이언트 접속 - IP : " << inet_ntoa(client_addr.sin_addr)
 			<< ", 포트 번호 : " << ntohs(client_addr.sin_port) << endl;
+
 
 		size_t packetSize = sizeof(SC_INIT);
 
@@ -156,19 +157,22 @@ void CServerFramework::AcceptClient()
 			vec_client_info.emplace_back(Client_Info(client_socket, PLAYER_2, position));
 		}
 
+
 		// SC_INIT 전송
 		SendPacket();
 
-		// SC_RUN 플레이어 초기 좌표 전송
+		//// SC_RUN 플레이어 초기 좌표 전송
 		SendPacket();
 
 		while (true)
 		{
 			// CS_RUN 받기
 			for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
+			{
 				TestRecv(iter->client_socket);
-
-			// SC_RUN 전송
+			}
+				
+		// SC_RUN 전송
 			SendPacket();
 		}
 
@@ -180,8 +184,9 @@ void CServerFramework::AcceptClient()
 	}
 }
 
-DWORD WINAPI CServerFramework::RecvThread(LPVOID arg)
+DWORD WINAPI RecvThread(LPVOID arg)
 {
+
 	return 0;
 }
 
