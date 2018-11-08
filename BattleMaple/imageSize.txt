@@ -1,0 +1,4 @@
+alert 45x75
+attack 75x70
+jump 45x75
+walk 45x75
