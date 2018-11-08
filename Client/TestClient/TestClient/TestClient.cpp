@@ -31,9 +31,6 @@ int main()
 		return 0;
 	}
 
-	byte gameState = TYPE_INIT;
-
-
 	// 변수 초기화
 	SC_INIT sc_initPacket;
 	memset(&sc_initPacket, 0, sizeof(sc_initPacket));
@@ -45,6 +42,7 @@ int main()
 	memset(&sc_runPacket, 0, sizeof(sc_runPacket));
 	size_t packetSize = 0;
 
+	byte gameState = TYPE_INIT;
 	while (true)
 	{
 		switch (gameState)
@@ -75,6 +73,12 @@ int main()
 					gameState = TYPE_RUN;
 					break;
 				}
+				else
+				{
+					cout << "상대 기다리는 중!" << endl;
+					gameState = TYPE_RUN;
+					break;
+				}
 			}
 			else
 				cout << "SC_INIT패킷이 아닙니다." << endl;
@@ -100,6 +104,7 @@ int main()
 					err_display("recv()");
 					break;
 				}
+			
 				cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X << ",";
 				cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
 
@@ -135,7 +140,6 @@ int main()
 						}
 						Release_Key(cs_runPacket);
 					}
-					//cout << "실제 패킷(가변길이) 전송 - " << retval << "Byte" << endl;
 				}
 			}
 			break;
@@ -223,6 +227,7 @@ void Input_Keyboard(CS_RUN& runPacket)
 			cout << "SPACE 방향키 눌림" << endl;
 			break;
 		}
+		//cout << myInfo.name << " - X : " << myInfo.pos.X << ", Y : " << myInfo.pos.Y << endl;
 	}
 	//else
 	//{
