@@ -25,7 +25,7 @@ public:
 
 	void AcceptClient();
 	
-	
+	static DWORD WINAPI RecvThread(LPVOID);
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
 
@@ -41,14 +41,17 @@ private:
 	// 대기 소켓
 	SOCKET			m_listen_socket;
 
-	vector<CS_RUN> vec_cs_runPacket;
-
 	// 게임 상태를 저장한다
 	byte gameState;
 	// 0번째 인덱스는 PLAYER_1, 1번째 인덱스는 PLAYER_2
 	static COORD playerPos[2];
 
-	vector<Client_Info> vec_client_info;
-	//DWORD WINAPI RecvThread(LPVOID);
+	static vector<Client_Info> vec_client_info;
+
+	static HANDLE thread[2];
+	static u_short count;
+
+	static HANDLE readEvent;
+	static HANDLE writeEvent;
 };
 

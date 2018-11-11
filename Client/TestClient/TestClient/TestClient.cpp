@@ -76,7 +76,7 @@ int main()
 				else
 				{
 					cout << "상대 기다리는 중!" << endl;
-					gameState = TYPE_RUN;
+					//gameState = TYPE_INIT;
 					break;
 				}
 			}
