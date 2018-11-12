@@ -27,13 +27,15 @@ public:
 	void AcceptClient();
 	
 	static DWORD WINAPI RecvThread(LPVOID);
-	static DWORD WINAPI SendThread(LPVOID);
+	//static DWORD WINAPI SendThread(LPVOID);
 
+	
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
 
 	void Update(float);
-	void SendPacket();
+	void SendFirstPosition(SOCKET&);
+	void SendPacket(SOCKET&);
 	void Destroy();
 
 	

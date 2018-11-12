@@ -93,13 +93,16 @@ int main()
 			while (true)
 			{
 				packetSize = sizeof(SC_RUN);
+				//cout << "초기 위치 서버에서 받아야 합니다" << endl;
 				// 서버에서 초기 플레이어 위치 받기
+			
 				retval = recvn(sock, (char*)&packetSize, sizeof(packetSize), 0);
 				if (retval == SOCKET_ERROR)
 				{
 					err_display("recv()");
 					break;
 				}
+				//cout << "초기위치 받기를 기다리는중(고정 크기)" << endl;
 				// 가변 길이
 				retval = recvn(sock, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
 				if (retval == SOCKET_ERROR)
@@ -107,6 +110,7 @@ int main()
 					err_display("recv()");
 					break;
 				}
+				//cout << "초기위치 받기를 기다리는중(가변 길이)" << endl;
 				if (playerInfo == PLAYER_1) {
 					cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X << ",";
 					cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
