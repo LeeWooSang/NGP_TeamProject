@@ -4,6 +4,7 @@
 
 DWORD WINAPI RecvThread(LPVOID);
 
+
 struct Client_Info
 {
 	Client_Info(SOCKET socket, byte num, COORD p) : client_socket(socket), player(num), pos(p)  {}
@@ -26,6 +27,8 @@ public:
 	void AcceptClient();
 	
 	static DWORD WINAPI RecvThread(LPVOID);
+	static DWORD WINAPI SendThread(LPVOID);
+
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
 
@@ -48,10 +51,16 @@ private:
 
 	static vector<Client_Info> vec_client_info;
 
-	static HANDLE thread[2];
+	static HANDLE sendThread;
+	static HANDLE recieveThread[2];
 	static u_short count;
 
 	static HANDLE readEvent;
 	static HANDLE writeEvent;
+
+	static const int clientNum = 2;
+	SOCKET client_SockArray[clientNum];
+	
+
 };
 

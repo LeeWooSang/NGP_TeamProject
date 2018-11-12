@@ -41,6 +41,7 @@ int main()
 	memset(&cs_runPacket, 0, sizeof(cs_runPacket));
 	memset(&sc_runPacket, 0, sizeof(sc_runPacket));
 	size_t packetSize = 0;
+	byte playerInfo = 0;							//플레이어 자신의 정보
 
 	byte gameState = TYPE_INIT;
 	while (true)
@@ -70,19 +71,21 @@ int main()
 				if (sc_initPacket.isStart == true)
 				{
 					cout << "상대방과 연결 성공!" << endl;
+					playerInfo = sc_initPacket.player;				//플레이어 자신의 정보를 갖고있는다. 
 					gameState = TYPE_RUN;
 					break;
 				}
 				else
 				{
 					cout << "상대 기다리는 중!" << endl;
+					playerInfo = sc_initPacket.player;				//플레이어 자신의 정보를 갖고있는다. 
 					//gameState = TYPE_INIT;
 					break;
 				}
 			}
-			else
+			/*else
 				cout << "SC_INIT패킷이 아닙니다." << endl;
-
+*/
 			break;
 
 		//Run 상태
@@ -104,13 +107,21 @@ int main()
 					err_display("recv()");
 					break;
 				}
-			
-				cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X << ",";
-				cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
+				if (playerInfo == PLAYER_1) {
+					cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X << ",";
+					cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
 
-				cout << "상대방 위치 정보 x: " << sc_runPacket.pos[PLAYER_2].X << ",";
-				cout << "상대방 위치 정보 y: " << sc_runPacket.pos[PLAYER_2].Y << endl;
+					cout << "상대방 위치 정보 x: " << sc_runPacket.pos[PLAYER_2].X << ",";
+					cout << "상대방 위치 정보 y: " << sc_runPacket.pos[PLAYER_2].Y << endl;
+				}
+				else if (playerInfo == PLAYER_2)
+				{
+					cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_2].X << ",";
+					cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_2].Y << endl;
 
+					cout << "상대방 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X << ",";
+					cout << "상대방 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
+				}
 				//cs_runPacket에 player정보는 sc_initPacket에서 서버에서 받은 플레이어 번호를 그대로 대입
 				cs_runPacket.player = sc_initPacket.player;
 
