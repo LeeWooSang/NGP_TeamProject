@@ -133,7 +133,8 @@ void CServerFramework::AcceptClient()
 
 	// 클라이언트 정보를 저장한 공간 예약
 	vec_client_info.reserve(2); 
-	
+	BOOL optval = true;
+
 	// 신호 상태
 	//readEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
 	// 비신호 상태
@@ -161,19 +162,51 @@ void CServerFramework::AcceptClient()
 			COORD position;
 			position.X = 0;
 			position.Y = 0;
+			setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 			vec_client_info.emplace_back(Client_Info(client_socket, PLAYER_1, position));
+		
 			client_SockArray[0] = client_socket;
+
 		}
 		else if(vec_client_info.size() ==1 )
 		{
-			COORD position;
+			COORD position;			
 			position.X = 800;
 			position.Y = 0;
+			setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 			vec_client_info.emplace_back(Client_Info(client_socket, PLAYER_2, position));
+			client_SockArray[1] = client_socket;
 			//thread[vec_client_info.size() - 1] = CreateThread(NULL, 0, RecvThread, (LPVOID)&client_socket, 0, NULL);
 		}
 		else {
 			//UPDATE()
+			//SC_RUN sc_runPacket;
+			//memset(&sc_runPacket, 0, sizeof(sc_runPacket));
+			//sc_runPacket.pos[0].X = 0;
+			//sc_runPacket.pos[0].Y = 0;
+
+			//sc_runPacket.pos[1].X = 800;
+			//sc_runPacket.pos[1].Y = 0;
+
+			//for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter) {
+			//	
+			//	//cout <<"클라에게 보낼 위치 좌표" <<iter->pos.X <<","<<iter->pos.Y<< endl;
+			//	retval = send(iter->client_socket/*client_socket*/, (char*)&packetSize, sizeof(packetSize), 0);
+			//	if (retval == SOCKET_ERROR)
+			//	{
+			//		err_display("send( )");
+			//		return;
+			//	}
+			//	// 플레이어1, 2에게 SC_RUN 가변길이 전송
+			//	retval = send(iter->client_socket/*client_socket*/, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
+			//	if (retval == SOCKET_ERROR)
+			//	{
+
+			//		err_display("sned( )");
+			//		return;
+			//	}
+			//}
+
 
 		}
 		//sendThread = CreateThread(NULL, 0, SendThread, (LPVOID)vec_client_info[0].client_socket, 0, NULL);
@@ -233,6 +266,7 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 			//p->SendPacket(client_socket);
 			//p->TestRecv(client_socket);
 			p->SendPacket(client_socket);
+			p->SendFirstPosition(client_socket);
 			
 		}
 		else if (p->gameState == TYPE_RUN)
@@ -272,36 +306,44 @@ void CServerFramework::SendFirstPosition(SOCKET& client_socket)
 		//cout << "TYPE RUN SendPacket" << endl;
 	}
 
-	else 
-	{
-		sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
-		sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
-		//cout << "TYPE RUN SendPacket" << endl;
-		//cout << "플레이어 1:" << sc_runPacket.pos[PLAYER_1].X << "," << sc_runPacket.pos[PLAYER_1].Y << endl;
-		//cout << "플레이어 2: " << sc_runPacket.pos[PLAYER_2].X << "," << sc_runPacket.pos[PLAYER_2].Y << endl;
+	else if (vec_client_info.size() >= 2) {
+		if (gameState == TYPE_RUN) {
+			//sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
+			//sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
+			//cout << "TYPE RUN SendPacket" << endl;
+			//cout << "플레이어 1:" << sc_runPacket.pos[PLAYER_1].X << "," << sc_runPacket.pos[PLAYER_1].Y << endl;
+			//cout << "플레이어 2: " << sc_runPacket.pos[PLAYER_2].X << "," << sc_runPacket.pos[PLAYER_2].Y << endl;
+			SC_RUN sc_runPacket;
+			memset(&sc_runPacket, 0, sizeof(sc_runPacket));
+			sc_runPacket.pos[0].X = 0;
+			sc_runPacket.pos[0].Y = 0;
 
-	}
-	if (gameState == TYPE_RUN) {
+			sc_runPacket.pos[1].X = 800;
+			sc_runPacket.pos[1].Y = 0;
+			packetSize = sizeof(SC_RUN);
+			//	for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
+			//{
+			// 플레이어1, 2에게 SC_RUN 고정길이 전송
 
-		packetSize = sizeof(SC_RUN);
-		//	for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
-		//{
-		// 플레이어1, 2에게 SC_RUN 고정길이 전송
+			for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter) {
+				//cout <<"클라에게 보낼 위치 좌표" <<iter->pos.X <<","<<iter->pos.Y<< endl;
+				retval = send(iter->client_socket/*client_socket*/, (char*)&packetSize, sizeof(packetSize), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("send( )");
+					return;
+				}
+				// 플레이어1, 2에게 SC_RUN 가변길이 전송
+				retval = send(iter->client_socket/*client_socket*/, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
+				if (retval == SOCKET_ERROR)
+				{
 
-		retval = send(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("send( )");
-			return;
+					err_display("sned( )");
+					return;
+				}
+			}
+			//cout << "클라이언트에게 초기 위치 좌표를 보내줍니다" << endl;
 		}
-		// 플레이어1, 2에게 SC_RUN 가변길이 전송
-		retval = send(client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("sned( )");
-			return;
-		}
-		//cout << "클라이언트에게 초기 위치 좌표를 보내줍니다" << endl;
 	}
 	//}
 }
@@ -314,7 +356,7 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 	if (gameState == TYPE_RUN)
 	{
 			// 고정길이 : 패킷크기 받기
-
+		
 		retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
 		if (retval == SOCKET_ERROR)
 		{
@@ -436,10 +478,10 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 					err_display("send( )");
 					return;
 				}
-				
-			}
-			gameState = TYPE_RUN;
-			
+
+		}
+		gameState = TYPE_RUN;
+		
 	}
 	break;
 

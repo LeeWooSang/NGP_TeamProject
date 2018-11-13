@@ -10,7 +10,8 @@ int main()
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 0;
 
-	//socket
+	BOOL optval = true;
+	
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == INVALID_SOCKET)
 	{
@@ -18,6 +19,7 @@ int main()
 		return 0;
 	}
 		
+	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 	//connect
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
@@ -95,7 +97,7 @@ int main()
 				packetSize = sizeof(SC_RUN);
 				//cout << "초기 위치 서버에서 받아야 합니다" << endl;
 				// 서버에서 초기 플레이어 위치 받기
-			
+				
 				retval = recvn(sock, (char*)&packetSize, sizeof(packetSize), 0);
 				if (retval == SOCKET_ERROR)
 				{
@@ -110,10 +112,15 @@ int main()
 					err_display("recv()");
 					break;
 				}
-				//cout << "초기위치 받기를 기다리는중(가변 길이)" << endl;
+				
+		/*		cout << "초기위치 받기를 기다리는중(가변 길이)" << endl;
+				cout <<"sc_runPacket[0]" <<sc_runPacket.pos[0].X<<","<<sc_runPacket.pos[0].Y<<endl;
+				cout << "sc_runPacket[1]" << sc_runPacket.pos[1].X << "," << sc_runPacket.pos[1].Y << endl;
+*/
+
 				if (playerInfo == PLAYER_1) {
-					cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X << ",";
-					cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y << endl;
+					cout << "플레이어 위치 정보 x: " << sc_runPacket.pos[PLAYER_1].X<< ",";
+					cout << "플레이어 위치 정보 y: " << sc_runPacket.pos[PLAYER_1].Y<< endl;
 
 					cout << "상대방 위치 정보 x: " << sc_runPacket.pos[PLAYER_2].X << ",";
 					cout << "상대방 위치 정보 y: " << sc_runPacket.pos[PLAYER_2].Y << endl;
