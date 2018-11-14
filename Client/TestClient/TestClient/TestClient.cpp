@@ -1,6 +1,7 @@
 #include "Defines.h"
 #include "TestClient.h"
 
+
 int main()
 {
 	int retval = 0;
@@ -19,13 +20,14 @@ int main()
 		return 0;
 	}
 		
-	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
+	
 	//connect
 	SOCKADDR_IN serveraddr;
 	ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
 	serveraddr.sin_port = ntohs(SERVERPORT);
+	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 	retval = connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR)
 	{
@@ -141,7 +143,7 @@ int main()
 					Input_Keyboard(cs_runPacket);
 
 					//키 입력이 있을경우에만 전송하게 구현하기위해 
-					if (cs_runPacket.key != 0)
+					if (cs_runPacket.key != KEY_IDLE)
 					{
 						// 고정길이 : 패킷 크기 전송
 						packetSize = sizeof(cs_runPacket);

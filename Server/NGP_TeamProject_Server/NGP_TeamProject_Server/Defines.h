@@ -4,6 +4,7 @@
 #include <WinSock2.h>
 #include <Windows.h>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -41,8 +42,8 @@ struct CS_RUN
 struct SC_RUN
 {
 	byte			type;
-	COORD	pos[2];
-	USHORT	hp[2];
+	COORD			pos[2];
+	USHORT			hp[2];
 	bool			onSkill;
 };
 

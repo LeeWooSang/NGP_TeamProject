@@ -51,7 +51,8 @@ private:
 	// 0번째 인덱스는 PLAYER_1, 1번째 인덱스는 PLAYER_2
 	static COORD playerPos[2];
 
-	static vector<Client_Info> vec_client_info;
+	static	vector<Client_Info> vec_client_info;
+	static	queue<CS_RUN> que_client_key;					//키보드 입력이 들어간다.
 
 	static HANDLE sendThread;
 	static HANDLE recieveThread[2];
