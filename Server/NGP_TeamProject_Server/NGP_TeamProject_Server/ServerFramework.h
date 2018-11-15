@@ -27,7 +27,7 @@ public:
 	void AcceptClient();
 	
 	static DWORD WINAPI RecvThread(LPVOID);
-	//static DWORD WINAPI SendThread(LPVOID);
+	static DWORD WINAPI SendThread(LPVOID);
 
 	
 	void TestRecv(SOCKET&);
@@ -53,7 +53,7 @@ private:
 
 	static vector<Client_Info> vec_client_info;
 
-	static HANDLE sendThread;
+	static HANDLE sendThread[2];
 	static HANDLE recieveThread[2];
 	static u_short count;
 
