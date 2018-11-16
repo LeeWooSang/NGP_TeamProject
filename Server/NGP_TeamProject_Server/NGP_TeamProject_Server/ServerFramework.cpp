@@ -426,14 +426,13 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
 			cout << sc_runPacket.pos[PLAYER_1].X << sc_runPacket.pos[PLAYER_1].Y << endl;
 		}
+
 		else
 		{
 			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
 			sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
 		}
-
 		packetSize = sizeof(SC_RUN);
-
 		for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
 		{
 
