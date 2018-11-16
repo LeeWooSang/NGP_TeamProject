@@ -7,6 +7,8 @@ void err_display(const char *msg);
 
 int recvn(SOCKET s, char* buf, int len, int flags);
 
-void Input_Keyboard(CS_RUN& runPacket);
+bool Input_Keyboard(CS_RUN& runPacket);
 
 void Release_Key(CS_RUN& runPacket);
+
+void show_Position();
