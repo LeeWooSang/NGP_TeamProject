@@ -16,7 +16,7 @@ using namespace std;
 #define KEY_SPACE	0X04
 
 // PACKET_TYPE
-enum PACKET_TYPE { TYPE_INIT, TYPE_RUN, TYPE_SKILL, TYPE_END };
+enum PACKET_TYPE { TYPE_INIT, TYPE_START, TYPE_RUN, TYPE_SKILL, TYPE_END };
 enum PLAYER { PLAYER_1, PLAYER_2 };
 // 키보드 아스키 번호 정의
 enum ASCII_KEY { RIGHT = 77, LEFT = 75, UP = 72, SPACE = 32 };
@@ -26,6 +26,13 @@ struct SC_INIT
 {
 	byte			type;
 	bool			isStart;
+	byte			player;
+};
+
+struct CS_INIT
+{
+	byte			type;
+	bool			isReady;
 	byte			player;
 };
 
