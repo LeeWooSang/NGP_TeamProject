@@ -278,13 +278,14 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 	if (gameState == TYPE_RUN)
 	{
 			// 고정길이 : 패킷크기 받기
-		
 			retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("recvn( )");
 				return;
 			}
+
+
 			// CS_RUN 패킷
 			CS_RUN cs_runPacket;
 			// 가변길이 : 실제 패킷 받기
@@ -294,6 +295,8 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 				err_display("recvn( )");
 				return;
 			}
+
+			
 			EnterCriticalSection(&cs);
 			//que_client_key.push(cs_runPacket);
 			switch (cs_runPacket.player)
