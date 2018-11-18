@@ -41,6 +41,7 @@ void Game::Enter()
 		eHero = new Hero(250, 50, IDLE, 2);
 		eHero->Enter();
 	}
+	CreateThread(NULL, 0, ClientThread, NULL, 0, NULL);
 	//BulletIndex = pSprite->getIndex() + 1;
 }
 void Game::Destroy()
@@ -127,8 +128,13 @@ void Game::Update()
 		pSprite[PLAYER1].setLocation(PLAYER1, pSprite[PLAYER1].getX(PLAYER1) - 10, pSprite[PLAYER1].getY(PLAYER1));
 	}*/
 }
-//
-//void Game::Shooting(int x, int y, int Num)
-//{
-//	pSprite[Num].setLocation(Num, x, y);
-//}
+
+DWORD WINAPI Game::ClientThread(LPVOID socket)
+{
+
+}
+
+DWORD WINAPI Game::RecvThread(LPVOID socket)
+{
+
+}

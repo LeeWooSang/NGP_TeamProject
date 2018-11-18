@@ -76,4 +76,7 @@ public:
 	void Enter();
 	void Destroy();
 	void Update();
+public:
+	static DWORD WINAPI ClientThread(LPVOID socket);
+	static DWORD WINAPI RecvThread(LPVOID socket);
 };
