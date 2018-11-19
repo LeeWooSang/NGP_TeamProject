@@ -87,7 +87,6 @@ int CServerFramework::recvn(SOCKET s, char* buf, int len, int flags)
 
 void CServerFramework::AcceptClient()
 {
-	InitializeCriticalSection(&cs);
 	int retval = 0;
 
 	// 윈속 초기화
@@ -137,7 +136,6 @@ void CServerFramework::AcceptClient()
 
 	// 클라이언트 정보를 저장한 공간 예약
 	vec_client_info.reserve(2); 
-	BOOL optval = true;
 
 	// 신호 상태
 	//readEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
@@ -165,7 +163,6 @@ void CServerFramework::AcceptClient()
 			COORD position;
 			position.X = 0;
 			position.Y = 0;
-			setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 			vec_client_info.emplace_back(Client_Info(client_socket, PLAYER_1, position));
 			client_SockArray[PLAYER_1] = client_socket;
 
@@ -175,7 +172,6 @@ void CServerFramework::AcceptClient()
 			COORD position;			
 			position.X = 800;
 			position.Y = 0;
-			setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 			vec_client_info.emplace_back(Client_Info(client_socket, PLAYER_2, position));
 			client_SockArray[PLAYER_2] = client_socket;
 		}
@@ -449,7 +445,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			retval = send((*iter).client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
 			if (retval == SOCKET_ERROR)
 			{
-				err_display("sned( )");
+				err_display("send( )");
 				return;
 			}
 		}

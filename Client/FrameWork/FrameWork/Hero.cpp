@@ -58,7 +58,7 @@ void Hero::Enter()
 	{
 		sMode[WALK] = new Sprite;
 
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[WALK]->Entry(0, "image/walk-1-1.bmp", 0, 0);
 			sMode[WALK]->Entry(1, "image/walk-2-1.bmp", 0, 0);
@@ -81,7 +81,7 @@ void Hero::Enter()
 	if (sMode[WALK_B] == NULL)
 	{
 		sMode[WALK_B] = new Sprite;
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[WALK_B]->Entry(0, "image/walk-1-b.bmp", 0, 0);
 			sMode[WALK_B]->Entry(1, "image/walk-2-b.bmp", 0, 0);
@@ -105,7 +105,7 @@ void Hero::Enter()
 	{
 		sMode[JUMP] = new Sprite;
 
-		if (player == 1)
+		if (player == 0)
 			sMode[JUMP]->Entry(0, "image/jump-1-1.bmp", 0, 0);
 		else
 			sMode[JUMP]->Entry(0, "image/e_jump-1-1.bmp", 0, 0);
@@ -117,7 +117,7 @@ void Hero::Enter()
 	{
 		sMode[JUMP_B] = new Sprite;
 
-		if (player == 1)
+		if (player == 0)
 			sMode[JUMP_B]->Entry(0, "image/jump-1-b.bmp", 0, 0);
 		else
 			sMode[JUMP_B]->Entry(0, "image/e_jump-1-b.bmp", 0, 0);
@@ -129,7 +129,7 @@ void Hero::Enter()
 	{
 		sMode[IDLE] = new Sprite;
 
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[IDLE]->Entry(0, "image/alert-1.bmp", 0, 0);
 			sMode[IDLE]->Entry(1, "image/alert-2.bmp", 0, 0);
@@ -150,7 +150,7 @@ void Hero::Enter()
 	{
 		sMode[IDLE_B] = new Sprite;
 
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[IDLE_B]->Entry(0, "image/alert-1-b.bmp", 0, 0);
 			sMode[IDLE_B]->Entry(1, "image/alert-2-b.bmp", 0, 0);
@@ -171,7 +171,7 @@ void Hero::Enter()
 	{
 		sMode[ATTACK] = new Sprite;
 		
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[ATTACK]->Entry(0, "image/attack-1.bmp", 0, 0);
 			sMode[ATTACK]->Entry(1, "image/attack-2.bmp", 0, 0);
@@ -191,7 +191,7 @@ void Hero::Enter()
 	if (sMode[ATTACK_B] == NULL)
 	{
 		sMode[ATTACK_B] = new Sprite;
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[ATTACK_B]->Entry(0, "image/attack-1-b.bmp", 0, 0);
 			sMode[ATTACK_B]->Entry(1, "image/attack-2-b.bmp", 0, 0);
@@ -238,7 +238,7 @@ void Hero::Enter()
 	if (sMode[FIREBALL] == NULL)
 	{
 		sMode[FIREBALL] = new Sprite;
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[FIREBALL]->Entry(0, "image/attack-01-1.bmp", 0, 0);
 			sMode[FIREBALL]->Entry(1, "image/attack-02-1.bmp", 0, 0);
@@ -261,7 +261,7 @@ void Hero::Enter()
 	if (sMode[FIREBALL_B] == NULL)
 	{
 		sMode[FIREBALL_B] = new Sprite;
-		if (player == 1)
+		if (player == 0)
 		{
 			sMode[FIREBALL_B]->Entry(0, "image/attack-01-b.bmp", 0, 0);
 			sMode[FIREBALL_B]->Entry(1, "image/attack-02-b.bmp", 0, 0);
@@ -372,6 +372,11 @@ void Hero::setLocation(int x1, int y1)
 {
 	x = x1;
 	y = y1;
+}
+
+void Hero::setHP(USHORT h)
+{
+	hp = h;
 }
 
 int Hero::getX()
