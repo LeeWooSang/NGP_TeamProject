@@ -23,24 +23,14 @@ private:
 	int x;
 	int y;
 	int mode;
-#pragma region Sprite변수선언
-	Sprite * sMode[10];
-	//Sprite * sWalk;
-	//Sprite * sWalk_b;
-	//Sprite * sJump;
-	//Sprite * sJump_b;
-	//Sprite * sIdle;
-	//Sprite * sIdle_b;
-	//Sprite * sAttack;
-	//Sprite * sAttack_b;
-	//Sprite * sDeath;
-
-	//Sprite * sFireball;
-	//Sprite * sFireball_b;
-	//Sprite * sCrushEffect;
-#pragma endregion
+	USHORT hp;
 	int animCount[ANIMNUM];
+	
+	Sprite * sMode[10];
+
+public:
 	byte player;
+	SOCKET sock;
 
 public:
 	Hero();
@@ -53,6 +43,7 @@ public:
 	void Update();
 
 	void setLocation(int x, int y);
+	void setHP(USHORT h);
 
 	int getX();
 	int getY();
