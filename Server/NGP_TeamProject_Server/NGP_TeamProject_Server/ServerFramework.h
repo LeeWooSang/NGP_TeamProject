@@ -32,8 +32,8 @@ public:
 	static DWORD WINAPI SendThread(LPVOID);
 	void SendFirstPosition(SOCKET&);
 	void SendPacket(SOCKET&);
-	
-	void Update(float, byte&);
+	double GetElapsedTime();
+	void Update(float/*, byte&*/);
 
 	void Destroy();
 
