@@ -166,7 +166,10 @@ void CServerFramework::AcceptClient()
 			position.X = 0;
 			position.Y = 0;
 			setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
-			vec_client_info.emplace_back(Client_Info(client_socket, PLAYER_1, position));
+			vec_client_info.emplace_back(client_socket, PLAYER_1, position, false);
+			// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
+			vec_client_info[PLAYER_1].skillPos = vec_client_info[PLAYER_1].pos;
+
 			client_SockArray[PLAYER_1] = client_socket;
 
 		}
@@ -176,7 +179,10 @@ void CServerFramework::AcceptClient()
 			position.X = 800;
 			position.Y = 0;
 			setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
-			vec_client_info.emplace_back(Client_Info(client_socket, PLAYER_2, position));
+			vec_client_info.emplace_back(client_socket, PLAYER_2, position, false);
+			// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
+			vec_client_info[PLAYER_2].skillPos = vec_client_info[PLAYER_2].pos;
+
 			client_SockArray[PLAYER_2] = client_socket;
 		}
 		
@@ -244,7 +250,6 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 			return;
 		}
 		EnterCriticalSection(&cs);
-		//que_client_key.push(cs_runPacket);
 		switch (cs_runPacket.player)
 		{
 		case PLAYER_1:
@@ -277,6 +282,7 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 		vec_client_info[player].pos.Y += 10;
 		break;
 	case KEY_SPACE:
+		vec_client_info[player].onSkill = true;
 		cout << "Key - SPACE" << endl;
 		break;
 	}
@@ -418,7 +424,6 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 
 	case TYPE_RUN:
 		SC_RUN sc_runPacket;
-		CS_RUN cs_runPacket;
 
 		sc_runPacket.type = TYPE_RUN;
 		if (vec_client_info.size() == 1)
@@ -432,12 +437,12 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
 			sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
 		}
+
 		packetSize = sizeof(SC_RUN);
 		for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
 		{
 
 			// 플레이어1, 2에게 SC_RUN 고정길이 전송
-			//retval = send(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
 			retval = send((*iter).client_socket, (char*)&packetSize, sizeof(packetSize), 0);
 			if (retval == SOCKET_ERROR)
 			{
@@ -445,7 +450,6 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				return;
 			}
 			// 플레이어1, 2에게 SC_RUN 가변길이 전송
-			//retval = send(client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
 			retval = send((*iter).client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
 			if (retval == SOCKET_ERROR)
 			{
@@ -453,13 +457,16 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				return;
 			}
 		}
+
 		p->check = true;
 		break;
 	}
 }
 
-void CServerFramework::Update(float elapsedTime)
+void CServerFramework::Update(float elapsedTime, byte& player)
 {
+	vec_client_info[player].skillPos.X += 10 * elapsedTime;
+
 }
 
 
