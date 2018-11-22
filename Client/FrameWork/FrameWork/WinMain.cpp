@@ -59,7 +59,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	HBITMAP hBackBit, hOldBitmap;
 	switch (iMessage) {
 	case WM_CREATE:
-		SetTimer(hWnd, 1, 16, NULL);
+		SetTimer(hWnd, 1, 33, NULL);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);

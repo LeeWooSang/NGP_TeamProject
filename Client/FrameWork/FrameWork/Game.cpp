@@ -166,6 +166,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 			LeaveCriticalSection(&cs);
 			pCSRun.player = pSCInit.player;
 			gameState = TYPE_RUN;
+			sent = true;
 		}
 		break;
 	case TYPE_RUN:
