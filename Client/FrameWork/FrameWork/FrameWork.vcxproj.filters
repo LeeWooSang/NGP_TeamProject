@@ -46,9 +46,6 @@
     <ClCompile Include="WinMain.cpp">
       <Filter>Project\FrameWork\WinMain</Filter>
     </ClCompile>
-    <ClCompile Include="FWMain.cpp">
-      <Filter>Project\FrameWork\FWMain</Filter>
-    </ClCompile>
     <ClCompile Include="FWWindows.cpp">
       <Filter>Project\FrameWork\FWMain\FWWindows</Filter>
     </ClCompile>
@@ -61,13 +58,16 @@
     <ClCompile Include="Menu.cpp">
       <Filter>Project\MyGame\Menu</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Project\MyGame\Game</Filter>
-    </ClCompile>
     <ClCompile Include="Collision.cpp">
       <Filter>Project\FrameWork\Collision</Filter>
     </ClCompile>
     <ClCompile Include="Hero.cpp">
+      <Filter>Project\MyGame\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="FWMain.cpp">
+      <Filter>Project\FrameWork\FWMain</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
       <Filter>Project\MyGame\Game</Filter>
     </ClCompile>
   </ItemGroup>

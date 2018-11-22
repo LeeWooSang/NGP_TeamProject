@@ -1,12 +1,20 @@
 #include "Game.h"
 
+byte gameState;
+Hero * pHero;
+Hero * eHero;
+SC_INIT pSCInit;
+SC_RUN pSCRun;
+SC_SKILL pSCSkill;
+SC_END pSCEnd;
+CS_RUN pCSRun;
+CRITICAL_SECTION cs;
+SOCKET sock;
+HANDLE hThread, hThread2;
 
 Game::Game()
 {
 	background = NULL;
-	//PlayerRightMove = false;
-	pHero = NULL;
-	eHero = NULL;
 }
 Game::~Game()
 {
@@ -72,7 +80,6 @@ void Game::Enter()
 	CreateThread(NULL, 0, ClientThread, NULL, 0, NULL);
 	//BulletIndex = pSprite->getIndex() + 1;
 
-	packetSize = 0;
 	memset(&pSCInit, 0, sizeof(SC_INIT));
 	memset(&pSCRun, 0, sizeof(SC_RUN));
 	memset(&pCSRun, 0, sizeof(CS_RUN));
@@ -85,8 +92,7 @@ void Game::Enter()
 	{
 		cout << "윈속 초기화 실패\n";
 	}
-
-	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == INVALID_SOCKET)
 		err_quit("socket( )");
 
@@ -99,9 +105,26 @@ void Game::Enter()
 	retval = connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR)
 		err_quit("connect( )");
+}
 
-	CreateThread(NULL, 0, ClientThread, (LPVOID)pHero->sock, 0, NULL);
-	CreateThread(NULL, 0, RecvThread, (LPVOID)pHero->sock, 0, NULL);
+void Game::Update()
+{
+	hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)sock, 0, NULL);
+	if (hThread == NULL)
+		closesocket(sock);
+	else
+		CloseHandle(hThread);
+
+	hThread2 = CreateThread(NULL, 0, RecvThread, (LPVOID)sock, 0, NULL);
+	if (hThread2 == NULL)
+		closesocket(sock);
+	else
+		CloseHandle(hThread2);
+	/*if (pHero)
+	pHero->setLocation(pSCRun.pos[0].X, pSCRun.pos[0].Y);
+	if (eHero)
+	eHero->setLocation(pSCRun.pos[1].X, pSCRun.pos[1].Y);*/
+
 }
 
 void Game::Destroy()
@@ -118,87 +141,117 @@ void Game::Destroy()
 	}
 	SAFE_DELETE(background);
 	DeleteCriticalSection(&cs);
+	WSACleanup();
 }
 
 DWORD WINAPI Game::ClientThread(LPVOID sock)
 {
 	int retval = 0;
-
-	while (true)
+	SOCKET client_socket = (SOCKET)sock;
+	int packetSize = 0;
+	
+	if (pCSRun.key != KEY_IDLE)
 	{
-		if (pCSRun.key != KEY_IDLE)
+		retval = send(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
+		if (retval == SOCKET_ERROR)
 		{
-			retval = send((SOCKET)sock, (char*)&pCSRun, sizeof(CS_RUN), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("send( )");
-				return 0;
-			}
+			err_display("send( )");
+			return 0;
+		}
+		retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("send( )");
+			return 0;
 		}
 	}
+	
 }
 
 DWORD WINAPI Game::RecvThread(LPVOID sock)
 {
 	int retval = 0;
-
-	while (true)
+	SOCKET client_socket = (SOCKET)sock;
+	size_t packetSize = -1;
+	
+	switch (gameState)
 	{
-		switch (gameState)
+	case TYPE_INIT:
+		// 고정길이 : 패킷크기 받기
+		packetSize = sizeof(SC_INIT);
+		retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
+		if (retval == SOCKET_ERROR)
 		{
-		case TYPE_INIT:
+			err_display("recvn( )");
+			return 0;
+		}
+		cout << "고정길이 받음 "<<packetSize<<"\n";
+		
+		//memset(&client_socket, 0, sizeof(client_socket));
+		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("recvn( )");
+			return 0;
+		}
+		cout << "가변길이 받음\n";
+		cout << "isStart : " << pSCInit.isStart << "\nplayer : " << (int)pSCInit.player << "\ntype : " << (int)pSCInit.type << "\n";
 
-			retval = recvn((SOCKET)sock, (char*)&pSCInit, sizeof(pSCInit), 0);
-			if (retval == SOCKET_ERROR)
+		if (pSCInit.type == TYPE_INIT)
+		{
+			if (pSCInit.isStart == true)
 			{
-				err_display("recvn( )");
-				return 0;
-			}
-
-			if (pSCInit.type == TYPE_INIT)
-			{
-				if (pSCInit.isStart == true)
-				{
-					cout << "상대방과 연결 성공!\n";
-					gameState = TYPE_RUN;
-					break;
-				}
-				else
-				{
-					cout << "상대 기다리는 중!\n";
-					break;
-				}
-				pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다. 
-				pCSRun.player = pSCInit.player;
-			}
-			break;
-		case TYPE_RUN:
-			retval = recvn((SOCKET)sock, (char*)&pSCRun, sizeof(SC_RUN), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("recv()");
+				cout << "상대방과 연결 성공!\n";
+				gameState = TYPE_RUN;
 				break;
-			}
-
-			EnterCriticalSection(&cs);
-			if (pHero->player == PLAYER1)
-			{
-				pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
-				pHero->setHP(pSCRun.hp[PLAYER1]);
-				eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
-				eHero->setHP(pSCRun.hp[PLAYER2]);
 			}
 			else
 			{
-				pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
-				pHero->setHP(pSCRun.hp[PLAYER2]);
-				eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
-				eHero->setHP(pSCRun.hp[PLAYER1]);
+				cout << "상대 기다리는 중!\n";
+				pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다. 
+				pCSRun.player = pSCInit.player;
+				if (pHero->player == PLAYER1)
+					eHero->player = PLAYER2;
+				else
+					eHero->player = PLAYER1;
+				break;
 			}
-			LeaveCriticalSection(&cs);
+		}
+		
+		break;
+	case TYPE_RUN:
+		retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("recvn( )");
+			return 0;
+		}
+		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("recv()");
 			break;
 		}
+
+		EnterCriticalSection(&cs);
+		if (pHero->player == PLAYER1)
+		{
+			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
+			pHero->setHP(pSCRun.hp[PLAYER1]);
+			eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
+			eHero->setHP(pSCRun.hp[PLAYER2]);
+		}
+		else
+		{
+			pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
+			pHero->setHP(pSCRun.hp[PLAYER2]);
+			eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
+			eHero->setHP(pSCRun.hp[PLAYER1]);
+		}
+		LeaveCriticalSection(&cs);
+		break;
 	}
+	
 }
 
 void Game::Render(HDC* cDC)
@@ -239,6 +292,9 @@ void Game::KeyboardInput(int iMessage, int wParam)
 		case VK_SPACE:
 			pCSRun.key = KEY_SPACE;
 			break;
+		case VK_ESCAPE:
+			PostQuitMessage(0);
+			break;
 		}
 	}
 	if (iMessage == WM_KEYUP)
@@ -266,15 +322,6 @@ void Game::KeyboardCharInput(int wParam)
 		PostQuitMessage(0);
 		break;
 	}
-}
-
-void Game::Update()
-{
-	/*if (pHero)
-		pHero->setLocation(pSCRun.pos[0].X, pSCRun.pos[0].Y);
-	if (eHero)
-		eHero->setLocation(pSCRun.pos[1].X, pSCRun.pos[1].Y);*/
-
 }
 
 void Game::err_quit(const char *msg)

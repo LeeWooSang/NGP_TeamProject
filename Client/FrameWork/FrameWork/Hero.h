@@ -30,7 +30,6 @@ private:
 
 public:
 	byte player;
-	SOCKET sock;
 
 public:
 	Hero();

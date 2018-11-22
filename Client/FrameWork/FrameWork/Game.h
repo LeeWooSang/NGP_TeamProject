@@ -1,14 +1,14 @@
 #pragma once
 #include "Scene.h"
 #include "Sprite.h"
-#include "MyInclude.h"
 #include "Hero.h"
 
 // PACKET_TYPE
-#define TYPE_INIT 100
-#define TYPE_RUN 101
-#define TYPE_SKILL 102
-#define TYPE_END 103
+#define TYPE_INIT 0
+#define TYPE_START 1
+#define TYPE_RUN 2
+#define TYPE_SKILL 3
+#define TYPE_END 4
 
 // 플레이어 구분용
 #define PLAYER1 0
@@ -73,17 +73,16 @@ class Game : public Scene
 {
 private:
 	Sprite * background;
-	static size_t packetSize;
-	static byte gameState;
-	static class Hero * pHero;
-	static class Hero * eHero;
-	static struct SC_INIT pSCInit;
-	static struct SC_RUN pSCRun;
-	static struct SC_SKILL pSCSkill;
-	static struct SC_END pSCEnd;
-	static struct CS_RUN pCSRun;
+	/*static byte gameState;
+	static Hero * pHero;
+	static Hero * eHero;
+	static SC_INIT pSCInit;
+	static SC_RUN pSCRun;
+	static SC_SKILL pSCSkill;
+	static SC_END pSCEnd;
+	static CS_RUN pCSRun;
 
-	static CRITICAL_SECTION cs;
+	static CRITICAL_SECTION cs;*/
 	//bool PlayerRightMove;
 public:
 	Game();
@@ -96,12 +95,7 @@ public:
 	void Enter();
 	void Destroy();
 	void Update();
-<<<<<<< HEAD
 public:
-	static DWORD WINAPI ClientThread(LPVOID socket);
-	static DWORD WINAPI RecvThread(LPVOID socket);
-=======
-
 	static DWORD WINAPI ClientThread(LPVOID sock);
 	static DWORD WINAPI RecvThread(LPVOID sock);
 
@@ -110,5 +104,7 @@ public:
 	
 	static void err_quit(const char *msg);
 	static void err_display(const char *msg);
->>>>>>> YUM
 };
+
+
+

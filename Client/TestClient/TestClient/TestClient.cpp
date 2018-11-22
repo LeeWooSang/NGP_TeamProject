@@ -64,6 +64,7 @@ int main()
 				err_display("recvn( )");
 				return 0;
 			}
+			cout << "고정길이 받음\n";
 			// 가변길이 받기
 			retval = recvn(sock, (char*)&sc_initPacket, sizeof(sc_initPacket), 0);
 			if (retval == SOCKET_ERROR)
@@ -71,7 +72,9 @@ int main()
 				err_display("recvn( )");
 				return 0;
 			}
+			cout << "가변길이 받음\n";
 
+			cout << "isStart : " << sc_initPacket.isStart << "\nplayer : " << (int)sc_initPacket.player << "\ntype : " << (int)sc_initPacket.type << "\n";
 			if (sc_initPacket.type == TYPE_INIT)
 			{
 				if (sc_initPacket.isStart == true)
@@ -114,7 +117,6 @@ int main()
 				err_display("recv()");
 				break;
 			}
-
 			//cs_runPacket에 player정보는 sc_initPacket에서 서버에서 받은 플레이어 번호를 그대로 대입
 			cs_runPacket.player = sc_initPacket.player;
 

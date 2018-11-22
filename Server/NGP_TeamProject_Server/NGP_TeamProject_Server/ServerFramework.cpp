@@ -402,7 +402,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				}
 				// 모든 플레이어에게 SC_INIT 가변길이 전송
 				retval = send(vec_client_info[i].client_socket, (char*)&sc_initPacket[i], sizeof(sc_initPacket[i]), 0);
-				if (retval == SOCKET_ERROR)
+ 				if (retval == SOCKET_ERROR)
 				{
 					err_display("send( )");
 					return;
