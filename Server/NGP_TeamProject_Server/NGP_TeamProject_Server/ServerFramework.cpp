@@ -214,6 +214,31 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 	SOCKET client_socket = (SOCKET)socket;
 	if(p == nullptr)
 		p = new CServerFramework;
+
+	if (p->gameState == TYPE_START)
+	{
+		int retval = 0;
+		CS_INIT cs_initPacket;
+		bool player1ready = false;
+		bool player2ready = false;
+
+		retval = recvn(client_socket, (char*)&cs_initPacket, sizeof(cs_initPacket), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("recvn( )");
+			return 0;
+		}
+		if (cs_initPacket.player == PLAYER_1 || cs_initPacket.isReady)
+			player1ready = true;
+		if (cs_initPacket.player == PLAYER_2 || cs_initPacket.isReady)
+			player2ready = true;
+
+		if (player1ready || player2ready)
+		{
+			cout << "Ready!\n";
+			p->gameState = TYPE_RUN;
+		}
+	}
 	
 	while (true)
 	{
@@ -237,7 +262,7 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 {
 	int retval = 0;
 	size_t packetSize = 0;
-
+	
 	switch (p->gameState)
 	{
 	case TYPE_RUN:
@@ -376,8 +401,6 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			sc_initPacket.player = vec_client_info[PLAYER_1].player;
 			sc_initPacket.isStart = false;
 
-		
-
 			// PLAYER_1에게 SC_INIT 고정길이 전송
 			retval = send(vec_client_info[PLAYER_1].client_socket, (char*)&sc_initPacket, sizeof(sc_initPacket), 0);
 			if (retval == SOCKET_ERROR)
@@ -397,8 +420,6 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				sc_initPacket[i].player = vec_client_info[i].player;
 				sc_initPacket[i].isStart = true;
 
-
-
 				// 모든 플레이어에게 SC_INIT 고정길이 전송
 				retval = send(vec_client_info[i].client_socket, (char*)&sc_initPacket[i], sizeof(sc_initPacket[i]), 0);
 				if (retval == SOCKET_ERROR)
@@ -407,7 +428,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 					return;
 				}
 			}
-			p->gameState = TYPE_RUN;
+			p->gameState = TYPE_START;
 		}
 		break;
 
@@ -430,8 +451,6 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 		packetSize = sizeof(SC_RUN);
 		for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
 		{
-
-
 			// 플레이어1, 2에게 SC_RUN 고정길이 전송
 			retval = send((*iter).client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
 			if (retval == SOCKET_ERROR)

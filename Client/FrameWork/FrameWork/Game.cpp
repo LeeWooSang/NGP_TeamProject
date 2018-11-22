@@ -4,6 +4,7 @@ byte gameState;
 Hero * pHero;
 Hero * eHero;
 SC_INIT pSCInit;
+CS_INIT pCSInit;
 SC_RUN pSCRun;
 SC_SKILL pSCSkill;
 SC_END pSCEnd;
@@ -148,84 +149,81 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 {
 	int retval = 0;
 	SOCKET client_socket = (SOCKET)sock;
-	int packetSize = 0;
-	
-	if (pCSRun.key != KEY_IDLE)
+	switch (gameState)
 	{
-		retval = send(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
-		if (retval == SOCKET_ERROR)
+	case TYPE_START:
+		if (pCSInit.isReady)
 		{
-			err_display("send( )");
-			return 0;
+			retval = send((SOCKET)client_socket, (char*)&pCSInit, sizeof(CS_INIT), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("send( )");
+				return 0;
+			}
+			EnterCriticalSection(&cs);
+			cout << "player" << (int)pCSInit.player << " is Ready\n";
+			LeaveCriticalSection(&cs);
+			pCSRun.player = pSCInit.player;
+			gameState = TYPE_RUN;
 		}
-		retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
-		if (retval == SOCKET_ERROR)
+		break;
+	case TYPE_RUN:
+		if (pCSRun.key != KEY_IDLE)
 		{
-			err_display("send( )");
-			return 0;
+			retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("send( )");
+				return 0;
+			}
 		}
+		break;
 	}
-	
 }
 
 DWORD WINAPI Game::RecvThread(LPVOID sock)
 {
 	int retval = 0;
 	SOCKET client_socket = (SOCKET)sock;
-	size_t packetSize = -1;
 	
 	switch (gameState)
 	{
 	case TYPE_INIT:
-		// 고정길이 : 패킷크기 받기
-		packetSize = sizeof(SC_INIT);
-		retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("recvn( )");
-			return 0;
-		}
-		cout << "고정길이 받음 "<<packetSize<<"\n";
-		
-		//memset(&client_socket, 0, sizeof(client_socket));
+		// 고정길이 : 패킷 받기
 		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recvn( )");
 			return 0;
 		}
-		cout << "가변길이 받음\n";
-		cout << "isStart : " << pSCInit.isStart << "\nplayer : " << (int)pSCInit.player << "\ntype : " << (int)pSCInit.type << "\n";
-
+		//cout << "isStart : " << pSCInit.isStart << "\nplayer : " << (int)pSCInit.player << "\ntype : " << (int)pSCInit.type << "\n";
+		pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다. 
+		if (pHero->player == PLAYER1)
+			eHero->player = PLAYER2;
+		else
+			eHero->player = PLAYER1;
 		if (pSCInit.type == TYPE_INIT)
 		{
-			if (pSCInit.isStart == true)
+			if (pSCInit.isStart)
 			{
 				cout << "상대방과 연결 성공!\n";
-				gameState = TYPE_RUN;
+
+				pCSInit.player = pHero->player;
+				pCSInit.type = 0;
+				pCSInit.isReady = true;
+				gameState = TYPE_START;
 				break;
 			}
 			else
 			{
 				cout << "상대 기다리는 중!\n";
-				pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다. 
-				pCSRun.player = pSCInit.player;
-				if (pHero->player == PLAYER1)
-					eHero->player = PLAYER2;
-				else
-					eHero->player = PLAYER1;
+				
 				break;
 			}
 		}
 		
 		break;
 	case TYPE_RUN:
-		retval = recvn(client_socket, (char*)&packetSize, sizeof(packetSize), 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("recvn( )");
-			return 0;
-		}
 		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
 		if (retval == SOCKET_ERROR)
 		{
