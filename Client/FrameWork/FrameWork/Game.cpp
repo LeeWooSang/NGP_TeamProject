@@ -1,5 +1,4 @@
 #include "Game.h"
-
 byte gameState;
 Hero * pHero;
 Hero * eHero;
@@ -235,6 +234,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 
 		EnterCriticalSection(&cs);
+		cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
+		cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;
 		if (pHero->player == PLAYER1)
 		{
 			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);

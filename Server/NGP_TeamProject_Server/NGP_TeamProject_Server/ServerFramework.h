@@ -30,7 +30,7 @@ public:
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
 	static DWORD WINAPI SendThread(LPVOID);
-	void SendFirstPosition(SOCKET&);
+	//void SendFirstPosition(SOCKET&);
 	void SendPacket(SOCKET&);
 	double GetElapsedTime();
 	void Update(float/*, byte&*/);
@@ -64,5 +64,7 @@ private:
 	
 	static CServerFramework* p;
 	bool check = false;
+
+	bool playerReady[2] = { false, false };
 };
 

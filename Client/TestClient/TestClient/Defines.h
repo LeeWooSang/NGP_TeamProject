@@ -9,8 +9,8 @@
 
 using namespace std;
 
-#define SERVERIP "127.0.0.1"
-//#define SERVERIP "192.168.205.56"
+//#define SERVERIP "127.0.0.1"
+#define SERVERIP "192.168.205.56"
 #define SERVERPORT 9000
 
 // 서버-클라간에 약속된 매크로
