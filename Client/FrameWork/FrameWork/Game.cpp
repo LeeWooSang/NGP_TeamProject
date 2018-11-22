@@ -1,5 +1,4 @@
 #include "Game.h"
-
 byte gameState;
 Hero * pHero;
 Hero * eHero;
@@ -149,10 +148,12 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 {
 	int retval = 0;
 	SOCKET client_socket = (SOCKET)sock;
+	bool sent = false;
+
 	switch (gameState)
 	{
 	case TYPE_START:
-		if (pCSInit.isReady)
+		if (pCSInit.isReady || !sent)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSInit, sizeof(CS_INIT), 0);
 			if (retval == SOCKET_ERROR)
@@ -232,6 +233,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 
 		EnterCriticalSection(&cs);
+		cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
+		cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;
 		if (pHero->player == PLAYER1)
 		{
 			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
