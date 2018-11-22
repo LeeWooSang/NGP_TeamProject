@@ -29,7 +29,7 @@ int main()
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
 	serveraddr.sin_port = ntohs(SERVERPORT);
-	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
+	//setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 	retval = connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR)
 	{
@@ -56,25 +56,15 @@ int main()
 		{
 			// Init 상태
 		case TYPE_INIT:
+
 			// 고정길이 받기
-			packetSize = sizeof(SC_INIT);
-			retval = recvn(sock, (char*)&packetSize, sizeof(packetSize), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("recvn( )");
-				return 0;
-			}
-			cout << "고정길이 받음\n";
-			// 가변길이 받기
 			retval = recvn(sock, (char*)&sc_initPacket, sizeof(sc_initPacket), 0);
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("recvn( )");
 				return 0;
 			}
-			cout << "가변길이 받음\n";
 
-			cout << "isStart : " << sc_initPacket.isStart << "\nplayer : " << (int)sc_initPacket.player << "\ntype : " << (int)sc_initPacket.type << "\n";
 			if (sc_initPacket.type == TYPE_INIT)
 			{
 				if (sc_initPacket.isStart == true)
@@ -99,24 +89,15 @@ int main()
 
 			//Run 상태
 		case TYPE_RUN:
-			packetSize = sizeof(SC_RUN);
-			//cout << "초기 위치 서버에서 받아야 합니다" << endl;
-			// 서버에서 초기 플레이어 위치 받기
 
-			retval = recvn(sock, (char*)&packetSize, sizeof(packetSize), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("recv()");
-				break;
-			}
-			//cout << "초기위치 받기를 기다리는중(고정 크기)" << endl;
-			// 가변 길이
+			// 고정 길이
 			retval = recvn(sock, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("recv()");
 				break;
 			}
+
 			//cs_runPacket에 player정보는 sc_initPacket에서 서버에서 받은 플레이어 번호를 그대로 대입
 			cs_runPacket.player = sc_initPacket.player;
 
@@ -125,17 +106,8 @@ int main()
 				//키 입력이 있을경우에만 전송하게 구현하기위해 
 				if (cs_runPacket.key != KEY_IDLE)
 				{
-					// 고정길이 : 패킷 크기 전송
-					packetSize = sizeof(cs_runPacket);
-					retval = send(sock, (char*)&packetSize, sizeof(packetSize), 0);
-					if (retval == SOCKET_ERROR)
-					{
-						err_display("send( )");
-						return 0;
-					}
-					//cout << "패킷 크기(고정길이) 전송 - " << retval << "Byte" << endl;
 
-					// 가변길이 : 실제 패킷 전송
+					// 고정길이 : 실제 패킷 전송
 					retval = send(sock, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
 					if (retval == SOCKET_ERROR)
 					{

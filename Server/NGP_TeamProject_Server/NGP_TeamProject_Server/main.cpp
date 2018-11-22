@@ -7,6 +7,7 @@ int main()
 	Server = new CServerFramework;
 	if (Server == nullptr)
 		return 0;
+	
 
 	//DWORD WINAPI ServerThread()
 	Server->AcceptClient();

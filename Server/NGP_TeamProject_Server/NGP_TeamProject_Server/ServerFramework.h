@@ -1,17 +1,17 @@
 #pragma once
 #include "Defines.h"
 
-
-DWORD WINAPI RecvThread(LPVOID);
-
+//DWORD WINAPI RecvThread(LPVOID);
 
 struct Client_Info
 {
-	Client_Info(SOCKET socket, byte num, COORD p) : client_socket(socket), player(num), pos(p)  {}
+	Client_Info(SOCKET socket, byte num, COORD p, bool skill) : client_socket(socket), player(num), pos(p), onSkill(skill) {}
 
-	SOCKET client_socket;
-	byte player;
-	COORD pos;
+	SOCKET	client_socket;
+	byte			player;
+	COORD	pos;
+	bool			onSkill;
+	COORD	skillPos;
 };
 
 class CServerFramework
@@ -32,8 +32,8 @@ public:
 	static DWORD WINAPI SendThread(LPVOID);
 	void SendFirstPosition(SOCKET&);
 	void SendPacket(SOCKET&);
-	
-	void Update(float);
+	double GetElapsedTime();
+	void Update(float/*, byte&*/);
 
 	void Destroy();
 
