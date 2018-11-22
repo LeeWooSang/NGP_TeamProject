@@ -37,6 +37,13 @@ struct SC_INIT
 	byte        player;
 };
 
+struct CS_INIT
+{
+	byte        type;
+	bool        isReady;
+	byte        player;
+};
+
 struct SC_RUN
 {
 	byte        type;

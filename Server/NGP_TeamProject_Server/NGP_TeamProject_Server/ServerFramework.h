@@ -22,7 +22,7 @@ public:
 
 	static void err_quit(const char*);
 	static void err_display(const char*);
-	int recvn(SOCKET, char*, int, int);
+	static int recvn(SOCKET, char*, int, int);
 
 	void AcceptClient();
 	
