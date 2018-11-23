@@ -187,15 +187,18 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 {
 	int retval = 0;
 	SOCKET client_socket = (SOCKET)sock;
-	
+	int optval = 1;
 	switch (gameState)
 	{
 	case TYPE_INIT:
 		// 고정길이 : 패킷 받기
+		optval = 100;			//대기 시간 0.1초 -by 명진
+		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
 		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
 		if (retval == SOCKET_ERROR)
 		{
-			err_display("recvn( )");
+			//err_display("recvn( )");
 			return 0;
 		}
 		//cout << "isStart : " << pSCInit.isStart << "\nplayer : " << (int)pSCInit.player << "\ntype : " << (int)pSCInit.type << "\n";
@@ -226,6 +229,12 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		
 		break;
 	case TYPE_RUN:
+		optval = INFINITY;		//대기 소켓으로 변경	-by 명진
+		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		if (retval == SOCKET_ERROR)
+		{
+			err_quit("setsockopt()");
+		}
 		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
 		if (retval == SOCKET_ERROR)
 		{
@@ -234,8 +243,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 
 		EnterCriticalSection(&cs);
-		/*cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
-		cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;*/
+		cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
+		cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;
 		if (pHero->player == PLAYER1)
 		{
 			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
@@ -250,9 +259,9 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 			eHero->setHP(pSCRun.hp[PLAYER1]);
 		}
-		cout << "PLAYER1 : " << pHero->getX() << ", " << pHero->getY() << std::endl;
-		cout << "PLAYER2 : " << eHero->getX() << ", " << eHero->getY() << std::endl;
 		LeaveCriticalSection(&cs);
+
+
 
 		break;
 	}

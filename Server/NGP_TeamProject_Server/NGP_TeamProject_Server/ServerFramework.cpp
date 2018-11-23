@@ -217,33 +217,9 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 	
 	while (true)
 	{
-		if (p->check == true)
-		{
-			//if (p->gameState == TYPE_START)
-			//{
-			//	int retval = 0;
-			//	CS_INIT cs_initPacket;
-			//	bool player1ready = false;
-			//	bool player2ready = false;
-
-			//	retval = recvn(client_socket, (char*)&cs_initPacket, sizeof(cs_initPacket), 0);
-			//	if (retval == SOCKET_ERROR)
-			//	{
-			//		err_display("recvn( )");
-			//		return 0;
-			//	}
-			//	if (cs_initPacket.player == PLAYER_1 || cs_initPacket.isReady)
-			//		player1ready = true;
-			//	if (cs_initPacket.player == PLAYER_2 || cs_initPacket.isReady)
-			//		player2ready = true;
-
-			//	if (player1ready || player2ready)
-			//	{
-			//		cout << "Ready!\n";
-			//		p->gameState = TYPE_RUN;
-			//	}
-			//}
-
+		//if (p->check == true)
+		//{
+			
 			if (p->gameState == TYPE_RUN || p->gameState == TYPE_START)
 			{
 				if ((SOCKET)socket == vec_client_info[PLAYER_1].client_socket)
@@ -251,7 +227,7 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 				else if ((SOCKET)socket == vec_client_info[PLAYER_2].client_socket)
 					p->TestRecv(vec_client_info[PLAYER_2].client_socket);
 			}
-		}
+		//}
 	}
 
 	return 0;
@@ -354,62 +330,20 @@ DWORD WINAPI CServerFramework::SendThread(LPVOID socket)
 
 		fElapsedTime = double(end - begin) / CLOCKS_PER_SEC;
 	}
-//	timeEndPeriod(1);
+
 	return 0;
 }
 
-//void CServerFramework::SendFirstPosition(SOCKET& client_socket)
-//{
-//	int retval = 0;
-//	size_t packetSize = 0;
-//	SC_RUN sc_runPacket;
-//	CS_RUN cs_runPacket;
-//	sc_runPacket.type = TYPE_RUN;
-//	if (vec_client_info.size() == 1)
-//	{
-//		sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
-//		cout << "PLAYER_1 - X : " << sc_runPacket.pos[PLAYER_1].X << ", Y : " << sc_runPacket.pos[PLAYER_1].Y << endl;
-//	}
-//
-//	else if (vec_client_info.size() >= 2) 
-//	{
-//		if (gameState == TYPE_RUN)
-//		{
-//			cout << "여기" << endl;
-//			SC_RUN sc_runPacket;
-//			memset(&sc_runPacket, 0, sizeof(sc_runPacket));
-//			sc_runPacket.pos[0].X = 0;
-//			sc_runPacket.pos[0].Y = 0;
-//
-//			sc_runPacket.pos[1].X = 800;
-//			sc_runPacket.pos[1].Y = 0;
-//			packetSize = sizeof(SC_RUN);
-//		
-//
-//
-//			for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter) {
-//
-//				// 플레이어1, 2에게 SC_RUN 고정길이 전송
-//				retval = send(iter->client_socket/*client_socket*/, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
-//				if (retval == SOCKET_ERROR)
-//				{
-//
-//					err_display("send( )");
-//					return;
-//				}
-//			}
-//		}
-//	}
-//
-//}
 
 
 void CServerFramework::SendPacket(SOCKET& client_socket)
 {
 	int retval = 0;
+	size_t packetSize = 0;
 	switch (p->gameState)
 	{
 	case TYPE_INIT:
+		packetSize = sizeof(SC_INIT);
 		// 클라이언트 주소정보, 무슨 플레이어인지 벡터에 저장한다.
 		if (vec_client_info.size() == 1)
 		{
@@ -448,7 +382,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			}
 			p->gameState = TYPE_START;
 
-			p->check = true;
+			//p->check = true;
 		}
 		break;
 
@@ -456,37 +390,34 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 		SC_RUN sc_runPacket;
 
 		sc_runPacket.type = TYPE_RUN;
-		//if (vec_client_info.size() == 1)
-		//{
-		//	sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
-		//	cout << sc_runPacket.pos[PLAYER_1].X << sc_runPacket.pos[PLAYER_1].Y << endl;
-		//}
-		
-		EnterCriticalSection(&cs);
-		sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
-		sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
-		LeaveCriticalSection(&cs);
 
-		for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
+		if (vec_client_info.size() == 2)
 		{
-			// 플레이어1, 2에게 SC_RUN 고정길이 전송
-			retval = send((*iter).client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
-			if (retval == SOCKET_ERROR)
+			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
+			sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
+
+			packetSize = sizeof(SC_RUN);
+			for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
 			{
-				err_display("send( )");
-				return;
+				// 플레이어1, 2에게 SC_RUN 고정길이 전송
+				retval = send((*iter).client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("sned( )");
+					return;
+				}
+				cout << "플레이어1 : " << sc_runPacket.pos[PLAYER_1].X << ", " << sc_runPacket.pos[PLAYER_1].Y 
+					<< "플레이어2 : " << sc_runPacket.pos[PLAYER_2].X << ", " << sc_runPacket.pos[PLAYER_2].Y << endl;
+
 			}
 		}
-		cout << "플레이어1 : " << sc_runPacket.pos[PLAYER_1].X << ", " << sc_runPacket.pos[PLAYER_1].Y
-			<< "플레이어2 : " << sc_runPacket.pos[PLAYER_2].X << ", " << sc_runPacket.pos[PLAYER_2].Y << endl;
 		break;
 	}
 }
 
 void CServerFramework::Update(float elapsedTime/*, byte& player*/)
 {
-	//vec_client_info[player].skillPos.X += 10 * elapsedTime;
-	//cout << elapsedTime << endl;
+
 	for (int i = 0; i < 2; i++) {
 		if (vec_client_info[i].pos.Y > 0.0f)
 		{

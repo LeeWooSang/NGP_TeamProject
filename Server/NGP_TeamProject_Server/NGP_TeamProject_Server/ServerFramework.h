@@ -30,10 +30,9 @@ public:
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
 	static DWORD WINAPI SendThread(LPVOID);
-	//void SendFirstPosition(SOCKET&);
+	
 	void SendPacket(SOCKET&);
-	double GetElapsedTime();
-	void Update(float/*, byte&*/);
+	void Update(float);
 
 	void Destroy();
 

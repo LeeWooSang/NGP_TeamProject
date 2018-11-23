@@ -101,6 +101,7 @@ void Menu::KeyboardInput(int iMessage, int wParam)
 		switch (wParam)
 		{
 		case VK_RIGHT:
+
 			printf("¾÷´Ù¿î %d\n", wParam);
 			break;
 		case VK_LEFT:
