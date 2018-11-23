@@ -403,11 +403,11 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				retval = send((*iter).client_socket, (char*)&sc_runPacket, sizeof(sc_runPacket), 0);
 				if (retval == SOCKET_ERROR)
 				{
-					err_display("sned( )");
+					err_display("send( )");
 					return;
 				}
-				cout << "플레이어1 : " << sc_runPacket.pos[PLAYER_1].X << ", " << sc_runPacket.pos[PLAYER_1].Y 
-					<< "플레이어2 : " << sc_runPacket.pos[PLAYER_2].X << ", " << sc_runPacket.pos[PLAYER_2].Y << endl;
+				//cout << "플레이어1 : " << sc_runPacket.pos[PLAYER_1].X << ", " << sc_runPacket.pos[PLAYER_1].Y 
+				//	<< "플레이어2 : " << sc_runPacket.pos[PLAYER_2].X << ", " << sc_runPacket.pos[PLAYER_2].Y << endl;
 
 			}
 		}

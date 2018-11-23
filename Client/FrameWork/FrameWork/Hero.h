@@ -37,7 +37,7 @@ public:
 	~Hero();
 
 	void Render(HDC* cDC);
-	void Enter();
+	void Enter(int p);
 	void Destroy();
 	void Update();
 

@@ -70,12 +70,12 @@ void Game::Enter()
 	if (pHero == NULL)
 	{
 		pHero = new Hero(50, 50, IDLE, 1);
-		pHero->Enter();
+		pHero->Enter(PLAYER1);
 	}
 	if (eHero == NULL)
 	{
 		eHero = new Hero(250, 50, IDLE, 2);
-		eHero->Enter();
+		eHero->Enter(PLAYER2);
 	}
 	CreateThread(NULL, 0, ClientThread, NULL, 0, NULL);
 	//BulletIndex = pSprite->getIndex() + 1;
@@ -120,6 +120,7 @@ void Game::Update()
 		closesocket(sock);
 	else
 		CloseHandle(hThread2);
+	
 	/*if (pHero)
 	pHero->setLocation(pSCRun.pos[0].X, pSCRun.pos[0].Y);
 	if (eHero)
@@ -161,9 +162,6 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				err_display("send( )");
 				return 0;
 			}
-			EnterCriticalSection(&cs);
-			cout << "player" << (int)pCSInit.player << " is Ready\n";
-			LeaveCriticalSection(&cs);
 			pCSRun.player = pSCInit.player;
 			gameState = TYPE_RUN;
 			sent = true;
@@ -222,7 +220,6 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			else
 			{
 				cout << "상대 기다리는 중!\n";
-				
 				break;
 			}
 		}
@@ -243,8 +240,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 
 		EnterCriticalSection(&cs);
-		cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
-		cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;
+		//cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
+		//cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;
 		if (pHero->player == PLAYER1)
 		{
 			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
@@ -289,22 +286,30 @@ void Game::MouseInput(int iMessage, int x, int y)
 void Game::KeyboardInput(int iMessage, int wParam)
 {
 	//pCSRun.type = TYPE_RUN;
-
-	if (iMessage == WM_KEYDOWN && pCSRun.type == TYPE_RUN)
+	
+	if (iMessage == WM_KEYDOWN && gameState == TYPE_RUN)
 	{
 		switch (wParam)
 		{
 		case VK_RIGHT:
+			pCSRun.type = TYPE_RUN;
 			pCSRun.key = KEY_RIGHT;
+			cout << "RIGHT key down\n";
 			break;
 		case VK_LEFT:
+			pCSRun.type = TYPE_RUN;
 			pCSRun.key = KEY_LEFT;
+			cout << "LEFT key down\n";
 			break;
 		case VK_UP:
+			pCSRun.type = TYPE_RUN;
 			pCSRun.key = KEY_UP;
+			cout << "UP key down\n";
 			break;
 		case VK_SPACE:
+			pCSRun.type = TYPE_RUN;
 			pCSRun.key = KEY_SPACE;
+			cout << "SPACE key down\n";
 			break;
 		case VK_ESCAPE:
 			PostQuitMessage(0);
@@ -319,8 +324,12 @@ void Game::KeyboardInput(int iMessage, int wParam)
 		case VK_LEFT:
 		case VK_UP:
 		case VK_SPACE:
-			if (pCSRun.type == TYPE_RUN || pCSRun.type == TYPE_SKILL)
+			if (gameState == TYPE_RUN || pCSRun.type == TYPE_SKILL)
+			{
+				pCSRun.type = TYPE_RUN;
 				pCSRun.key = KEY_IDLE;
+			}
+			cout << "key UP\n";
 			break;
 		}
 	}
