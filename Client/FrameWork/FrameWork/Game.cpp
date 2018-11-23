@@ -234,8 +234,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 
 		EnterCriticalSection(&cs);
-		cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
-		cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;
+		/*cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
+		cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;*/
 		if (pHero->player == PLAYER1)
 		{
 			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
@@ -250,7 +250,10 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 			eHero->setHP(pSCRun.hp[PLAYER1]);
 		}
+		cout << "PLAYER1 : " << pHero->getX() << ", " << pHero->getY() << std::endl;
+		cout << "PLAYER2 : " << eHero->getX() << ", " << eHero->getY() << std::endl;
 		LeaveCriticalSection(&cs);
+
 		break;
 	}
 	
