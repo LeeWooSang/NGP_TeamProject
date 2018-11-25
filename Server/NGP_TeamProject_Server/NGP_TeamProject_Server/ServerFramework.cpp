@@ -12,6 +12,9 @@ queue<CS_RUN> CServerFramework::que_client_key;					//키보드 입력이 들어간다.
 
 CRITICAL_SECTION cs;
 
+DWORD CServerFramework::lastTime = timeGetTime();
+float CServerFramework::FPS = 0.033;
+
 CServerFramework::CServerFramework() : gameState(TYPE_INIT)
 {
 	InitializeCriticalSection(&cs);
@@ -37,7 +40,7 @@ void CServerFramework::err_quit(const char* msg)
 		NULL
 	);
 
-	MessageBox(NULL, (LPCTSTR)lpMsgBuf, msg, MB_ICONERROR);
+	MessageBox(NULL, (LPCTSTR)lpMsgBuf, (LPCWSTR)msg, MB_ICONERROR);
 	LocalFree(lpMsgBuf);
 	exit(1);
 }
@@ -88,10 +91,8 @@ int CServerFramework::recvn(SOCKET s, char* buf, int len, int flags)
 
 void CServerFramework::AcceptClient()
 {
-
 	InitializeCriticalSection(&cs);
 	int retval = 0;
-
 
 	// 윈속 초기화
 	WSADATA wsa;
@@ -304,10 +305,11 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 		vec_client_info[player].pos.Y += 200;			//
 		break;
 	case KEY_SPACE:
-		vec_client_info[player].onSkill = true;
+		for (int i = 0; i < 2; ++i)
+			vec_client_info[i].onSkill = true;
+		vec_client_info[player].skillPos = vec_client_info[player].pos;
 		cout << "Key - SPACE" << endl;
 		break;
-
 	}
 }
 
@@ -322,13 +324,19 @@ DWORD WINAPI CServerFramework::SendThread(LPVOID socket)
 	
 	while (vec_client_info.size() > 1)
 	{
-		clock_t begin = clock();
-		p->Update(fElapsedTime);
-		if ((SOCKET)socket == vec_client_info[PLAYER_2].client_socket)
-			p->SendPacket(vec_client_info[PLAYER_2].client_socket);
-		clock_t end = clock();
-
-		fElapsedTime = double(end - begin) / CLOCKS_PER_SEC;
+		//clock_t begin = clock();
+		float elapsedTime = (timeGetTime() - lastTime) * 0.001f;
+		// 30프레임
+		if (elapsedTime >= FPS)
+		{
+			//cout << elapsedTime << "프레임" << endl;
+			p->Update(fElapsedTime);
+			if ((SOCKET)socket == vec_client_info[PLAYER_2].client_socket)
+				p->SendPacket(vec_client_info[PLAYER_2].client_socket);
+			lastTime = timeGetTime();
+		}
+		//clock_t end = clock();
+		//fElapsedTime = double(end - begin) / CLOCKS_PER_SEC;
 	}
 
 	return 0;
@@ -393,8 +401,13 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 
 		if (vec_client_info.size() == 2)
 		{
-			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
-			sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
+			for (int i = 0; i < vec_client_info.size(); ++i)
+			{
+				sc_runPacket.pos[i] = vec_client_info[i].pos;
+				sc_runPacket.onSkill = vec_client_info[i].onSkill;
+			}			
+			//sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
+			//sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
 
 			packetSize = sizeof(SC_RUN);
 			for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
@@ -417,20 +430,22 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 
 void CServerFramework::Update(float elapsedTime/*, byte& player*/)
 {
-
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++) 
+	{
 		if (vec_client_info[i].pos.Y > 0.0f)
 		{
 			vec_client_info[i].pos.Y -= elapsedTime;
 		}
 	}
 	
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++)
+	{
 		if (vec_client_info[i].pos.Y < 0.0f)
 		{
 			vec_client_info[i].pos.Y = 0.0f;
 		}
 	}
+
 }
 
 void CServerFramework::Destroy()

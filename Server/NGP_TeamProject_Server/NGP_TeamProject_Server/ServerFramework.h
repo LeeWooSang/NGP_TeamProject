@@ -35,8 +35,6 @@ public:
 	void Update(float);
 
 	void Destroy();
-
-
 private:
 	const char* serverIP = "127.0.0.1";
 	const u_short	serverPort{ 9000 };
@@ -65,5 +63,8 @@ private:
 	bool check = false;
 
 	bool playerReady[2] = { false, false };
+
+	static DWORD lastTime;
+	static float FPS;
 };
 
