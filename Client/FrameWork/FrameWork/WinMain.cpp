@@ -83,8 +83,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 		EndPaint(hWnd, &ps);
 		break;
-	case WM_KEYDOWN:
-	case WM_KEYUP:
+	case WM_KEYDOWN:											//키 입력이나 스킬이 한번 눌리면 두번 발생하는 현상 발생중 - by 명진
+	case WM_KEYUP:												//(따로 처리해야 되지 않을까 싶음)
 		main->getScene()->KeyboardInput(iMessage, wParam);
 		InvalidateRect(hWnd, NULL, FALSE);
 		/*iMessage, wParam*/

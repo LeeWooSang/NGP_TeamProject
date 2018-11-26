@@ -109,7 +109,12 @@ void Menu::KeyboardInput(int iMessage, int wParam)
 			FWMain::getMain().Warp(1);
 
 			break;
+		//case VK_SPACE:
+		//	//printf("파이어볼");
+		//	break;
 		}
+		
+
 	}
 	
 }

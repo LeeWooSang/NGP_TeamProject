@@ -5,10 +5,8 @@ vector<Client_Info> CServerFramework::vec_client_info;
 HANDLE CServerFramework::sendThread[2];
 HANDLE CServerFramework::recieveThread[2];
 u_short CServerFramework::count = 0;
-HANDLE CServerFramework::readEvent;
-HANDLE CServerFramework::writeEvent;
 
-queue<CS_RUN> CServerFramework::que_client_key;					//키보드 입력이 들어간다.
+
 
 CRITICAL_SECTION cs;
 
@@ -18,10 +16,12 @@ float CServerFramework::FPS = 0.033;
 CServerFramework::CServerFramework() : gameState(TYPE_INIT)
 {
 	InitializeCriticalSection(&cs);
+	m_pSkillManager = new SkillManager();
 }
 
 CServerFramework::~CServerFramework()
 {
+	delete m_pSkillManager;
 	DeleteCriticalSection(&cs);
 	Destroy();
 }
@@ -40,7 +40,7 @@ void CServerFramework::err_quit(const char* msg)
 		NULL
 	);
 
-	MessageBox(NULL, (LPCTSTR)lpMsgBuf, (LPCWSTR)msg, MB_ICONERROR);
+	MessageBox(NULL, (LPCTSTR)lpMsgBuf, (LPCTSTR)msg, MB_ICONERROR);
 	LocalFree(lpMsgBuf);
 	exit(1);
 }
@@ -176,7 +176,6 @@ void CServerFramework::AcceptClient()
 			// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
 			vec_client_info[PLAYER_1].skillPos = vec_client_info[PLAYER_1].pos;
 
-			client_SockArray[PLAYER_1] = client_socket;
 
 		}
 		else if(vec_client_info.size() ==1 )
@@ -188,8 +187,6 @@ void CServerFramework::AcceptClient()
 			vec_client_info.emplace_back(client_socket, PLAYER_2, position, false);
 			// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
 			vec_client_info[PLAYER_2].skillPos = vec_client_info[PLAYER_2].pos;
-
-			client_SockArray[PLAYER_2] = client_socket;
 		}
 		
 		
@@ -307,8 +304,13 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 	case KEY_SPACE:
 		for (int i = 0; i < 2; ++i)
 			vec_client_info[i].onSkill = true;
-		vec_client_info[player].skillPos = vec_client_info[player].pos;
-		cout << "Key - SPACE" << endl;
+		m_pSkillManager->addSkill(player, vec_client_info[player].pos);
+
+		//vec_client_info[player].skillPos = vec_client_info[player].pos;
+		//cout << "파이어볼 발사" << "," << player << endl;
+
+
+		//cout << "Key - SPACE" << endl;
 		break;
 	}
 }
@@ -406,6 +408,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				sc_runPacket.pos[i] = vec_client_info[i].pos;
 				sc_runPacket.onSkill = vec_client_info[i].onSkill;
 			}			
+
 			//sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
 			//sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
 
@@ -428,22 +431,21 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 	}
 }
 
-void CServerFramework::Update(float elapsedTime/*, byte& player*/)
+void CServerFramework::Update(float elapsedTime)
 {
-	for (int i = 0; i < 2; i++) 
+
+	m_pSkillManager->update(elapsedTime,vec_client_info[PLAYER_1].pos,vec_client_info[PLAYER_2].pos);
+	for (int i = 0; i < vec_client_info.size(); i++) 
 	{
 		if (vec_client_info[i].pos.Y > 0.0f)
 		{
 			vec_client_info[i].pos.Y -= elapsedTime;
 		}
-	}
-	
-	for (int i = 0; i < 2; i++)
-	{
 		if (vec_client_info[i].pos.Y < 0.0f)
 		{
 			vec_client_info[i].pos.Y = 0.0f;
 		}
+
 	}
 
 }

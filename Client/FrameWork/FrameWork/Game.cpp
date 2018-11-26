@@ -77,7 +77,7 @@ void Game::Enter()
 		eHero = new Hero(250, 50, IDLE, 2);
 		eHero->Enter(PLAYER2);
 	}
-	CreateThread(NULL, 0, ClientThread, NULL, 0, NULL);
+	//CreateThread(NULL, 0, ClientThread, NULL, 0, NULL);			//필요없을거 같아서 일단 주석 -명진
 	//BulletIndex = pSprite->getIndex() + 1;
 
 	memset(&pSCInit, 0, sizeof(SC_INIT));
@@ -226,8 +226,12 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		
 		break;
 	case TYPE_RUN:
-		optval = INFINITY;		//대기 소켓으로 변경	-by 명진
+		optval = INFINITE;		//대기 소켓으로 변경	-by 명진
 		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		//bool nodelay = true;
+		//setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&nodelay, sizeof(nodelay));
+		
+		
 		if (retval == SOCKET_ERROR)
 		{
 			err_quit("setsockopt()");
@@ -239,7 +243,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			break;
 		}
 
-		EnterCriticalSection(&cs);
+		//EnterCriticalSection(&cs);
 		//cout << "PLAYER1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y << std::endl;
 		//cout << "PLAYER2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << std::endl;
 		if (pHero->player == PLAYER1)
@@ -256,7 +260,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 			eHero->setHP(pSCRun.hp[PLAYER1]);
 		}
-		LeaveCriticalSection(&cs);
+		//LeaveCriticalSection(&cs);
 
 
 
@@ -339,7 +343,7 @@ void Game::KeyboardCharInput(int wParam)
 	switch (wParam)
 	{
 	case VK_SPACE:
-		printf("%d, %d\n", pHero->getX(), pHero->getY());
+		//printf("%d, %d\n", pHero->getX(), pHero->getY());
 		break;
 	case VK_ESCAPE:
 		PostQuitMessage(0);

@@ -4,7 +4,7 @@
 #include <WinSock2.h>
 #include <Windows.h>
 #include <vector>
-#include <queue>
+#include <map>
 #include <ctime>
 
 using namespace std;
@@ -50,16 +50,17 @@ struct CS_RUN
 struct SC_RUN
 {
 	byte			type;
-	COORD	pos[2];
-	USHORT	hp[2];
+	COORD			pos[2];
+	USHORT			hp[2];
 	bool			onSkill;
 };
+
 
 struct SC_SKILL
 {
 	byte			type;
 	byte			skillIndex;
-	COORD	skillPos;
+	COORD			skillPos;
 	bool			isCrush;
 	byte			player;
 	bool			isRight;
@@ -71,3 +72,5 @@ struct SC_END
 	byte			winner;
 };
 #pragma pack()
+
+
