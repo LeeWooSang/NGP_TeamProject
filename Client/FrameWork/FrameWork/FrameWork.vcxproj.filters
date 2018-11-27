@@ -70,6 +70,9 @@
     <ClCompile Include="Game.cpp">
       <Filter>Project\MyGame\Game</Filter>
     </ClCompile>
+    <ClCompile Include="Fireball.cpp">
+      <Filter>Project\MyGame\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MyInclude.h">
@@ -104,6 +107,9 @@
       <Filter>Project\FrameWork\Collision</Filter>
     </ClInclude>
     <ClInclude Include="Hero.h">
+      <Filter>Project\MyGame\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Fireball.h">
       <Filter>Project\MyGame\Game</Filter>
     </ClInclude>
   </ItemGroup>
