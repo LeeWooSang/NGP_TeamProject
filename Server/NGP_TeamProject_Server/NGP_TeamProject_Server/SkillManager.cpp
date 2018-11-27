@@ -40,13 +40,12 @@ void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
 {
 	if (skillVector.size() >= 1) {
 		checkCollision(player1, player2); //업데이트 전에 충돌검사를 미리 실시
-		for (iter = skillVector.begin(); iter != skillVector.end(); ++iter)
+		for (iter = skillVector.begin(); iter != skillVector.end(); )
 		{
 
 			if (iter->isCrush == true)
 			{
-
-				skillVector.erase(iter);		//이 부분에서 현재 에러
+				iter = skillVector.erase(iter);		//이 부분에서 현재 에러
 												//벡터의 원소를 지우면 에러남
 				cout << "현재 " <<(int)iter->skillIndex<<"번째 충돌 , 총 스킬 개수"<< skillVector.size() << endl;
 			}
@@ -61,6 +60,7 @@ void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
 					iter->skillPos.X -= 10;
 				}
 				cout << "스킬 [" << iter->skillIndex << "] 위치" << iter->skillPos.X << endl;
+				++iter;
 			}
 
 		}

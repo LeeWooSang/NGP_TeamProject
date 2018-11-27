@@ -60,7 +60,7 @@ struct SC_SKILL
 {
 	byte			type;
 	byte			skillIndex;
-	COORD			skillPos;
+	COORD	skillPos;
 	bool			isCrush;
 	byte			player;
 	bool			isRight;
