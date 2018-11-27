@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "Sprite.h"
 #include "Hero.h"
+#include "Fireball.h"
 
 // PACKET_TYPE
 #define TYPE_INIT 0
@@ -39,14 +40,12 @@ struct SC_INIT
 
 struct CS_INIT
 {
-	byte        type;
 	bool        isReady;
 	byte        player;
 };
 
 struct SC_RUN
 {
-	byte        type;
 	COORD		pos[2];
 	USHORT		hp[2];
 	bool        onSkill;
@@ -54,19 +53,24 @@ struct SC_RUN
 
 struct CS_RUN
 {
-	byte        type;
 	byte        key;
 	byte        player;
+	bool        onSkill;
 };
 
 struct SC_SKILL
 {
-	byte       type;
 	byte       skillIndex;
-	COORD    skillPos;
+	COORD      skillPos;
 	bool       isCrush;
 	byte       player;
 	bool       isRight;
+};
+
+struct CS_SKILL
+{
+	byte       skillIndex;
+	byte       player;
 };
 
 struct SC_END

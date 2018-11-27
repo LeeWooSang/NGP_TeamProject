@@ -328,7 +328,7 @@ DWORD WINAPI CServerFramework::SendThread(LPVOID socket)
 	{
 		//clock_t begin = clock();
 		float elapsedTime = (timeGetTime() - lastTime) * 0.001f;
-		// 30프레임
+		// 30프레임 
 		if (elapsedTime >= FPS)
 		{
 			//cout << elapsedTime << "프레임" << endl;

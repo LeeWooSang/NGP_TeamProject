@@ -20,6 +20,12 @@
     <ClCompile Include="ServerFramework.cpp">
       <Filter>소스 파일\ServerFramework</Filter>
     </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServerFramework.h">
@@ -28,5 +34,7 @@
     <ClInclude Include="Defines.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Collision.h" />
+    <ClInclude Include="SkillManager.h" />
   </ItemGroup>
 </Project>

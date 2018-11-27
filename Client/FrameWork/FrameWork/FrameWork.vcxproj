@@ -125,6 +125,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="FWMain.cpp" />
     <ClCompile Include="FWWindows.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -140,6 +141,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collision.h" />
+    <ClInclude Include="Fireball.h" />
     <ClInclude Include="FWMain.h" />
     <ClInclude Include="FWWindows.h" />
     <ClInclude Include="Game.h" />
