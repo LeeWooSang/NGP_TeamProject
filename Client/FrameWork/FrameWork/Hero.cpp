@@ -1,5 +1,151 @@
 #include "Hero.h"
 
+Fireball::Fireball(int x, int y, bool r, byte p)
+{
+	pos.X = x;
+	pos.Y = y;
+	isRight = r;
+	isCrush = false;
+	willDelete = false;
+
+	initSprite(p);
+}
+
+void Fireball::initSprite(byte p)
+{
+	if (sFireball[FIREBALL] == NULL)
+	{
+		sFireball[FIREBALL] = new Sprite;
+		if (p == PLAYER1)
+		{
+			sFireball[FIREBALL]->Entry(0, "image/attack-01-1.bmp", 0, 0);
+			sFireball[FIREBALL]->Entry(1, "image/attack-02-1.bmp", 0, 0);
+			sFireball[FIREBALL]->Entry(2, "image/attack-03-1.bmp", 0, 0);
+			sFireball[FIREBALL]->Entry(3, "image/attack-04-1.bmp", 0, 0);
+		}
+		else
+		{
+			sFireball[FIREBALL]->Entry(0, "image/e_attack-01-1.bmp", 0, 0);
+			sFireball[FIREBALL]->Entry(1, "image/e_attack-02-1.bmp", 0, 0);
+			sFireball[FIREBALL]->Entry(2, "image/e_attack-03-1.bmp", 0, 0);
+			sFireball[FIREBALL]->Entry(3, "image/e_attack-04-1.bmp", 0, 0);
+		}
+		sFireball[FIREBALL]->setLocation(0, pos.X, pos.Y);
+		sFireball[FIREBALL]->setLocation(1, pos.X, pos.Y);
+		sFireball[FIREBALL]->setLocation(2, pos.X, pos.Y);
+		sFireball[FIREBALL]->setLocation(3, pos.X, pos.Y);
+	}
+
+	if (sFireball[FIREBALL_B] == NULL)
+	{
+		sFireball[FIREBALL_B] = new Sprite;
+		if (p == PLAYER1)
+		{
+			sFireball[FIREBALL_B]->Entry(0, "image/attack-01-b.bmp", 0, 0);
+			sFireball[FIREBALL_B]->Entry(1, "image/attack-02-b.bmp", 0, 0);
+			sFireball[FIREBALL_B]->Entry(2, "image/attack-03-b.bmp", 0, 0);
+			sFireball[FIREBALL_B]->Entry(3, "image/attack-04-b.bmp", 0, 0);
+		}
+		else
+		{
+			sFireball[FIREBALL_B]->Entry(0, "image/e_attack-01-b.bmp", 0, 0);
+			sFireball[FIREBALL_B]->Entry(1, "image/e_attack-02-b.bmp", 0, 0);
+			sFireball[FIREBALL_B]->Entry(2, "image/e_attack-03-b.bmp", 0, 0);
+			sFireball[FIREBALL_B]->Entry(3, "image/e_attack-04-b.bmp", 0, 0);
+		}
+		sFireball[FIREBALL_B]->setLocation(0, pos.X, pos.Y);
+		sFireball[FIREBALL_B]->setLocation(1, pos.X, pos.Y);
+		sFireball[FIREBALL_B]->setLocation(2, pos.X, pos.Y);
+		sFireball[FIREBALL_B]->setLocation(3, pos.X, pos.Y);
+	}
+
+	if (sFireball[CRUSH] == NULL)
+	{
+		sFireball[CRUSH] = new Sprite;
+		sFireball[CRUSH]->Entry(0, "image/boom_01.bmp", 0, 0);
+		sFireball[CRUSH]->Entry(1, "image/boom_02.bmp", 0, 0);
+		sFireball[CRUSH]->Entry(2, "image/boom_03.bmp", 0, 0);
+		sFireball[CRUSH]->Entry(3, "image/boom_04.bmp", 0, 0);
+		sFireball[CRUSH]->Entry(4, "image/boom_05.bmp", 0, 0);
+		sFireball[CRUSH]->Entry(5, "image/boom_06.bmp", 0, 0);
+		sFireball[CRUSH]->setLocation(0, pos.X, pos.Y);
+		sFireball[CRUSH]->setLocation(1, pos.X, pos.Y);
+		sFireball[CRUSH]->setLocation(2, pos.X, pos.Y);
+		sFireball[CRUSH]->setLocation(3, pos.X, pos.Y);
+		sFireball[CRUSH]->setLocation(4, pos.X, pos.Y);
+		sFireball[CRUSH]->setLocation(5, pos.X, pos.Y);
+	}
+}
+
+Fireball::~Fireball()
+{
+	for (int i = 0; i<S_ANIMNUM; ++i)
+		SAFE_DELETE_ARRAY(sFireball[i]);
+}
+
+void Fireball::Update()
+{
+	if (isCrush)
+	{
+		sFireball[CRUSH]->setLocation(pos.X, pos.Y);
+	}
+	else if (!isCrush)
+	{
+		if (isRight)
+			sFireball[FIREBALL]->setLocation(pos.X, pos.Y);
+		else if (!isRight)
+			sFireball[FIREBALL_B]->setLocation(pos.X, pos.Y);
+	}
+	
+}
+
+void Fireball::Render(HDC* cDC)
+{
+	if (isCrush)
+	{
+		if (animCount[CRUSH] >= sFireball[CRUSH]->getIndex())
+			willDelete = true;
+		else
+		{
+			sFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
+			animCount[CRUSH]++;
+		}
+	}
+	else if (!isCrush)
+	{
+		if (isRight)
+		{
+			if (animCount[FIREBALL] >= sFireball[FIREBALL]->getIndex())
+				animCount[FIREBALL] = 0;
+			sFireball[FIREBALL]->Render(cDC, animCount[FIREBALL], (UINT)RGB(255, 0, 255));
+			animCount[FIREBALL]++;
+		}
+		else if (!isRight)
+		{
+			if (animCount[FIREBALL_B] >= sFireball[FIREBALL_B]->getIndex())
+				animCount[FIREBALL_B] = 0;
+			sFireball[FIREBALL_B]->Render(cDC, animCount[FIREBALL_B], (UINT)RGB(255, 0, 255));
+			animCount[FIREBALL_B]++;
+		}
+	}
+}
+
+void Fireball::setLocation(int x, int y)
+{
+	pos.X = x;
+	pos.Y = y;
+}
+
+void Fireball::getLocation(int *x, int *y)
+{
+	*x = pos.X;
+	*y = pos.Y;
+}
+
+/////////////////////////////////////////////////////
+//////////			HERO ÄÚµå		/////////////////
+/////////////////////////////////////////////////////
+
 Hero::Hero()
 {
 	for (int i = 0; i < ANIMNUM; ++i)
@@ -12,6 +158,7 @@ Hero::Hero()
 	y = 0;
 	mode = IDLE;
 	player = 1;
+	isBack = false;
 }
 
 Hero::Hero(int x1, int y1, int m, int p)
@@ -26,27 +173,13 @@ Hero::Hero(int x1, int y1, int m, int p)
 	y = y1;
 	mode = m;
 	player = p;
+	isBack = false;
 }
 
 Hero::~Hero()
 {
-#pragma region SpriteDelete
 	for(int i=0;i<ANIMNUM;++i)
 		SAFE_DELETE_ARRAY(sMode[i]);
-	/*SAFE_DELETE(sWalk);
-	SAFE_DELETE(sWalk_b);
-	SAFE_DELETE(sJump);
-	SAFE_DELETE(sJump_b);
-	SAFE_DELETE(sIdle);
-	SAFE_DELETE(sIdle_b);
-	SAFE_DELETE(sAttack);
-	SAFE_DELETE(sAttack_b);
-	SAFE_DELETE(sDeath);
-	SAFE_DELETE(sFireball);
-	SAFE_DELETE(sFireball_b);
-	SAFE_DELETE(sCrushEffect);
-	*/
-#pragma endregion
 }
 
 void Hero::Enter(int p)
@@ -58,7 +191,7 @@ void Hero::Enter(int p)
 	{
 		sMode[WALK] = new Sprite;
 
-		if (p == 0)
+		if (p == PLAYER1)
 		{
 			sMode[WALK]->Entry(0, "image/walk-1-1.bmp", 0, 0);
 			sMode[WALK]->Entry(1, "image/walk-2-1.bmp", 0, 0);
@@ -81,7 +214,7 @@ void Hero::Enter(int p)
 	if (sMode[WALK_B] == NULL)
 	{
 		sMode[WALK_B] = new Sprite;
-		if (p == 0)
+		if (p == PLAYER1)
 		{
 			sMode[WALK_B]->Entry(0, "image/walk-1-b.bmp", 0, 0);
 			sMode[WALK_B]->Entry(1, "image/walk-2-b.bmp", 0, 0);
@@ -105,7 +238,7 @@ void Hero::Enter(int p)
 	{
 		sMode[JUMP] = new Sprite;
 
-		if (p == 0)
+		if (p == PLAYER1)
 			sMode[JUMP]->Entry(0, "image/jump-1-1.bmp", 0, 0);
 		else
 			sMode[JUMP]->Entry(0, "image/e_jump-1-1.bmp", 0, 0);
@@ -117,7 +250,7 @@ void Hero::Enter(int p)
 	{
 		sMode[JUMP_B] = new Sprite;
 
-		if (p == 0)
+		if (p == PLAYER1)
 			sMode[JUMP_B]->Entry(0, "image/jump-1-b.bmp", 0, 0);
 		else
 			sMode[JUMP_B]->Entry(0, "image/e_jump-1-b.bmp", 0, 0);
@@ -129,7 +262,7 @@ void Hero::Enter(int p)
 	{
 		sMode[IDLE] = new Sprite;
 
-		if (p == 0)
+		if (p == PLAYER1)
 		{
 			sMode[IDLE]->Entry(0, "image/alert-1.bmp", 0, 0);
 			sMode[IDLE]->Entry(1, "image/alert-2.bmp", 0, 0);
@@ -150,7 +283,7 @@ void Hero::Enter(int p)
 	{
 		sMode[IDLE_B] = new Sprite;
 
-		if (p == 0)
+		if (p == PLAYER1)
 		{
 			sMode[IDLE_B]->Entry(0, "image/alert-1-b.bmp", 0, 0);
 			sMode[IDLE_B]->Entry(1, "image/alert-2-b.bmp", 0, 0);
@@ -171,7 +304,7 @@ void Hero::Enter(int p)
 	{
 		sMode[ATTACK] = new Sprite;
 		
-		if (p == 0)
+		if (p == PLAYER1)
 		{
 			sMode[ATTACK]->Entry(0, "image/attack-1.bmp", 0, 0);
 			sMode[ATTACK]->Entry(1, "image/attack-2.bmp", 0, 0);
@@ -191,7 +324,7 @@ void Hero::Enter(int p)
 	if (sMode[ATTACK_B] == NULL)
 	{
 		sMode[ATTACK_B] = new Sprite;
-		if (p == 0)
+		if (p == PLAYER1)
 		{
 			sMode[ATTACK_B]->Entry(0, "image/attack-1-b.bmp", 0, 0);
 			sMode[ATTACK_B]->Entry(1, "image/attack-2-b.bmp", 0, 0);
@@ -235,118 +368,20 @@ void Hero::Enter(int p)
 		sMode[DEATH]->setLocation(10, x, y);
 	}
 
-	if (sMode[FIREBALL] == NULL)
-	{
-		sMode[FIREBALL] = new Sprite;
-		if (p == 0)
-		{
-			sMode[FIREBALL]->Entry(0, "image/attack-01-1.bmp", 0, 0);
-			sMode[FIREBALL]->Entry(1, "image/attack-02-1.bmp", 0, 0);
-			sMode[FIREBALL]->Entry(2, "image/attack-03-1.bmp", 0, 0);
-			sMode[FIREBALL]->Entry(3, "image/attack-04-1.bmp", 0, 0);
-		}
-		else
-		{
-			sMode[FIREBALL]->Entry(0, "image/e_attack-01-1.bmp", 0, 0);
-			sMode[FIREBALL]->Entry(1, "image/e_attack-02-1.bmp", 0, 0);
-			sMode[FIREBALL]->Entry(2, "image/e_attack-03-1.bmp", 0, 0);
-			sMode[FIREBALL]->Entry(3, "image/e_attack-04-1.bmp", 0, 0);
-		}
-		sMode[FIREBALL]->setLocation(0, x, y);
-		sMode[FIREBALL]->setLocation(1, x, y);
-		sMode[FIREBALL]->setLocation(2, x, y);
-		sMode[FIREBALL]->setLocation(3, x, y);
-	}
-
-	if (sMode[FIREBALL_B] == NULL)
-	{
-		sMode[FIREBALL_B] = new Sprite;
-		if (p == 0)
-		{
-			sMode[FIREBALL_B]->Entry(0, "image/attack-01-b.bmp", 0, 0);
-			sMode[FIREBALL_B]->Entry(1, "image/attack-02-b.bmp", 0, 0);
-			sMode[FIREBALL_B]->Entry(2, "image/attack-03-b.bmp", 0, 0);
-			sMode[FIREBALL_B]->Entry(3, "image/attack-04-b.bmp", 0, 0);
-		}
-		else
-		{
-			sMode[FIREBALL_B]->Entry(0, "image/e_attack-01-b.bmp", 0, 0);
-			sMode[FIREBALL_B]->Entry(1, "image/e_attack-02-b.bmp", 0, 0);
-			sMode[FIREBALL_B]->Entry(2, "image/e_attack-03-b.bmp", 0, 0);
-			sMode[FIREBALL_B]->Entry(3, "image/e_attack-04-b.bmp", 0, 0);
-		}
-		sMode[FIREBALL_B]->setLocation(0, x, y);
-		sMode[FIREBALL_B]->setLocation(1, x, y);
-		sMode[FIREBALL_B]->setLocation(2, x, y);
-		sMode[FIREBALL_B]->setLocation(3, x, y);
-	}
-
-	if (sMode[CRUSH] == NULL)
-	{
-		sMode[CRUSH] = new Sprite;
-		sMode[CRUSH]->Entry(0, "image/boom_01.bmp", 0, 0);
-		sMode[CRUSH]->Entry(1, "image/boom_02.bmp", 0, 0);
-		sMode[CRUSH]->Entry(2, "image/boom_03.bmp", 0, 0);
-		sMode[CRUSH]->Entry(3, "image/boom_04.bmp", 0, 0);
-		sMode[CRUSH]->Entry(4, "image/boom_05.bmp", 0, 0);
-		sMode[CRUSH]->Entry(5, "image/boom_06.bmp", 0, 0);
-		sMode[CRUSH]->setLocation(0, x, y);
-		sMode[CRUSH]->setLocation(1, x, y);
-		sMode[CRUSH]->setLocation(2, x, y);
-		sMode[CRUSH]->setLocation(3, x, y);
-		sMode[CRUSH]->setLocation(4, x, y);
-		sMode[CRUSH]->setLocation(5, x, y);
-	}
+	
 }
 
 void Hero::Update()
 {
-
+	sMode[mode]->setLocation(x, y);
 }
 
 void Hero::Render(HDC* cDC)
 {
 	if (animCount[mode] >= sMode[mode]->getIndex())
 		animCount[mode] = 0;
-	sMode[mode]->setLocation(x, y);
 	sMode[mode]->Render(cDC, animCount[mode], (UINT)RGB(255, 0, 255));
 	animCount[mode]++;
-	/*
-	if (animCount[WALK_B] >= sWalk_b->getIndex())
-		animCount[WALK_B] = 0;
-	sWalk_b->Render(cDC, animCount[WALK_B], (UINT)RGB(255, 0, 255));
-	animCount[WALK_B]++;
-
-	if (animCount[JUMP] >= sJump->getIndex())
-		animCount[JUMP] = 0;
-	sJump->Render(cDC, animCount[JUMP], (UINT)RGB(255, 0, 255));
-	animCount[JUMP]++;
-
-	if (animCount[JUMP_B] >= sJump_b->getIndex())
-		animCount[JUMP_B] = 0;
-	sJump_b->Render(cDC, animCount[JUMP_B], (UINT)RGB(255, 0, 255));
-	animCount[JUMP_B]++;
-
-	if (animCount[IDLE] >= sIdle->getIndex())
-		animCount[IDLE] = 0;
-	sIdle->Render(cDC, animCount[IDLE], (UINT)RGB(255, 0, 255));
-	animCount[IDLE]++;
-
-	if (animCount[IDLE_B] >= sIdle_b->getIndex())
-		animCount[IDLE_B] = 0;
-	sIdle_b->Render(cDC, animCount[IDLE_B], (UINT)RGB(255, 0, 255));
-	animCount[IDLE_B]++;
-
-	if (animCount[ATTACK] >= sAttack->getIndex())
-		animCount[ATTACK] = 0;
-	sAttack->Render(cDC, animCount[ATTACK], (UINT)RGB(255, 0, 255));
-	animCount[ATTACK]++;
-
-	if (animCount[ATTACK_B] >= sAttack_b->getIndex())
-		animCount[ATTACK_B] = 0;
-	sAttack_b->Render(cDC, animCount[ATTACK_B], (UINT)RGB(255, 0, 255));
-	animCount[ATTACK_B]++;
-*/
 }
 
 void Hero::Destroy()
@@ -354,18 +389,6 @@ void Hero::Destroy()
 #pragma region SpriteDelete
 	for (int i = 0; i<ANIMNUM; ++i)
 		SAFE_DELETE(sMode[i]);
-	/*SAFE_DELETE(sWalk);
-	SAFE_DELETE(sWalk_b);
-	SAFE_DELETE(sJump);
-	SAFE_DELETE(sJump_b);
-	SAFE_DELETE(sIdle);
-	SAFE_DELETE(sIdle_b);
-	SAFE_DELETE(sAttack);
-	SAFE_DELETE(sAttack_b);
-	SAFE_DELETE(sDeath);
-	SAFE_DELETE(sFireball);
-	SAFE_DELETE(sFireball_b);
-	SAFE_DELETE(sCrushEffect);*/
 #pragma endregion
 }
 
@@ -375,17 +398,23 @@ void Hero::setLocation(int x1, int y1)
 	y = y1;
 }
 
+void Hero::setMode(int m)
+{
+	mode = m;
+}
+
 void Hero::setHP(USHORT h)
 {
 	hp = h;
 }
 
-int Hero::getX()
+void Hero::getLocation(int *x1, int *y1)
 {
-	return x;
+	*x1 = x;
+	*y1 = y;
 }
 
-int Hero::getY()
+int Hero::getMode()
 {
-	return y;
+	return mode;
 }
