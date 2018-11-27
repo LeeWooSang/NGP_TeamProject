@@ -40,7 +40,7 @@ void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
 {
 	if (skillVector.size() >= 1) {
 		checkCollision(player1, player2); //업데이트 전에 충돌검사를 미리 실시
-		for (iter = skillVector.begin(); iter != skillVector.end(); )
+		for (auto iter = skillVector.begin(); iter != skillVector.end(); )
 		{
 
 			if (iter->isCrush == true)
@@ -76,7 +76,7 @@ void SkillManager::checkCollision(COORD& player1,COORD& player2)
 
 
 
-	for (iter = skillVector.begin(); iter != skillVector.end(); ++iter)
+	for (auto iter = skillVector.begin(); iter != skillVector.end(); ++iter)
 	{
 
 		if (Collision::RRCollision(player1MinX, player1MinY, player1MaxX, player1MaxY, iter->skillPos.X, iter->skillPos.Y,

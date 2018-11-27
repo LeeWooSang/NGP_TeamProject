@@ -22,5 +22,5 @@ private:
 	//map<pair<bool,int>,SC_SKILL> skillMap;
 	vector<SC_SKILL> skillVector;
 
-	vector<SC_SKILL> ::iterator iter;
+	//vector<SC_SKILL> ::iterator iter;
 };
