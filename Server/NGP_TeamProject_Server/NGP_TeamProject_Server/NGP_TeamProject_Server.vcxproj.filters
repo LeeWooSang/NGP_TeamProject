@@ -12,6 +12,12 @@
     <Filter Include="소스 파일\ServerFramework">
       <UniqueIdentifier>{56134b39-2704-4d10-b285-ebf964baf233}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\SkillManager">
+      <UniqueIdentifier>{f4dee01b-6063-4146-aee4-289ae62565e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Collision">
+      <UniqueIdentifier>{f3692da7-6b7a-4c12-92c3-36ac78fdb398}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -20,11 +26,19 @@
     <ClCompile Include="ServerFramework.cpp">
       <Filter>소스 파일\ServerFramework</Filter>
     </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="SkillManager.cpp">
+      <Filter>소스 파일\SkillManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>소스 파일\Collision</Filter>
+=======
     <ClCompile Include="Collision.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SkillManager.cpp">
       <Filter>소스 파일</Filter>
+>>>>>>> de2e6727f509337985d02b1309e043a5c33e2aa2
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -34,7 +48,16 @@
     <ClInclude Include="Defines.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
+<<<<<<< HEAD
+    <ClInclude Include="SkillManager.h">
+      <Filter>소스 파일\SkillManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>소스 파일\Collision</Filter>
+    </ClInclude>
+=======
     <ClInclude Include="Collision.h" />
     <ClInclude Include="SkillManager.h" />
+>>>>>>> de2e6727f509337985d02b1309e043a5c33e2aa2
   </ItemGroup>
 </Project>
