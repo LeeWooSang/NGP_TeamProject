@@ -232,7 +232,6 @@ void Hero::Enter(int p)
 
 void Hero::Render(HDC* cDC)
 {
-	cout << sMode[mode]->getX(mode) << ", " << sMode[mode]->getY(mode) << "\n";
 	if (animCount[mode] >= sMode[mode]->getIndex())
 		animCount[mode] = 0;
 	sMode[mode]->setLocation(x, y);
