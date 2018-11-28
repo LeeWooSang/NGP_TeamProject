@@ -316,6 +316,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		break;
 	}
 	
+	return 0;
 }
 
 void Game::Render(HDC* cDC)
