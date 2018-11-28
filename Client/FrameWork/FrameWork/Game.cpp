@@ -191,14 +191,14 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 	case TYPE_RUN:
 		if (pCSRun.key != KEY_IDLE)
 		{
+			cout << "player : " << (int)pCSRun.player << ", key : " << (int)pCSRun.key << "\n";
 			retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
-			//std::cout << (int)pCSRun.player << std::endl;
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("send( )");
 				return 0;
 			}
-			//pCSRun.onSkill = false;
+			pCSRun.onSkill = false;
 		}
 	/*	if (pCSRun.key == KEY_SPACE)
 		{
@@ -271,7 +271,6 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 
 		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
-		//std::cout << retval << std::endl;
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recv()");
@@ -304,8 +303,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 
 		}*/
 
-		//EnterCriticalSection(&cs);
-		//std::cout << (int)pHero->player << std::endl;
+		EnterCriticalSection(&cs);
 		if (pHero->player == PLAYER1)
 		{
 			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
@@ -320,7 +318,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 			eHero->setHP(pSCRun.hp[PLAYER1]);
 		}
-		//LeaveCriticalSection(&cs);
+		LeaveCriticalSection(&cs);
 
 		break;
 	}
@@ -356,7 +354,6 @@ void Game::MouseInput(int iMessage, int x, int y)
 }
 void Game::KeyboardInput(int iMessage, int wParam)
 {
-	//pCSRun.type = TYPE_RUN;
 	int x, y;
 	if (iMessage == WM_KEYDOWN && gameState == TYPE_RUN)
 	{
