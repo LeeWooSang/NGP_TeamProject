@@ -46,6 +46,7 @@ struct CS_INIT
 
 struct SC_RUN
 {
+	byte		type;
 	COORD		pos[2];
 	USHORT		hp[2];
 	bool        onSkill;

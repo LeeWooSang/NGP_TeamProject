@@ -15,7 +15,7 @@ void SkillManager::addSkill(byte& player,COORD& skillPos)
 {
 	
 	SC_SKILL fireballInfo;
-	fireballInfo.type = TYPE_SKILL;
+	//fireballInfo.type = TYPE_SKILL;
 	fireballInfo.player = player;
 	if (player == PLAYER_1)
 	{

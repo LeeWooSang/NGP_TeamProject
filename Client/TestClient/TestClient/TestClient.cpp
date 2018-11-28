@@ -176,7 +176,7 @@ int recvn(SOCKET s, char* buf, int len, int flags)
 
 bool Input_Keyboard(CS_RUN& runPacket)
 {
-	runPacket.type = TYPE_RUN;
+	//runPacket.type = TYPE_RUN;
 	//runPacket.player = PLAYER_1;
 
 	// kbhit( ) : 무한루프 중에 키보드가 눌린 경우 불림
@@ -223,13 +223,13 @@ bool Input_Keyboard(CS_RUN& runPacket)
 //Send 한 Key값 해제
 void Release_Key(CS_RUN& runPacket)
 {
-	if (runPacket.type == TYPE_RUN || runPacket.type == TYPE_SKILL)
-	{
+	//if (runPacket.type == TYPE_RUN || runPacket.type == TYPE_SKILL)
+	//{
 		if (runPacket.key == KEY_RIGHT || runPacket.key == KEY_UP || runPacket.key == KEY_SPACE || runPacket.key == KEY_LEFT)
 		{
 			runPacket.key = KEY_IDLE;
 		}
-	}
+	//}
 }
 
 void show_Position()

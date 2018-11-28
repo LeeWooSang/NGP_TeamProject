@@ -32,7 +32,7 @@ struct SC_INIT
 
 struct CS_INIT
 {
-	byte			type;
+	//byte			type;
 	bool			isReady;
 	byte			player;
 };
@@ -40,11 +40,12 @@ struct CS_INIT
 struct CS_RUN
 {
 	CS_RUN() {}
-	CS_RUN(byte t, byte k, byte p) : type(t), key(k), player(p) { }
+	CS_RUN(byte t, byte k,bool p) : key(t), player(k),onSkill(p) { }
 
-	byte        type;
+	//byte        type;
 	byte        key;
 	byte        player;
+	bool		onSkill;
 };
 
 struct SC_RUN
@@ -58,13 +59,20 @@ struct SC_RUN
 
 struct SC_SKILL
 {
-	byte			type;
+	//byte			type;
 	byte			skillIndex;
-	COORD	skillPos;
+	COORD			skillPos;
 	bool			isCrush;
 	byte			player;
 	bool			isRight;
 };
+
+struct CS_SKILL
+{
+	byte       skillIndex;
+	byte       player;
+};
+
 
 struct SC_END
 {

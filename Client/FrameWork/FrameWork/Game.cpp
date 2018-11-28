@@ -183,6 +183,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				return 0;
 			}
 			pCSRun.player = pSCInit.player;
+			//std::cout << (int)pCSRun.player << std::endl;
 			gameState = TYPE_RUN;
 			sent = true;
 		}
@@ -191,14 +192,15 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 		if (pCSRun.key != KEY_IDLE)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
+			//std::cout << (int)pCSRun.player << std::endl;
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("send( )");
 				return 0;
 			}
-			pCSRun.onSkill = false;
+			//pCSRun.onSkill = false;
 		}
-		if (pCSRun.key == KEY_SPACE)
+	/*	if (pCSRun.key == KEY_SPACE)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
 			if (retval == SOCKET_ERROR)
@@ -206,9 +208,10 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				err_display("send( )");
 				return 0;
 			}
-		}
+		}*/
 		break;
 	}
+	return 0;
 }
 
 DWORD WINAPI Game::RecvThread(LPVOID sock)
@@ -233,6 +236,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		//cout << "isStart : " << pSCInit.isStart << "\nplayer : " << (int)pSCInit.player << "\ntype : " << (int)pSCInit.type << "\n";
 		
 		pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다. 
+		//std::cout << (int)pHero->player<<std::endl;
 		if (pHero->player == PLAYER1)
 			eHero->player = PLAYER2;
 		else
@@ -245,6 +249,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 				cout << "상대방과 연결 성공!\n";
 
 				pCSInit.player = pHero->player;
+				//std::cout <<(int)pCSInit.player << std::endl;
 				pCSInit.isReady = true;
 				gameState = TYPE_START;
 				break;
@@ -266,13 +271,14 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 
 		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
+		//std::cout << retval << std::endl;
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recv()");
 			break;
 		}
 
-		if (pSCRun.onSkill)
+		/*if (pSCRun.onSkill)
 		{
 			retval = recvn((SOCKET)client_socket, (char*)&pSCSkill, sizeof(SC_SKILL), 0);
 			if (retval == SOCKET_ERROR)
@@ -296,9 +302,10 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			}
 			LeaveCriticalSection(&cs);
 
-		}
+		}*/
 
-		EnterCriticalSection(&cs);
+		//EnterCriticalSection(&cs);
+		//std::cout << (int)pHero->player << std::endl;
 		if (pHero->player == PLAYER1)
 		{
 			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
@@ -313,7 +320,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 			eHero->setHP(pSCRun.hp[PLAYER1]);
 		}
-		LeaveCriticalSection(&cs);
+		//LeaveCriticalSection(&cs);
 
 		break;
 	}
@@ -393,7 +400,7 @@ void Game::KeyboardInput(int iMessage, int wParam)
 					else
 						pFireball[i].isRight = true;
 
-					pCSRun.onSkill = true;
+					//pCSRun.onSkill = true;
 					break;
 				}
 			}

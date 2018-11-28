@@ -199,7 +199,7 @@ void CServerFramework::AcceptClient()
 
 			for (int i = 0; i < vec_client_info.size(); ++i) 
 			{
-				recieveThread[i] = CreateThread(NULL, 0, RecvThread, (LPVOID)vec_client_info[i].client_socket, 0, NULL);
+				recieveThread[i] = CreateThread(NULL, 0, RecvThread,(LPVOID)vec_client_info[i].client_socket, 0, NULL);
 				//CloseHandle(recieveThread[i]);
 			}
 		}
@@ -210,6 +210,7 @@ void CServerFramework::AcceptClient()
 DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 {
 	SOCKET client_socket = (SOCKET)socket;
+	
 	if(p == nullptr)
 		p = new CServerFramework;
 	
@@ -261,25 +262,32 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 	}
 		
 	case TYPE_RUN:
+		
 		CS_RUN cs_runPacket;
 		// 고정길이 : 실제 패킷 받기
 		retval = recvn(client_socket, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
+		
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recvn( )");
 			return;
 		}
+		
+		cout << (int)cs_runPacket.player << endl;
 		EnterCriticalSection(&cs);
+		/*KeyDistribute(cs_runPacket.player, cs_runPacket.key);
+		cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
+		cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;*/
 		switch (cs_runPacket.player)
 		{
 		case PLAYER_1:
 			KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-			cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
+			//cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
 			break;
 
 		case PLAYER_2:
 			KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-			cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
+			//cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
 			break;
 		}
 		LeaveCriticalSection(&cs);
@@ -333,6 +341,7 @@ DWORD WINAPI CServerFramework::SendThread(LPVOID socket)
 		{
 			//cout << elapsedTime << "프레임" << endl;
 			p->Update(fElapsedTime);
+
 			if ((SOCKET)socket == vec_client_info[PLAYER_2].client_socket)
 				p->SendPacket(vec_client_info[PLAYER_2].client_socket);
 			lastTime = timeGetTime();
@@ -426,6 +435,11 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				//	<< "플레이어2 : " << sc_runPacket.pos[PLAYER_2].X << ", " << sc_runPacket.pos[PLAYER_2].Y << endl;
 
 			}
+		
+			//if(vec_client)
+
+
+
 		}
 		break;
 	}
