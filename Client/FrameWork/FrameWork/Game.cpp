@@ -90,6 +90,8 @@ void Game::Enter()
 	//BulletIndex = pSprite->getIndex() + 1;
 
 	// 스킬 vector 오브젝트풀
+	pFireball.reserve(MAXSKILL);
+	eFireball.reserve(MAXSKILL);
 	pHero->getLocation(&x, &y);
 	for (int i = 0; i < MAXSKILL; ++i)
 		pFireball.emplace_back(x, y, true, PLAYER1);

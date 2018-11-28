@@ -88,6 +88,11 @@ void Fireball::initSprite(byte p)
 
 Fireball::~Fireball()
 {
+	for (int i = 0; i < S_ANIMNUM; ++i)
+	{
+		if(sFireball[i])
+			SAFE_DELETE_ARRAY(sFireball[i]);
+	}
 }
 
 void Fireball::Render(HDC* cDC)
