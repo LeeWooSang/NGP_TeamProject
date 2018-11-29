@@ -59,6 +59,7 @@ private:
 	bool check = false;
 
 	bool playerReady[2] = { false, false };
+	bool playerCheck[2] = { false, false };
 
 	static DWORD lastTime;
 	static float FPS;

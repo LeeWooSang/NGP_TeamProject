@@ -174,7 +174,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 	switch (gameState)
 	{
 	case TYPE_START:
-		if (pCSInit.isReady || !sent)
+		if (pCSInit.isReady && !sent)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSInit, sizeof(CS_INIT), 0);
 			if (retval == SOCKET_ERROR)
@@ -183,12 +183,17 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				return 0;
 			}
 			pCSRun.player = pSCInit.player;
+			//if (pCSInit.player == PLAYER1)
+			//	std::cout << "0번" << std::endl;
+			//if(pCSRun.player == PLAYER1)
+			//	std::cout << "나도 0번" << std::endl;
 			//std::cout << (int)pCSRun.player << std::endl;
 			gameState = TYPE_RUN;
 			sent = true;
 		}
 		break;
 	case TYPE_RUN:
+		EnterCriticalSection(&cs);
 		if (pCSRun.key != KEY_IDLE)
 		{
 			cout << "player : " << (int)pCSRun.player << ", key : " << (int)pCSRun.key << "\n";
@@ -200,15 +205,16 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 			}
 			pCSRun.onSkill = false;
 		}
-		if (pCSRun.key == KEY_SPACE)
-		{
-			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("send( )");
-				return 0;
-			}
-		}*/
+		LeaveCriticalSection(&cs);
+		//if (pCSRun.key == KEY_SPACE)
+		//{
+		//	retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
+		//	if (retval == SOCKET_ERROR)
+		//	{
+		//		err_display("send( )");
+		//		return 0;
+		//	}
+		//}
 		break;
 	}
 	return 0;

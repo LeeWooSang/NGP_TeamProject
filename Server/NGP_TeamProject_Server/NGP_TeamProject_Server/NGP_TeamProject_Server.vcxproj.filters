@@ -2,14 +2,30 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="ServerFramework.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SkillManager.cpp" />
+    <ClCompile Include="ServerFramework.cpp">
+      <Filter>ServerFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillManager.cpp">
+      <Filter>SkillManager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collision.h" />
-    <ClInclude Include="ServerFramework.h" />
     <ClInclude Include="Defines.h" />
-    <ClInclude Include="SkillManager.h" />
+    <ClInclude Include="ServerFramework.h">
+      <Filter>ServerFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillManager.h">
+      <Filter>SkillManager</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="ServerFramework">
+      <UniqueIdentifier>{89066f31-aab6-4e19-96b2-1909850145c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SkillManager">
+      <UniqueIdentifier>{7484ed58-c18a-41c7-a206-6df4a040fede}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
