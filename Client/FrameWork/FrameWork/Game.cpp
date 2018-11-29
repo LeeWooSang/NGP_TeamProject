@@ -192,15 +192,14 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 		if (pCSRun.key != KEY_IDLE)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
-			//std::cout << (int)pCSRun.player << std::endl;
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("send( )");
 				return 0;
 			}
-			//pCSRun.onSkill = false;
+			pCSRun.onSkill = false;
 		}
-	/*	if (pCSRun.key == KEY_SPACE)
+		if (pCSRun.key == KEY_SPACE)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
 			if (retval == SOCKET_ERROR)
@@ -237,6 +236,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		
 		pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다. 
 		//std::cout << (int)pHero->player<<std::endl;
+		
 		if (pHero->player == PLAYER1)
 			eHero->player = PLAYER2;
 		else

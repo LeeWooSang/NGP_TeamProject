@@ -272,8 +272,8 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 			err_display("recvn( )");
 			return;
 		}
-		
-		cout << (int)cs_runPacket.player << endl;
+	
+		//cout << (int)cs_runPacket.player << endl;
 		EnterCriticalSection(&cs);
 		/*KeyDistribute(cs_runPacket.player, cs_runPacket.key);
 		cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
