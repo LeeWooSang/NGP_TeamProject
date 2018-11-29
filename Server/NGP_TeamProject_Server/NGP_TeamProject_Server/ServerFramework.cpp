@@ -280,18 +280,20 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 
 		switch (cs_runPacket.player)
 		{
+		
 		case PLAYER_1:
+		{
 			KeyDistribute(cs_runPacket.player, cs_runPacket.key);
 			//cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
 			break;
-
+		}
 		case PLAYER_2:
+		{
 			KeyDistribute(cs_runPacket.player, cs_runPacket.key);
 			//cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
 			break;
 		}
-		LeaveCriticalSection(&cs);
-		break;
+		}
 	}
 }
 void CServerFramework::KeyDistribute(byte& player, byte& keyType)

@@ -183,6 +183,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				return 0;
 			}
 			pCSRun.player = pSCInit.player;
+			//pCSRun.player = pHero->player;
 			//std::cout << (int)pCSRun.player << std::endl;
 			gameState = TYPE_RUN;
 			sent = true;
@@ -208,7 +209,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				err_display("send( )");
 				return 0;
 			}
-		}*/
+		}
 		break;
 	}
 	return 0;
@@ -223,8 +224,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 	{
 	case TYPE_INIT:
 		// 고정길이 : 패킷 받기
-		optval = 100;			//대기 시간 0.1초 -by 명진
-		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		//optval = 330;			//대기 시간 0.1초 -by 명진
+		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 		// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
 		
 		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
@@ -264,12 +265,12 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		
 		break;
 	case TYPE_RUN:
-		optval = INFINITE;		//대기 소켓으로 변경	-by 명진
-		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
-		if (retval == SOCKET_ERROR)
-		{
-			err_quit("setsockopt()");
-		}
+		//optval = INFINITE;		//대기 소켓으로 변경	-by 명진
+		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+	//if (retval == SOCKET_ERROR)
+		//{
+		//	err_quit("setsockopt()");
+	//	}
 
 		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
 		if (retval == SOCKET_ERROR)
