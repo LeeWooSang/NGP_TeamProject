@@ -174,7 +174,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 	switch (gameState)
 	{
 	case TYPE_START:
-		if (pCSInit.isReady || !sent)
+		if (pCSInit.isReady && !sent)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSInit, sizeof(CS_INIT), 0);
 			if (retval == SOCKET_ERROR)
@@ -183,13 +183,17 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				return 0;
 			}
 			pCSRun.player = pSCInit.player;
-			//pCSRun.player = pHero->player;
+			//if (pCSInit.player == PLAYER1)
+			//	std::cout << "0번" << std::endl;
+			//if(pCSRun.player == PLAYER1)
+			//	std::cout << "나도 0번" << std::endl;
 			//std::cout << (int)pCSRun.player << std::endl;
 			gameState = TYPE_RUN;
 			sent = true;
 		}
 		break;
 	case TYPE_RUN:
+		EnterCriticalSection(&cs);
 		if (pCSRun.key != KEY_IDLE)
 		{
 			cout << "player : " << (int)pCSRun.player << ", key : " << (int)pCSRun.key << "\n";
@@ -201,15 +205,16 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 			}
 			pCSRun.onSkill = false;
 		}
-		if (pCSRun.key == KEY_SPACE)
-		{
-			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
-			if (retval == SOCKET_ERROR)
-			{
-				err_display("send( )");
-				return 0;
-			}
-		}
+		LeaveCriticalSection(&cs);
+		//if (pCSRun.key == KEY_SPACE)
+		//{
+		//	retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
+		//	if (retval == SOCKET_ERROR)
+		//	{
+		//		err_display("send( )");
+		//		return 0;
+		//	}
+		//}
 		break;
 	}
 	return 0;
@@ -224,8 +229,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 	{
 	case TYPE_INIT:
 		// 고정길이 : 패킷 받기
-		//optval = 330;			//대기 시간 0.1초 -by 명진
-		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		optval = 100;			//대기 시간 0.1초 -by 명진
+		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 		// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
 		
 		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
@@ -265,12 +270,12 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		
 		break;
 	case TYPE_RUN:
-		//optval = INFINITE;		//대기 소켓으로 변경	-by 명진
-		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
-	//if (retval == SOCKET_ERROR)
-		//{
-		//	err_quit("setsockopt()");
-	//	}
+		optval = INFINITE;		//대기 소켓으로 변경	-by 명진
+		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		if (retval == SOCKET_ERROR)
+		{
+			err_quit("setsockopt()");
+		}
 
 		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
 		if (retval == SOCKET_ERROR)
