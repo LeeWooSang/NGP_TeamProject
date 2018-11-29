@@ -59,6 +59,9 @@ private:
 	bool check = false;
 
 	bool playerReady[2] = { false, false };
+	// 클라이언트마다 TPYE_START를 한번만 받게하기 위해 검사하는 변수
+	// playerCheck[0]은 PLAYER_1
+	// playerCheck[1]은 PLAYER_2
 	bool playerCheck[2] = { false, false };
 
 	static DWORD lastTime;
