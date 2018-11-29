@@ -85,17 +85,6 @@ class Game : public Scene
 {
 private:
 	Sprite * background;
-	/*static byte gameState;
-	static Hero * pHero;
-	static Hero * eHero;
-	static SC_INIT pSCInit;
-	static SC_RUN pSCRun;
-	static SC_SKILL pSCSkill;
-	static SC_END pSCEnd;
-	static CS_RUN pCSRun;
-
-	static CRITICAL_SECTION cs;*/
-	//bool PlayerRightMove;
 public:
 	Game();
 	~Game();
