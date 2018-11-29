@@ -216,8 +216,8 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 	
 	while (true)
 	{
-		//if (p->check == true)
-		//{
+		if (p->check == true)
+		{
 			
 			if (p->gameState == TYPE_RUN || p->gameState == TYPE_START)
 			{
@@ -226,7 +226,7 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 				else if ((SOCKET)socket == vec_client_info[PLAYER_2].client_socket)
 					p->TestRecv(vec_client_info[PLAYER_2].client_socket);
 			}
-		//}
+		}
 	}
 
 	return 0;
@@ -242,52 +242,92 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 	case TYPE_START:
 	{
 		CS_INIT cs_initPacket;
-		retval = recvn(client_socket, (char*)&cs_initPacket, sizeof(cs_initPacket), 0);
-		if (retval == SOCKET_ERROR)
+		// 벡터가 가지고 있는 소켓이랑 현재 recv한 client_socket으로 어떤 소켓인지 구분
+		// 만약, PLAYER_1 소켓일 때
+		if (vec_client_info[PLAYER_1].client_socket == client_socket)
 		{
-			err_display("recvn( )");
-			return;
+			// 처음으로 PLAYER_1이 TYPE_START를 보낸 것이므로 if문에 들어온다
+			// 만약 또 PLAYER_1이 TYPE_START를 보내면 playerCheck가 true이므로 recv 무시
+			if (playerCheck[PLAYER_1] == false)
+			{
+				retval = recvn(client_socket, (char*)&cs_initPacket, sizeof(cs_initPacket), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("recvn( )");
+					return;
+				}
+
+				if (cs_initPacket.player == PLAYER_1 && cs_initPacket.isReady == true)
+					p->playerReady[PLAYER_1] = true;
+
+				cout << "0번플레이어" << endl;
+				// PLAYER_1의 TYPE_START 패킷을 받았으므로 playerCheck[PLAYER_1]을 true로 하여
+				// 더이상 PLAYER_1의 TYPE_START를 못받게 함
+				playerCheck[PLAYER_1] = true;
+			}
 		}
-		if (cs_initPacket.player == PLAYER_1 && cs_initPacket.isReady == true)
-			p->playerReady[PLAYER_1] = true;
-		else if (cs_initPacket.player == PLAYER_2 && cs_initPacket.isReady == true)
-			p->playerReady[PLAYER_2] = true;
+		// 벡터가 가지고 있는 소켓이랑 현재 recv한 client_socket으로 어떤 소켓인지 구분
+		// 만약, PLAYER_2 소켓일 때
+		else if(vec_client_info[PLAYER_2].client_socket == client_socket)
+		{
+			// 처음으로 PLAYER_2이 TYPE_START를 보낸 것이므로 if문에 들어온다
+			// 만약 또 PLAYER_2이 TYPE_START를 보내면 playerCheck가 true이므로 recv 무시
+			if (playerCheck[PLAYER_2] == false)
+			{
+				retval = recvn(client_socket, (char*)&cs_initPacket, sizeof(cs_initPacket), 0);
+				if (retval == SOCKET_ERROR)
+				{
+					err_display("recvn( )");
+					return;
+				}
+
+				if (cs_initPacket.player == PLAYER_2 && cs_initPacket.isReady == true)
+					p->playerReady[PLAYER_2] = true;
+
+				cout << "1번플레이어" << endl;
+				// PLAYER_2의 TYPE_START 패킷을 받았으므로 playerCheck[PLAYER_2]을 true로 하여
+				// 더이상 PLAYER_2의 TYPE_START를 못받게 함
+				playerCheck[PLAYER_2] = true;
+			}
+		}
 
 		if (p->playerReady[PLAYER_1] == true && p->playerReady[PLAYER_2] == true)
 		{
 			cout << "둘다 준비 됨" << endl;
 			p->gameState = TYPE_RUN;
 		}
+		
+		
 		break;
 	}
 		
 	case TYPE_RUN:
-		
+	
 		CS_RUN cs_runPacket;
-		// 고정길이 : 실제 패킷 받기
 		retval = recvn(client_socket, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recvn( )");
 			return;
 		}
-		
-		cout << "player : "<<(int)cs_runPacket.player << ", key : "<<(int)cs_runPacket.key << "\n";
 		EnterCriticalSection(&cs);
-		/*KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-		cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
-		cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;*/
+
+		cout << "player : "<<(int)cs_runPacket.player << ", key : "<<(int)cs_runPacket.key << "\n";
+
+		KeyDistribute(cs_runPacket.player, cs_runPacket.key);
+		//cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
+		//cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
 
 		switch (cs_runPacket.player)
 		{
 		case PLAYER_1:
 			KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-			//cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
+			cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
 			break;
 
 		case PLAYER_2:
 			KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-			//cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
+			cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
 			break;
 		}
 		LeaveCriticalSection(&cs);
@@ -401,7 +441,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			}
 			p->gameState = TYPE_START;
 
-			//p->check = true;
+			p->check = true;
 		}
 		break;
 
