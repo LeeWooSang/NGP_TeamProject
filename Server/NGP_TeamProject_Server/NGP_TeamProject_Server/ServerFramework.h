@@ -8,11 +8,11 @@ struct Client_Info
 {
 	Client_Info(SOCKET socket, byte num, COORD p, bool skill) : client_socket(socket), player(num), pos(p), onSkill(skill) {}
 
-	SOCKET			client_socket;
+	SOCKET	client_socket;
 	byte			player;
-	COORD			pos;
+	COORD	pos;
 	bool			onSkill;
-	COORD			skillPos;
+	COORD	skillPos;
 };
 
 class CServerFramework
@@ -31,6 +31,8 @@ public:
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
 	static DWORD WINAPI SendThread(LPVOID);
+
+	//static DWORD WINAPI SkillThread(LPVOID);
 	
 	void SendPacket(SOCKET&);
 	void Update(float);

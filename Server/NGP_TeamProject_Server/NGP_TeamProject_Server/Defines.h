@@ -60,6 +60,8 @@ struct SC_RUN
 struct SC_SKILL
 {
 	//byte			type;
+
+	bool			isEnable;
 	byte			skillIndex;
 	COORD			skillPos;
 	bool			isCrush;
