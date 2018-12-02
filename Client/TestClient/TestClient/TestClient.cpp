@@ -78,13 +78,10 @@ int main()
 				{
 					cout << "상대 기다리는 중!" << endl;
 					playerInfo = sc_initPacket.player;				//플레이어 자신의 정보를 갖고있는다. 
-					//gameState = TYPE_INIT;
+					gameState = TYPE_INIT;
 					break;
 				}
 			}
-			/*else
-				cout << "SC_INIT패킷이 아닙니다." << endl;
-*/
 			break;
 
 			//Run 상태
@@ -106,7 +103,6 @@ int main()
 				//키 입력이 있을경우에만 전송하게 구현하기위해 
 				if (cs_runPacket.key != KEY_IDLE)
 				{
-
 					// 고정길이 : 실제 패킷 전송
 					retval = send(sock, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
 					if (retval == SOCKET_ERROR)

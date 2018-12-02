@@ -51,8 +51,8 @@ struct CS_RUN
 struct SC_RUN
 {
 	byte			type;
-	COORD			pos[2];
-	USHORT			hp[2];
+	COORD	pos[2];
+	USHORT	hp[2];
 	bool			onSkill;
 };
 
@@ -60,10 +60,9 @@ struct SC_RUN
 struct SC_SKILL
 {
 	//byte			type;
-
 	bool			isEnable;
 	byte			skillIndex;
-	COORD			skillPos;
+	COORD	skillPos;
 	bool			isCrush;
 	byte			player;
 	bool			isRight;

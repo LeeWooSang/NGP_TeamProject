@@ -1,6 +1,5 @@
 #include "SkillManager.h"
 
-
 int SkillManager::m_Player1_SkillCount = 0;
 int SkillManager::m_Player2_SkillCount = 0;
 
@@ -120,8 +119,6 @@ void SkillManager::addSkill(byte& player,COORD& skillPos)
 				continue;
 			}
 		}
-
-
 		player2_SkillArray[index]->isEnable = true;
 		player2_SkillArray[index]->isCrush = false;
 		player2_SkillArray[index]->skillPos = skillPos;
@@ -224,7 +221,8 @@ void SkillManager::checkCollision(COORD& player,SC_SKILL* skill)
 					SkillManager::m_Player1_SkillCount--;
 				}
 			}
-			else {
+			else 
+			{
 				if (SkillManager::m_Player2_SkillCount > 0)
 				{
 					SkillManager::m_Player2_SkillCount--;
@@ -234,6 +232,8 @@ void SkillManager::checkCollision(COORD& player,SC_SKILL* skill)
 			cout << "Ãæµ¹" << endl;
 		}
 	}
+
+
 	//std::cout << skill->skillPos.X << "," << skill->skillPos.Y << std::endl;
 
 	//for (auto iter = skillVector.begin(); iter != skillVector.end(); ++iter)

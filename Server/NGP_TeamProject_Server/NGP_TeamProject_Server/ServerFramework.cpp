@@ -6,8 +6,6 @@ HANDLE CServerFramework::sendThread[2];
 HANDLE CServerFramework::recieveThread[2];
 u_short CServerFramework::count = 0;
 
-
-
 CRITICAL_SECTION cs;
 
 DWORD CServerFramework::lastTime = timeGetTime();
@@ -326,8 +324,6 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 			cout << "둘다 준비 됨" << endl;
 			p->gameState = TYPE_RUN;
 		}
-		
-		
 		break;
 	}
 		
@@ -341,12 +337,6 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 			return;
 		}
 		EnterCriticalSection(&cs);
-
-		//cout << "player : "<<(int)cs_runPacket.player << ", key : "<<(int)cs_runPacket.key << "\n";
-
-		//KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-		//cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
-		//cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
 
 		switch (cs_runPacket.player)
 		{
@@ -377,15 +367,18 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 		vec_client_info[player].pos.X -= 10;
 		break;
 	case KEY_UP:
-		if (vec_client_info[player].pos.Y > 300) {
+		if (vec_client_info[player].pos.Y > 300) 
 			vec_client_info[player].pos.Y -= 30;
-		}		//
 		break;
 	case KEY_SPACE:
 		for (int i = 0; i < 2; ++i)
 			vec_client_info[i].onSkill = true;
 		m_pSkillManager->addSkill(player, vec_client_info[player].pos);
-
+		
+		if(player == vec_client_info[PLAYER_1].player)
+			cout << "플레이어1 - 스킬 발사" << endl;
+		else
+			cout << "플레이어2 - 스킬 발사" << endl;
 		//vec_client_info[player].skillPos = vec_client_info[player].pos;
 		//cout << "파이어볼 발사" << "," << player << endl;
 
@@ -406,26 +399,20 @@ DWORD WINAPI CServerFramework::SendThread(LPVOID socket)
 	
 	while (vec_client_info.size() > 1)
 	{
-		//clock_t begin = clock();
 		float elapsedTime = (timeGetTime() - lastTime) * 0.001f;
 		// 30프레임 
 		if (elapsedTime >= FPS)
 		{
-			//cout << elapsedTime << "프레임" << endl;
 			p->Update(fElapsedTime);
 
 			if ((SOCKET)socket == vec_client_info[PLAYER_2].client_socket)
 				p->SendPacket(vec_client_info[PLAYER_2].client_socket);
 			lastTime = timeGetTime();
 		}
-		//clock_t end = clock();
-		//fElapsedTime = double(end - begin) / CLOCKS_PER_SEC;
 	}
 
 	return 0;
 }
-
-
 
 void CServerFramework::SendPacket(SOCKET& client_socket)
 {
@@ -472,24 +459,19 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				}
 			}
 			p->gameState = TYPE_START;
-
 			p->check = true;
 		}
 		break;
 
 	case TYPE_RUN:
 		SC_RUN sc_runPacket;
-
 		sc_runPacket.type = TYPE_RUN;
-
 		if (vec_client_info.size() == 2)
 		{
 			for (int i = 0; i < vec_client_info.size(); ++i)
 			{
 				sc_runPacket.pos[i] = vec_client_info[i].pos;
 				//sc_runPacket.onSkill = vec_client_info[i].onSkill;
-
-
 				//sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
 				//sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
 				//두 클라이언트중에 누구라도 스킬 카운트가 0이상이면 두 클라이언트에게 onSkill = True를 대입한다.
@@ -514,19 +496,11 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				//	<< "플레이어2 : " << sc_runPacket.pos[PLAYER_2].X << ", " << sc_runPacket.pos[PLAYER_2].Y << endl;
 
 			}
-
 			if (sc_runPacket.onSkill == true)
 			{
 				/*packetSize = sizeof(SC_SKILL);
-				for(int i=0;i<)*/
-				
+				for(int i=0;i<)*/				
 			}
-
-		
-			//if(vec_client)
-
-
-
 		}
 		break;
 	}
@@ -534,7 +508,6 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 
 void CServerFramework::Update(float elapsedTime)
 {
-
 	m_pSkillManager->update(elapsedTime,vec_client_info[PLAYER_1].pos,vec_client_info[PLAYER_2].pos);
 	for (int i = 0; i < vec_client_info.size(); i++) 
 	{
@@ -546,7 +519,6 @@ void CServerFramework::Update(float elapsedTime)
 		{
 			vec_client_info[i].pos.Y = 550.0f;
 		}
-
 	}
 
 }
@@ -555,6 +527,7 @@ void CServerFramework::Destroy()
 {
 	for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
 		closesocket(iter->client_socket);
+	vec_client_info.clear();
 
 	closesocket(m_listen_socket);
 	WSACleanup();
