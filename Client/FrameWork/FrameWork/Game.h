@@ -27,8 +27,9 @@
 #define KEY_UP    	0X03
 #define KEY_SPACE	0X04
 
-//#define SERVERIP "127.0.0.1"
-#define SERVERIP "192.168.206.100"
+#define SERVERIP "127.0.0.1"
+//#define SERVERIP "192.168.206.48"
+//#define SERVERIP "192.168.121.212"
 #define SERVERPORT 9000
 
 #pragma pack(1)
@@ -62,6 +63,7 @@ struct CS_RUN
 
 struct SC_SKILL
 {
+	bool	   isEnable;
 	byte       skillIndex;
 	COORD      skillPos;
 	bool       isCrush;

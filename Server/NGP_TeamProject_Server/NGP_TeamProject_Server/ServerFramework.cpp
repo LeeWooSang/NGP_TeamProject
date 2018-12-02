@@ -170,7 +170,7 @@ void CServerFramework::AcceptClient()
 		{
 			COORD position;
 			position.X = 0;
-			position.Y = 0;
+			position.Y = 550;
 			//setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 			vec_client_info.emplace_back(client_socket, PLAYER_1, position, false);
 			// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
@@ -182,7 +182,7 @@ void CServerFramework::AcceptClient()
 		{
 			COORD position;			
 			position.X = 800;
-			position.Y = 0;
+			position.Y = 550;
 			//setsockopt(client_socket, IPPROTO_TCP, TCP_NODELAY, (char*)&optval, sizeof(optval));
 			vec_client_info.emplace_back(client_socket, PLAYER_2, position, false);
 			// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
@@ -232,6 +232,36 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 	return 0;
 }
 
+//DWORD WINAPI CServerFramework::SkillThread(LPVOID socket)
+//{
+//	SOCKET client_socket = (SOCKET)socket;
+//
+//	if (p == nullptr)
+//	{
+//		p = new CServerFramework;
+//	}
+//
+//	int packetSize = sizeof(SC_SKILL);
+//	int retval = 0;
+//
+//	if (SkillManager::m_Player1_SkillCount > 0)
+//	{
+//		for (int i = 0; i < MAXSKILL; i++)
+//		{
+//			retval = send()
+//			p->m_pSkillManager->m_Player1_SkillCounT
+//		}
+//	}
+//	
+//	if (SkillManager::m_Player2_SkillCount > 0)
+//	{
+//		for (int i = 0; i < MAXSKILL; i++)
+//		{
+//
+//		}
+//
+//	return 0;
+//}
 void CServerFramework::TestRecv(SOCKET& client_socket)
 {
 	int retval = 0;
@@ -312,9 +342,9 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 		}
 		EnterCriticalSection(&cs);
 
-		cout << "player : "<<(int)cs_runPacket.player << ", key : "<<(int)cs_runPacket.key << "\n";
+		//cout << "player : "<<(int)cs_runPacket.player << ", key : "<<(int)cs_runPacket.key << "\n";
 
-		KeyDistribute(cs_runPacket.player, cs_runPacket.key);
+		//KeyDistribute(cs_runPacket.player, cs_runPacket.key);
 		//cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
 		//cout << "PLAYER_2 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
 
@@ -347,7 +377,9 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 		vec_client_info[player].pos.X -= 10;
 		break;
 	case KEY_UP:
-		vec_client_info[player].pos.Y += 200;			//
+		if (vec_client_info[player].pos.Y > 300) {
+			vec_client_info[player].pos.Y -= 30;
+		}		//
 		break;
 	case KEY_SPACE:
 		for (int i = 0; i < 2; ++i)
@@ -455,12 +487,19 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			for (int i = 0; i < vec_client_info.size(); ++i)
 			{
 				sc_runPacket.pos[i] = vec_client_info[i].pos;
-				sc_runPacket.onSkill = vec_client_info[i].onSkill;
-			}			
+				//sc_runPacket.onSkill = vec_client_info[i].onSkill;
 
-			//sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
-			//sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
 
+				//sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
+				//sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
+				//두 클라이언트중에 누구라도 스킬 카운트가 0이상이면 두 클라이언트에게 onSkill = True를 대입한다.
+				if (SkillManager::m_Player1_SkillCount > 0 || SkillManager::m_Player2_SkillCount > 0)
+				{
+					sc_runPacket.onSkill = true;
+					//std::cout <<"플레이어1 스킬 개수"<< SkillManager::m_Player1_SkillCount << std::endl;
+					//std::cout << "플레이어2 스킬 개수" << SkillManager::m_Player2_SkillCount << std::endl;
+				}
+			}
 			packetSize = sizeof(SC_RUN);
 			for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
 			{
@@ -475,6 +514,14 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				//	<< "플레이어2 : " << sc_runPacket.pos[PLAYER_2].X << ", " << sc_runPacket.pos[PLAYER_2].Y << endl;
 
 			}
+
+			if (sc_runPacket.onSkill == true)
+			{
+				/*packetSize = sizeof(SC_SKILL);
+				for(int i=0;i<)*/
+				
+			}
+
 		
 			//if(vec_client)
 
@@ -491,13 +538,13 @@ void CServerFramework::Update(float elapsedTime)
 	m_pSkillManager->update(elapsedTime,vec_client_info[PLAYER_1].pos,vec_client_info[PLAYER_2].pos);
 	for (int i = 0; i < vec_client_info.size(); i++) 
 	{
-		if (vec_client_info[i].pos.Y > 0.0f)
+		if (vec_client_info[i].pos.Y < 550.0f)
 		{
-			vec_client_info[i].pos.Y -= elapsedTime;
+			vec_client_info[i].pos.Y += 15;
 		}
-		if (vec_client_info[i].pos.Y < 0.0f)
+		if (vec_client_info[i].pos.Y > 550.0f)
 		{
-			vec_client_info[i].pos.Y = 0.0f;
+			vec_client_info[i].pos.Y = 550.0f;
 		}
 
 	}

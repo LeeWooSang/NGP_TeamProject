@@ -31,6 +31,8 @@ public:
 	void TestRecv(SOCKET&);
 	void KeyDistribute(byte&, byte&);
 	static DWORD WINAPI SendThread(LPVOID);
+
+	//static DWORD WINAPI SkillThread(LPVOID);
 	
 	void SendPacket(SOCKET&);
 	void Update(float);
