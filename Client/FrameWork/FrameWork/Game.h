@@ -58,7 +58,7 @@ struct CS_RUN
 {
 	byte        key;
 	byte        player;
-	bool        onSkill;
+	bool        onSkill = true;
 };
 
 struct SC_SKILL

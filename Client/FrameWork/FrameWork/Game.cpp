@@ -200,6 +200,9 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				return 0;
 			}
 			pCSRun.onSkill = false;
+			// TYPE_RUN일때, 데이터를 보내고 키 값을 바로 IDLE로 바꿈
+			// 키가 다운이 되고, 업이 될때까지 그 사이에 이상한 값이 들어가는 것을 막기위해
+			pCSRun.key = KEY_IDLE;
 		}
 		LeaveCriticalSection(&cs);
 		if (pCSRun.key == KEY_SPACE)

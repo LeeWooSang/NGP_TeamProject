@@ -68,5 +68,7 @@ private:
 
 	static DWORD lastTime;
 	static float FPS;
+
+	bool onSkill = false;
 };
 
