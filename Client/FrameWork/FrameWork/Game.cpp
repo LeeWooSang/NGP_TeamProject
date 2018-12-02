@@ -206,15 +206,15 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 			pCSRun.onSkill = false;
 		}
 		LeaveCriticalSection(&cs);
-		//if (pCSRun.key == KEY_SPACE)
-		//{
-		//	retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
-		//	if (retval == SOCKET_ERROR)
-		//	{
-		//		err_display("send( )");
-		//		return 0;
-		//	}
-		//}
+		if (pCSRun.key == KEY_SPACE)
+		{
+			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("send( )");
+				return 0;
+			}
+		}
 		break;
 	}
 	return 0;
