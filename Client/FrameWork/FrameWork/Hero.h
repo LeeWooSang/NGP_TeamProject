@@ -22,18 +22,19 @@ private:
 	int mode;
 	USHORT hp;
 	int animCount[ANIMNUM];
-	Sprite * sMode[ANIMNUM];
+	Sprite * sPMode[ANIMNUM];
+	Sprite * sEMode[ANIMNUM];
 public:
 	byte player;
 	bool isBack;
 
 public:
 	Hero();
-	Hero(int x, int y, int mode, int player);
+	Hero(int x, int y, int mode);
 	~Hero();
 
 	void Render(HDC* cDC);
-	void Enter(int p);
+	void Enter();
 	void Destroy();
 
 	void setLocation(int x, int y);

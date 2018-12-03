@@ -6,13 +6,15 @@
 
 struct Client_Info
 {
-	Client_Info(SOCKET socket, byte num, COORD p, bool skill) : client_socket(socket), player(num), pos(p), onSkill(skill) {}
+	Client_Info(SOCKET socket, byte num, COORD p, bool skill, byte mode, bool back) : client_socket(socket), player(num), pos(p), onSkill(skill), eMode(mode), isBack(back) {}
 
 	SOCKET	client_socket;
 	byte			player;
 	COORD	pos;
 	bool			onSkill;
 	COORD	skillPos;
+	byte eMode;		// 상대방의 애니메이션 상태
+	bool isBack;
 };
 
 class CServerFramework

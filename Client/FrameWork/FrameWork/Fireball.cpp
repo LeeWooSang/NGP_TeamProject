@@ -2,6 +2,11 @@
 
 Fireball::Fireball()
 {
+	for (int i = 0; i < ANIMNUM; ++i)
+	{
+		sPFireball[i] = NULL;
+		sEFireball[i] = NULL;
+	}
 	pos.X = 0;
 	pos.Y = 0;
 	isRight = true;
@@ -9,80 +14,111 @@ Fireball::Fireball()
 	isDraw = false;
 }
 
-Fireball::Fireball(int x, int y, bool r, byte p)
+Fireball::Fireball(int x, int y, bool r)
 {
+	for (int i = 0; i < ANIMNUM; ++i)
+	{
+		sPFireball[i] = NULL;
+		sEFireball[i] = NULL;
+	}
 	pos.X = x;
 	pos.Y = y;
 	isRight = r;
 	isCrush = false;
 	isDraw = false;
 
-	initSprite(p);
+	initSprite();
 }
 
-void Fireball::initSprite(byte p)
+void Fireball::initSprite()
 {
-	if (sFireball[FIREBALL] == NULL)
+	for (int i = 0; i < ANIMNUM; ++i)
+		animCount[i] = 0;
+
+	if (sPFireball[FIREBALL] == NULL && sEFireball[FIREBALL] == NULL)
 	{
-		sFireball[FIREBALL] = new Sprite;
-		if (p == PLAYER1)
-		{
-			sFireball[FIREBALL]->Entry(0, "image/attack-01-1.bmp", 0, 0);
-			sFireball[FIREBALL]->Entry(1, "image/attack-02-1.bmp", 0, 0);
-			sFireball[FIREBALL]->Entry(2, "image/attack-03-1.bmp", 0, 0);
-			sFireball[FIREBALL]->Entry(3, "image/attack-04-1.bmp", 0, 0);
-		}
-		else
-		{
-			sFireball[FIREBALL]->Entry(0, "image/e_attack-01-1.bmp", 0, 0);
-			sFireball[FIREBALL]->Entry(1, "image/e_attack-02-1.bmp", 0, 0);
-			sFireball[FIREBALL]->Entry(2, "image/e_attack-03-1.bmp", 0, 0);
-			sFireball[FIREBALL]->Entry(3, "image/e_attack-04-1.bmp", 0, 0);
-		}
-		sFireball[FIREBALL]->setLocation(0, pos.X, pos.Y);
-		sFireball[FIREBALL]->setLocation(1, pos.X, pos.Y);
-		sFireball[FIREBALL]->setLocation(2, pos.X, pos.Y);
-		sFireball[FIREBALL]->setLocation(3, pos.X, pos.Y);
+		sPFireball[FIREBALL] = new Sprite;
+		sEFireball[FIREBALL] = new Sprite;
+		
+		sPFireball[FIREBALL]->Entry(0, "image/fireball_01-1.bmp", 0, 0);
+		sPFireball[FIREBALL]->Entry(1, "image/fireball_02-1.bmp", 0, 0);
+		sPFireball[FIREBALL]->Entry(2, "image/fireball_03-1.bmp", 0, 0);
+		sPFireball[FIREBALL]->Entry(3, "image/fireball_04-1.bmp", 0, 0);
+
+		sPFireball[FIREBALL]->setLocation(0, pos.X, pos.Y);
+		sPFireball[FIREBALL]->setLocation(1, pos.X, pos.Y);
+		sPFireball[FIREBALL]->setLocation(2, pos.X, pos.Y);
+		sPFireball[FIREBALL]->setLocation(3, pos.X, pos.Y);
+		
+		sEFireball[FIREBALL]->Entry(0, "image/e_fireball_01-1.bmp", 0, 0);
+		sEFireball[FIREBALL]->Entry(1, "image/e_fireball_02-1.bmp", 0, 0);
+		sEFireball[FIREBALL]->Entry(2, "image/e_fireball_03-1.bmp", 0, 0);
+		sEFireball[FIREBALL]->Entry(3, "image/e_fireball_04-1.bmp", 0, 0);
+		
+		sEFireball[FIREBALL]->setLocation(0, pos.X, pos.Y);
+		sEFireball[FIREBALL]->setLocation(1, pos.X, pos.Y);
+		sEFireball[FIREBALL]->setLocation(2, pos.X, pos.Y);
+		sEFireball[FIREBALL]->setLocation(3, pos.X, pos.Y);
 	}
 
-	if (sFireball[FIREBALL_B] == NULL)
+	if (sPFireball[FIREBALL_B] == NULL && sEFireball[FIREBALL_B] == NULL)
 	{
-		sFireball[FIREBALL_B] = new Sprite;
-		if (p == PLAYER1)
-		{
-			sFireball[FIREBALL_B]->Entry(0, "image/attack-01-b.bmp", 0, 0);
-			sFireball[FIREBALL_B]->Entry(1, "image/attack-02-b.bmp", 0, 0);
-			sFireball[FIREBALL_B]->Entry(2, "image/attack-03-b.bmp", 0, 0);
-			sFireball[FIREBALL_B]->Entry(3, "image/attack-04-b.bmp", 0, 0);
-		}
-		else
-		{
-			sFireball[FIREBALL_B]->Entry(0, "image/e_attack-01-b.bmp", 0, 0);
-			sFireball[FIREBALL_B]->Entry(1, "image/e_attack-02-b.bmp", 0, 0);
-			sFireball[FIREBALL_B]->Entry(2, "image/e_attack-03-b.bmp", 0, 0);
-			sFireball[FIREBALL_B]->Entry(3, "image/e_attack-04-b.bmp", 0, 0);
-		}
-		sFireball[FIREBALL_B]->setLocation(0, pos.X, pos.Y);
-		sFireball[FIREBALL_B]->setLocation(1, pos.X, pos.Y);
-		sFireball[FIREBALL_B]->setLocation(2, pos.X, pos.Y);
-		sFireball[FIREBALL_B]->setLocation(3, pos.X, pos.Y);
+		sPFireball[FIREBALL_B] = new Sprite;
+		sEFireball[FIREBALL_B] = new Sprite;
+		
+		sPFireball[FIREBALL_B]->Entry(0, "image/fireball_01-b.bmp", 0, 0);
+		sPFireball[FIREBALL_B]->Entry(1, "image/fireball_02-b.bmp", 0, 0);
+		sPFireball[FIREBALL_B]->Entry(2, "image/fireball_03-b.bmp", 0, 0);
+		sPFireball[FIREBALL_B]->Entry(3, "image/fireball_04-b.bmp", 0, 0);
+
+		sPFireball[FIREBALL_B]->setLocation(0, pos.X, pos.Y);
+		sPFireball[FIREBALL_B]->setLocation(1, pos.X, pos.Y);
+		sPFireball[FIREBALL_B]->setLocation(2, pos.X, pos.Y);
+		sPFireball[FIREBALL_B]->setLocation(3, pos.X, pos.Y);
+		
+		sEFireball[FIREBALL_B]->Entry(0, "image/e_fireball_01-b.bmp", 0, 0);
+		sEFireball[FIREBALL_B]->Entry(1, "image/e_fireball_02-b.bmp", 0, 0);
+		sEFireball[FIREBALL_B]->Entry(2, "image/e_fireball_03-b.bmp", 0, 0);
+		sEFireball[FIREBALL_B]->Entry(3, "image/e_fireball_04-b.bmp", 0, 0);
+		
+		sEFireball[FIREBALL_B]->setLocation(0, pos.X, pos.Y);
+		sEFireball[FIREBALL_B]->setLocation(1, pos.X, pos.Y);
+		sEFireball[FIREBALL_B]->setLocation(2, pos.X, pos.Y);
+		sEFireball[FIREBALL_B]->setLocation(3, pos.X, pos.Y);
 	}
 
-	if (sFireball[CRUSH] == NULL)
+	if (sPFireball[CRUSH] == NULL && sEFireball[CRUSH] == NULL)
 	{
-		sFireball[CRUSH] = new Sprite;
-		sFireball[CRUSH]->Entry(0, "image/boom_01.bmp", 0, 0);
-		sFireball[CRUSH]->Entry(1, "image/boom_02.bmp", 0, 0);
-		sFireball[CRUSH]->Entry(2, "image/boom_03.bmp", 0, 0);
-		sFireball[CRUSH]->Entry(3, "image/boom_04.bmp", 0, 0);
-		sFireball[CRUSH]->Entry(4, "image/boom_05.bmp", 0, 0);
-		sFireball[CRUSH]->Entry(5, "image/boom_06.bmp", 0, 0);
-		sFireball[CRUSH]->setLocation(0, pos.X, pos.Y);
-		sFireball[CRUSH]->setLocation(1, pos.X, pos.Y);
-		sFireball[CRUSH]->setLocation(2, pos.X, pos.Y);
-		sFireball[CRUSH]->setLocation(3, pos.X, pos.Y);
-		sFireball[CRUSH]->setLocation(4, pos.X, pos.Y);
-		sFireball[CRUSH]->setLocation(5, pos.X, pos.Y);
+		sPFireball[CRUSH] = new Sprite;
+		sEFireball[CRUSH] = new Sprite;
+
+		sPFireball[CRUSH]->Entry(0, "image/boom_01.bmp", 0, 0);
+		sPFireball[CRUSH]->Entry(1, "image/boom_02.bmp", 0, 0);
+		sPFireball[CRUSH]->Entry(2, "image/boom_03.bmp", 0, 0);
+		sPFireball[CRUSH]->Entry(3, "image/boom_04.bmp", 0, 0);
+		sPFireball[CRUSH]->Entry(4, "image/boom_05.bmp", 0, 0);
+		sPFireball[CRUSH]->Entry(5, "image/boom_06.bmp", 0, 0);
+
+		sPFireball[CRUSH]->setLocation(0, pos.X, pos.Y);
+		sPFireball[CRUSH]->setLocation(1, pos.X, pos.Y);
+		sPFireball[CRUSH]->setLocation(2, pos.X, pos.Y);
+		sPFireball[CRUSH]->setLocation(3, pos.X, pos.Y);
+		sPFireball[CRUSH]->setLocation(4, pos.X, pos.Y);
+		sPFireball[CRUSH]->setLocation(5, pos.X, pos.Y);
+
+		sEFireball[CRUSH]->Entry(0, "image/boom_01.bmp", 0, 0);
+		sEFireball[CRUSH]->Entry(1, "image/boom_02.bmp", 0, 0);
+		sEFireball[CRUSH]->Entry(2, "image/boom_03.bmp", 0, 0);
+		sEFireball[CRUSH]->Entry(3, "image/boom_04.bmp", 0, 0);
+		sEFireball[CRUSH]->Entry(4, "image/boom_05.bmp", 0, 0);
+		sEFireball[CRUSH]->Entry(5, "image/boom_06.bmp", 0, 0);
+		 
+		sEFireball[CRUSH]->setLocation(0, pos.X, pos.Y);
+		sEFireball[CRUSH]->setLocation(1, pos.X, pos.Y);
+		sEFireball[CRUSH]->setLocation(2, pos.X, pos.Y);
+		sEFireball[CRUSH]->setLocation(3, pos.X, pos.Y);
+		sEFireball[CRUSH]->setLocation(4, pos.X, pos.Y);
+		sEFireball[CRUSH]->setLocation(5, pos.X, pos.Y);
 	}
 }
 
@@ -90,41 +126,79 @@ Fireball::~Fireball()
 {
 	for (int i = 0; i < S_ANIMNUM; ++i)
 	{
-		if(sFireball[i])
-			SAFE_DELETE_ARRAY(sFireball[i]);
+		if(sPFireball[i])
+			SAFE_DELETE_ARRAY(sPFireball[i]);
+		if (sEFireball[i])
+			SAFE_DELETE_ARRAY(sEFireball[i]);
 	}
 }
 
 void Fireball::Render(HDC* cDC)
 {
-	if (isCrush)
+	if (player == PLAYER1)
 	{
-		if (animCount[CRUSH] >= sFireball[CRUSH]->getIndex())
-			isDraw = false;
-		else
+		if (isCrush)
 		{
-			sFireball[CRUSH]->setLocation(pos.X, pos.Y);
-			sFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
-			animCount[CRUSH]++;
+			if (animCount[CRUSH] >= sPFireball[CRUSH]->getIndex())
+				isDraw = false;
+			else
+			{
+				sPFireball[CRUSH]->setLocation(pos.X, pos.Y);
+				sPFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
+				animCount[CRUSH]++;
+			}
+		}
+		else if (!isCrush)
+		{
+			if (isRight)
+			{
+				if (animCount[FIREBALL] >= sPFireball[FIREBALL]->getIndex())
+					animCount[FIREBALL] = 0;
+				sPFireball[FIREBALL]->setLocation(pos.X, pos.Y);
+				sPFireball[FIREBALL]->Render(cDC, animCount[FIREBALL], (UINT)RGB(255, 0, 255));
+				animCount[FIREBALL]++;
+			}
+			else if (!isRight)
+			{
+				if (animCount[FIREBALL_B] >= sPFireball[FIREBALL_B]->getIndex())
+					animCount[FIREBALL_B] = 0;
+				sPFireball[FIREBALL_B]->setLocation(pos.X, pos.Y);
+				sPFireball[FIREBALL_B]->Render(cDC, animCount[FIREBALL_B], (UINT)RGB(255, 0, 255));
+				animCount[FIREBALL_B]++;
+			}
 		}
 	}
-	else if (!isCrush)
+	else
 	{
-		if (isRight)
+		if (isCrush)
 		{
-			if (animCount[FIREBALL] >= sFireball[FIREBALL]->getIndex())
-				animCount[FIREBALL] = 0;
-			sFireball[FIREBALL]->setLocation(pos.X, pos.Y);
-			sFireball[FIREBALL]->Render(cDC, animCount[FIREBALL], (UINT)RGB(255, 0, 255));
-			animCount[FIREBALL]++;
+			if (animCount[CRUSH] >= sEFireball[CRUSH]->getIndex())
+				isDraw = false;
+			else
+			{
+				sEFireball[CRUSH]->setLocation(pos.X, pos.Y);
+				sEFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
+				animCount[CRUSH]++;
+			}
 		}
-		else if (!isRight)
+		else if (!isCrush)
 		{
-			if (animCount[FIREBALL_B] >= sFireball[FIREBALL_B]->getIndex())
-				animCount[FIREBALL_B] = 0;
-			sFireball[FIREBALL_B]->setLocation(pos.X, pos.Y);
-			sFireball[FIREBALL_B]->Render(cDC, animCount[FIREBALL_B], (UINT)RGB(255, 0, 255));
-			animCount[FIREBALL_B]++;
+			if (isRight)
+			{
+				if (animCount[FIREBALL] >= sEFireball[FIREBALL]->getIndex())
+					animCount[FIREBALL] = 0;
+				sEFireball[FIREBALL]->setLocation(pos.X, pos.Y);
+				sEFireball[FIREBALL]->Render(cDC, animCount[FIREBALL], (UINT)RGB(255, 0, 255));
+				animCount[FIREBALL]++;
+			}
+			else if (!isRight)
+			{
+				if (animCount[FIREBALL_B] >= sEFireball[FIREBALL_B]->getIndex())
+					animCount[FIREBALL_B] = 0;
+				sEFireball[FIREBALL_B]->setLocation(pos.X, pos.Y);
+				sEFireball[FIREBALL_B]->Render(cDC, animCount[FIREBALL_B], (UINT)RGB(255, 0, 255));
+				animCount[FIREBALL_B]++;
+			}
 		}
 	}
 }

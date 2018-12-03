@@ -20,6 +20,7 @@ int elapsedNum = 0;
 byte createSkillIdx = 0;
 std::vector<Fireball> pFireball;
 std::vector<Fireball> eFireball;
+bool initSent = false;
 
 Game::Game()
 {
@@ -77,16 +78,18 @@ void Game::Enter()
 		background = new Sprite;
 		background->Entry(0, "image/start.bmp", 0, 0);
 	}
+	
 	if (pHero == NULL)
 	{
-		pHero = new Hero(50, 50, IDLE, 1);
-		pHero->Enter(PLAYER1);
+		pHero = new Hero(500, 550, IDLE);
+		pHero->Enter();
 	}
 	if (eHero == NULL)
 	{
-		eHero = new Hero(250, 50, IDLE, 2);
-		eHero->Enter(PLAYER2);
+		eHero = new Hero(500, 550, IDLE);
+		eHero->Enter();
 	}
+	
 	//CreateThread(NULL, 0, ClientThread, NULL, 0, NULL);			//필요없을거 같아서 일단 주석 -명진
 	//BulletIndex = pSprite->getIndex() + 1;
 
@@ -95,15 +98,14 @@ void Game::Enter()
 	eFireball.reserve(MAXSKILL);
 	pHero->getLocation(&x, &y);
 	for (int i = 0; i < MAXSKILL; ++i)
-		pFireball.emplace_back(x, y, true, PLAYER1);
+		pFireball.emplace_back(x, y, true);
 	eHero->getLocation(&x, &y);
 	for (int i = 0; i < MAXSKILL; ++i)
-		eFireball.emplace_back(x, y, true, PLAYER2);
+		eFireball.emplace_back(x, y, true);
 
 	memset(&pSCInit, 0, sizeof(SC_INIT));
 	memset(&pSCRun, 0, sizeof(SC_RUN));
 	memset(&pCSRun, 0, sizeof(CS_RUN));
-	pHero->player = -1;
 	gameState = TYPE_INIT;
 
 	//윈속 초기화
@@ -192,7 +194,6 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 		EnterCriticalSection(&cs);
 		if (pCSRun.key != KEY_IDLE)
 		{
-			cout << "player : " << (int)pCSRun.player << ", key : " << (int)pCSRun.key << "\n";
 			retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
 			if (retval == SOCKET_ERROR)
 			{
@@ -224,36 +225,44 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 	int retval = 0;
 	SOCKET client_socket = (SOCKET)sock;
 	int optval = 1;
+
 	switch (gameState)
 	{
 	case TYPE_INIT:
+		
 		// 고정길이 : 패킷 받기
 		optval = 1000;			//대기 시간 0.1초 -by 명진
 		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 		// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
-		
+
 		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
 		if (retval == SOCKET_ERROR)
 		{
 			err_display("recvn( )");
 			return 0;
 		}
-		cout << "isStart : " << pSCInit.isStart << "\nplayer : " << (int)pSCInit.player << "\ntype : " << (int)pSCInit.type << "\n";
-		
-		pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다. 
-		//std::cout << (int)pHero->player<<std::endl;
-		
+
+		cout << (int)pSCInit.player << "\n";
+		if (initSent == false)
+			pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다.
+
 		if (pHero->player == PLAYER1)
 			eHero->player = PLAYER2;
 		else
 			eHero->player = PLAYER1;
+		for (int i = 0; i < MAXSKILL; ++i)
+		{
+			pFireball[i].player = pHero->player;
+			eFireball[i].player = eHero->player;
+		}
 		
 		if (pSCInit.type == TYPE_INIT)
 		{
 			if (pSCInit.isStart)
 			{
+				initSent = true;
 				cout << "상대방과 연결 성공!\n";
-
+				
 				pCSInit.player = pHero->player;
 				//std::cout <<(int)pCSInit.player << std::endl;
 				pCSInit.isReady = true;
@@ -269,6 +278,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		
 		break;
 	case TYPE_RUN:
+		int x, y;
 		optval = INFINITE;		//대기 소켓으로 변경	-by 명진
 		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 		if (retval == SOCKET_ERROR)
@@ -282,10 +292,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			err_display("recv()");
 			break;
 		}
-		if (pSCRun.onSkill)
-		{
-
-		}
+		pHero->getLocation(&x, &y);
+		
 		/*if (pSCRun.onSkill)
 		{
 			retval = recvn((SOCKET)client_socket, (char*)&pSCSkill, sizeof(SC_SKILL), 0);
@@ -310,25 +318,29 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			}
 			LeaveCriticalSection(&cs);
 
-		}
-*/
-		EnterCriticalSection(&cs);
-		if (pHero->player == PLAYER1)
+		}*/
+		if (sqrt(pow(pSCRun.pos[pHero->player].X - x, 2)) < 100 || sqrt(pow(pSCRun.pos[pHero->player].Y - y, 2)) < 100)
 		{
-			pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
-			pHero->setHP(pSCRun.hp[PLAYER1]);
-			eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
-			eHero->setHP(pSCRun.hp[PLAYER2]);
+			EnterCriticalSection(&cs);
+			if (pHero->player == PLAYER1)
+			{
+				pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
+				pHero->setHP(pSCRun.hp[PLAYER1]);
+				eHero->setMode(pSCRun.eMode[pHero->player]);
+				eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
+				eHero->setHP(pSCRun.hp[PLAYER2]);
+			}
+			else
+			{
+				pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
+				pHero->setHP(pSCRun.hp[PLAYER2]);
+				eHero->setMode(pSCRun.eMode[pHero->player]);
+				eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
+				eHero->setHP(pSCRun.hp[PLAYER1]);
+			}
+			LeaveCriticalSection(&cs);
 		}
-		else
-		{
-			pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
-			pHero->setHP(pSCRun.hp[PLAYER2]);
-			eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
-			eHero->setHP(pSCRun.hp[PLAYER1]);
-		}
-		LeaveCriticalSection(&cs);
-
+		
 		break;
 	}
 	
@@ -338,19 +350,23 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 void Game::Render(HDC* cDC)
 {
 	background->Render(cDC, 0);
-
-	if (pHero)
-		pHero->Render(cDC);
-	if (eHero)
-		eHero->Render(cDC);
-	
-	//for (int i = 0; i < MAXSKILL; ++i)
-	//{
-	//	if (pFireball[i].isDraw)
-	//		pFireball[i].Render(cDC);
-	//	if (eFireball[i].isDraw)
-	//		eFireball[i].Render(cDC);
-	//}
+	if (elapsedNum>0)
+	{
+		if (pHero)
+			pHero->Render(cDC);
+		if (eHero)
+			eHero->Render(cDC);
+		if (pFireball.size() > 0 && eFireball.size() > 0)
+		{
+			for (int i = 0; i < MAXSKILL; ++i)
+			{
+				if (pFireball[i].isDraw)
+					pFireball[i].Render(cDC);
+				if (eFireball[i].isDraw)
+					eFireball[i].Render(cDC);
+			}
+		}
+	}
 }
 void Game::MouseInput(int iMessage, int x, int y)
 {
@@ -393,23 +409,23 @@ void Game::KeyboardInput(int iMessage, int wParam)
 			else if (!pHero->isBack)
 				pHero->setMode(ATTACK);
 
-			//for (int i = 0; i < MAXSKILL; ++i)
-			//{
-			//	if (!pFireball[i].isDraw)
-			//	{
-			//		pCSSkill.skillIndex = i;
-			//		pHero->getLocation(&x, &y);
-			//		pFireball[i].setLocation(x, y);
-			//		pFireball[i].isDraw = true;
-			//		if (pHero->isBack)
-			//			pFireball[i].isRight = false;
-			//		else
-			//			pFireball[i].isRight = true;
+			for (int i = 0; i < MAXSKILL; ++i)
+			{
+				if (!pFireball[i].isDraw)
+				{
+					pCSSkill.skillIndex = i;
+					pHero->getLocation(&x, &y);
+					pFireball[i].setLocation(x, y);
+					pFireball[i].isDraw = true;
+					if (pHero->isBack)
+						pFireball[i].isRight = false;
+					else
+						pFireball[i].isRight = true;
 
-			//		//pCSRun.onSkill = true;
-			//		break;
-			//	}
-			//}
+					pCSRun.onSkill = true;
+					break;
+				}
+			}
 			
 			cout << "SPACE key down\n";
 			break;
@@ -428,6 +444,11 @@ void Game::KeyboardInput(int iMessage, int wParam)
 		case VK_SPACE:
 			if (gameState == TYPE_RUN)
 			{
+				if(pHero->isBack)
+					pHero->setMode(IDLE_B);
+				else
+					pHero->setMode(IDLE);
+
 				pCSRun.key = KEY_IDLE;
 			}
 			break;
