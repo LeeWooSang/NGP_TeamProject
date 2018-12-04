@@ -4,6 +4,8 @@
 #include "Hero.h"
 #include "Fireball.h"
 
+#define MAXSKILL 10
+
 // PACKET_TYPE
 #define TYPE_INIT 0
 #define TYPE_START 1
@@ -46,43 +48,42 @@ struct CS_INIT
 	byte        player;
 };
 
+struct SKILL_INFO
+{
+	bool			isEnable;
+	COORD			skillPos;
+	bool			isCrush;
+	byte			player;
+	bool			isRight;
+};
+
+
+struct SKILL
+{
+	byte			player1_skillIndex;
+	byte			player2_skillIndex;
+	SKILL_INFO      player1_skill[MAXSKILL];
+	SKILL_INFO		player2_skill[MAXSKILL];
+};
+
 struct SC_RUN
 {
 	byte		type;
 	byte		eMode[2];
 	COORD		pos[2];
 	USHORT		hp[2];
-	//bool        onSkill;
-	bool	   isEnable;
-	byte       skillIndex;
-	COORD      skillPos;
-	bool       isCrush;
-	byte       player;
-	bool       isRight;
+	bool        onSkill;
+	SKILL		skillInfo;
 };
 
 struct CS_RUN
 {
 	byte        key;
 	byte        player;
-	//bool        onSkill;
+	bool        onSkill;
 };
 
-struct SC_SKILL
-{
-	bool	   isEnable;
-	byte       skillIndex;
-	COORD      skillPos;
-	bool       isCrush;
-	byte       player;
-	bool       isRight;
-};
 
-struct CS_SKILL
-{
-	byte       skillIndex;
-	byte       player;
-};
 
 struct SC_END
 {
