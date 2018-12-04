@@ -49,6 +49,7 @@ struct CS_INIT
 struct SC_RUN
 {
 	byte				type;
+	byte				eMode[2];
 	COORD		pos[2];
 	USHORT		hp[2];
 	bool				onSkill;
@@ -58,7 +59,7 @@ struct CS_RUN
 {
 	byte        key;
 	byte        player;
-	bool        onSkill = true;
+	bool        onSkill;
 };
 
 struct SC_SKILL
