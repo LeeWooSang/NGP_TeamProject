@@ -163,8 +163,6 @@ void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
 	//}
 	if (SkillManager::m_Player1_SkillCount > 0)
 	{
-		
-
 		for (int i = 0; i < MAXSKILL; i++)
 		{
 			checkCollision(player2,player1_SkillArray[i]);
@@ -217,7 +215,8 @@ void SkillManager::checkCollision(COORD& player,SC_SKILL* skill)
 			skill->isEnable = false;
 			if (skill->player == PLAYER_1)
 			{
-				if (SkillManager::m_Player1_SkillCount > 0) {
+				if (SkillManager::m_Player1_SkillCount > 0) 
+				{
 					SkillManager::m_Player1_SkillCount--;
 				}
 			}
@@ -228,7 +227,6 @@ void SkillManager::checkCollision(COORD& player,SC_SKILL* skill)
 					SkillManager::m_Player2_SkillCount--;
 				}
 			}
-
 			cout << "Ãæµ¹" << endl;
 		}
 	}
