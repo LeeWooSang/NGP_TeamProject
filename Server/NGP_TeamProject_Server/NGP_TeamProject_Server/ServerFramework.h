@@ -55,6 +55,9 @@ private:
 
 	static	vector<Client_Info> vec_client_info;
 
+
+	static HANDLE sendEvent;
+	static HANDLE recieveEvent[2];
 	static HANDLE recieveThread[2];
 	static HANDLE sendThread[2];
 	static u_short count;

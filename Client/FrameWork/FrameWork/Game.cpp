@@ -9,8 +9,7 @@ Hero * eHero;
 SC_INIT pSCInit;
 CS_INIT pCSInit;
 SC_RUN pSCRun;
-SC_SKILL pSCSkill;
-CS_SKILL pCSSkill;
+SKILL pSCSkill;
 SC_END pSCEnd;
 CS_RUN pCSRun;
 CRITICAL_SECTION cs;
@@ -206,7 +205,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 			pCSRun.key = KEY_IDLE;
 		}
 		LeaveCriticalSection(&cs);
-		if (pCSRun.key == KEY_SPACE)
+	/*	if (pCSRun.key == KEY_SPACE)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
 			if (retval == SOCKET_ERROR)
@@ -214,7 +213,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				err_display("send( )");
 				return 0;
 			}
-		}
+		}*/
 		break;
 	}
 	return 0;
@@ -231,8 +230,8 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 	case TYPE_INIT:
 		
 		// 고정길이 : 패킷 받기
-		optval = 1000;			//대기 시간 0.1초 -by 명진
-		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		//optval = 1000;			//대기 시간 1초 -by 명진
+		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 		// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
 
 		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
@@ -242,7 +241,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			return 0;
 		}
 
-		cout << (int)pSCInit.player << "\n";
+		//cout << (int)pSCInit.player << "\n";
 		if (initSent == false)
 			pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다.
 
@@ -279,12 +278,12 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		break;
 	case TYPE_RUN:
 		int x, y;
-		optval = INFINITE;		//대기 소켓으로 변경	-by 명진
-		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
-		if (retval == SOCKET_ERROR)
-		{
-			err_quit("setsockopt()");
-		}
+		//optval = INFINITE;		//대기 소켓으로 변경	-by 명진
+		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		//if (retval == SOCKET_ERROR)
+		//{
+		//	err_quit("setsockopt()");
+	//	}
 
 		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
 		if (retval == SOCKET_ERROR)
@@ -294,6 +293,31 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 		}
 		pHero->getLocation(&x, &y);
 		
+		//for (int i = 0; i < MAXSKILL; i++)
+		//{
+		//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
+		//}
+		
+		if (pSCRun.onSkill)
+		{
+
+			//for (int i = 0; i < MAXSKILL; i++)
+			//{
+			//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
+			//	std::cout << pSCRun.skillInfo.player2_skill[i].skillPos.X << pSCRun.skillInfo.player2_skill[i].skillPos.Y << std::endl;
+
+			//}
+			//std::cout << pSCRun.onSkill << std::endl;
+			/*
+			for (int i = 0; i < MAXSKILL; i++)
+			{
+				EnterCriticalSection(&cs);
+				std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
+				LeaveCriticalSection(&cs);
+			}*/
+			//std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::cout;
+		}
+
 		/*if (pSCRun.onSkill)
 		{
 			retval = recvn((SOCKET)client_socket, (char*)&pSCSkill, sizeof(SC_SKILL), 0);
@@ -409,25 +433,25 @@ void Game::KeyboardInput(int iMessage, int wParam)
 			else if (!pHero->isBack)
 				pHero->setMode(ATTACK);
 
-			for (int i = 0; i < MAXSKILL; ++i)
-			{
-				if (!pFireball[i].isDraw)
-				{
-					pCSSkill.skillIndex = i;
-					pHero->getLocation(&x, &y);
-					pFireball[i].setLocation(x, y);
-					pFireball[i].isDraw = true;
-					if (pHero->isBack)
-						pFireball[i].isRight = false;
-					else
-						pFireball[i].isRight = true;
+			//for (int i = 0; i < MAXSKILL; ++i)
+			//{
+			//	if (!pFireball[i].isDraw)
+			//	{
+			//		pCSSkill.skillIndex = i;
+			//		pHero->getLocation(&x, &y);
+			//		pFireball[i].setLocation(x, y);
+			//		pFireball[i].isDraw = true;
+			//		if (pHero->isBack)
+			//			pFireball[i].isRight = false;
+			//		else
+			//			pFireball[i].isRight = true;
 
-					pCSRun.onSkill = true;
-					break;
-				}
-			}
+			//		pCSRun.onSkill = true;
+			//		break;
+			//	}
+			//}
 			
-			cout << "SPACE key down\n";
+			//cout << "SPACE key down\n";
 			break;
 		case VK_ESCAPE:
 			PostQuitMessage(0);

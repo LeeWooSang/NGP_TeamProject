@@ -9,6 +9,7 @@
 
 using namespace std;
 
+#define MAXSKILL 10
 // 서버-클라간에 약속된 매크로
 #define KEY_IDLE    	0X00
 #define KEY_RIGHT 	0X01
@@ -57,34 +58,32 @@ struct CS_RUN
 	byte        player;
 	bool		onSkill;
 };
-
-struct SC_RUN
+struct SKILL_INFO
 {
-	byte			type;
-	byte			eMode[2];
-	COORD	pos[2];
-	USHORT	hp[2];
-	bool			onSkill;
-};
-
-
-struct SC_SKILL
-{
-	//byte			type;
 	bool			isEnable;
-	byte			skillIndex;
-	COORD	skillPos;
+	COORD			skillPos;
 	bool			isCrush;
 	byte			player;
 	bool			isRight;
 };
 
-struct CS_SKILL
+struct SKILL
 {
-	byte       skillIndex;
-	byte       player;
+	byte			player1_skillIndex;
+	byte			player2_skillIndex;
+	SKILL_INFO		player1_skill[MAXSKILL];
+	SKILL_INFO		player2_skill[MAXSKILL];
 };
 
+struct SC_RUN
+{
+	byte			type;
+	byte			eMode[2];
+	COORD			pos[2];
+	USHORT			hp[2];
+	bool			onSkill;
+	SKILL			skillInfo;
+};
 
 struct SC_END
 {
