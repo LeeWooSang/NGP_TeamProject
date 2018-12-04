@@ -9,7 +9,7 @@ u_short CServerFramework::count = 0;
 CRITICAL_SECTION cs;
 
 DWORD CServerFramework::lastTime = timeGetTime();
-float CServerFramework::FPS = 0.033;
+float CServerFramework::FPS = 0.016;
 
 CServerFramework::CServerFramework() : gameState(TYPE_INIT)
 {
@@ -192,7 +192,6 @@ void CServerFramework::AcceptClient()
 			sendThread[PLAYER_1] = CreateThread(NULL, 0, SendThread, (LPVOID)vec_client_info[PLAYER_1].client_socket, 0, NULL);
 		else
 		{
-			
 			sendThread[PLAYER_2] = CreateThread(NULL, 0, SendThread, (LPVOID)vec_client_info[PLAYER_2].client_socket, 0, NULL);
 
 			for (int i = 0; i < vec_client_info.size(); ++i) 
@@ -336,6 +335,7 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 			err_display("recvn( )");
 			return;
 		}
+
 		EnterCriticalSection(&cs);
 
 		switch (cs_runPacket.player)
@@ -354,6 +354,7 @@ void CServerFramework::TestRecv(SOCKET& client_socket)
 		break;
 	}
 }
+
 void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 {
 	switch (keyType)

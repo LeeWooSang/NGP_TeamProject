@@ -8,11 +8,8 @@ int main()
 	if (Server == nullptr)
 		return 0;
 	
-
-	//DWORD WINAPI ServerThread()
 	Server->AcceptClient();
-	
-	
+
 	delete Server;
 	Server = nullptr;
 }
