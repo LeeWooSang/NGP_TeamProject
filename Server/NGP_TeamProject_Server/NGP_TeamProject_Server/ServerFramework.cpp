@@ -440,9 +440,9 @@ DWORD WINAPI CServerFramework::SendThread(LPVOID socket)
 			if ((SOCKET)socket == vec_client_info[PLAYER_2].client_socket)
 				p->SendPacket(vec_client_info[PLAYER_2].client_socket);
 			lastTime = timeGetTime();
-			SetEvent(sendEvent);
+			//SetEvent(sendEvent);
 		}
-		//SetEvent(sendEvent);
+		SetEvent(sendEvent);
 	}
 
 	return 0;
