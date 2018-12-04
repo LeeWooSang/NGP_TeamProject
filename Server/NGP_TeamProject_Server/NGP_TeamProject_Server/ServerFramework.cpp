@@ -402,7 +402,7 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 				vec_client_info[PLAYER_1].eMode = JUMP;
 		}
 		if (vec_client_info[player].pos.Y > 300)
-			vec_client_info[player].pos.Y -= 30;
+			vec_client_info[player].pos.Y -= 120;
 		break;
 	case KEY_SPACE:
 		if (player == PLAYER_1)
@@ -526,13 +526,13 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				//두 클라이언트중에 누구라도 스킬 카운트가 0이상이면 두 클라이언트에게 onSkill = True를 대입한다.
 				if (SkillManager::m_Player1_SkillCount > 0 || SkillManager::m_Player2_SkillCount > 0)
 				{
-					sc_runPacket.onSkill = true;
+					//sc_runPacket.onSkill = true;
 					//std::cout <<"플레이어1 스킬 개수"<< SkillManager::m_Player1_SkillCount << std::endl;
 					//std::cout << "플레이어2 스킬 개수" << SkillManager::m_Player2_SkillCount << std::endl;
 				}
 				else
 				{
-					sc_runPacket.onSkill = false;
+					//sc_runPacket.onSkill = false;
 
 				}
 			}
@@ -559,11 +559,11 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 				else
 					vec_client_info[PLAYER_2].eMode = IDLE;
 			}
-			if (sc_runPacket.onSkill == true)
-			{
-				/*packetSize = sizeof(SC_SKILL);
-				for(int i=0;i<)*/				
-			}
+			//if (sc_runPacket.onSkill == true)
+			//{
+			//	/*packetSize = sizeof(SC_SKILL);
+			//	for(int i=0;i<)*/				
+			//}
 		}
 		break;
 	}

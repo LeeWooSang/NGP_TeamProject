@@ -310,7 +310,8 @@ void Hero::setLocation(int x1, int y1)
 
 void Hero::setMode(int m)
 {
-	mode = m;
+	if(m <= ANIMNUM)
+		mode = m;
 }
 
 void Hero::setHP(USHORT h)

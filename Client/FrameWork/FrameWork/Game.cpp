@@ -9,8 +9,6 @@ Hero * eHero;
 SC_INIT pSCInit;
 CS_INIT pCSInit;
 SC_RUN pSCRun;
-SC_SKILL pSCSkill;
-CS_SKILL pCSSkill;
 SC_END pSCEnd;
 CS_RUN pCSRun;
 CRITICAL_SECTION cs;
@@ -200,13 +198,13 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				err_display("send( )");
 				return 0;
 			}
-			pCSRun.onSkill = false;
+			//pCSRun.onSkill = false;
 			// TYPE_RUN일때, 데이터를 보내고 키 값을 바로 IDLE로 바꿈
 			// 키가 다운이 되고, 업이 될때까지 그 사이에 이상한 값이 들어가는 것을 막기위해
 			pCSRun.key = KEY_IDLE;
 		}
 		LeaveCriticalSection(&cs);
-		if (pCSRun.key == KEY_SPACE)
+		/*if (pCSRun.key == KEY_SPACE)
 		{
 			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
 			if (retval == SOCKET_ERROR)
@@ -214,7 +212,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 				err_display("send( )");
 				return 0;
 			}
-		}
+		}*/
 		break;
 	}
 	return 0;
@@ -230,19 +228,22 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 	{
 	case TYPE_INIT:
 		
+		cout << std::boolalpha << initSent << "\n";
 		// 고정길이 : 패킷 받기
-		optval = 1000;			//대기 시간 0.1초 -by 명진
-		retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
-		// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
-
-		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
-		if (retval == SOCKET_ERROR)
+		if (!initSent)
 		{
-			err_display("recvn( )");
-			return 0;
-		}
+			optval = 1000;			//대기 시간 0.1초 -by 명진
+			retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+			// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
 
+			retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("recvn( )");
+				return 0;
+			}
 		cout << (int)pSCInit.player << "\n";
+		}
 		if (initSent == false)
 			pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다.
 
@@ -256,7 +257,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			eFireball[i].player = eHero->player;
 		}
 		
-		if (pSCInit.type == TYPE_INIT)
+		if (pSCInit.type == TYPE_INIT && !initSent)
 		{
 			if (pSCInit.isStart)
 			{
@@ -409,23 +410,23 @@ void Game::KeyboardInput(int iMessage, int wParam)
 			else if (!pHero->isBack)
 				pHero->setMode(ATTACK);
 
-			for (int i = 0; i < MAXSKILL; ++i)
-			{
-				if (!pFireball[i].isDraw)
-				{
-					pCSSkill.skillIndex = i;
-					pHero->getLocation(&x, &y);
-					pFireball[i].setLocation(x, y);
-					pFireball[i].isDraw = true;
-					if (pHero->isBack)
-						pFireball[i].isRight = false;
-					else
-						pFireball[i].isRight = true;
+			//for (int i = 0; i < MAXSKILL; ++i)
+			//{
+			//	if (!pFireball[i].isDraw)
+			//	{
+			//		pCSSkill.skillIndex = i;
+			//		pHero->getLocation(&x, &y);
+			//		pFireball[i].setLocation(x, y);
+			//		pFireball[i].isDraw = true;
+			//		if (pHero->isBack)
+			//			pFireball[i].isRight = false;
+			//		else
+			//			pFireball[i].isRight = true;
 
-					pCSRun.onSkill = true;
-					break;
-				}
-			}
+			//		//pCSRun.onSkill = true;
+			//		break;
+			//	}
+			//}
 			
 			cout << "SPACE key down\n";
 			break;

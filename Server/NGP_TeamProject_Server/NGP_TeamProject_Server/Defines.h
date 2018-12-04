@@ -50,12 +50,12 @@ struct CS_INIT
 struct CS_RUN
 {
 	CS_RUN() {}
-	CS_RUN(byte t, byte k,bool p) : key(t), player(k),onSkill(p) { }
+	CS_RUN(byte t, byte k) : key(t), player(k) { }
 
 	//byte        type;
 	byte        key;
 	byte        player;
-	bool		onSkill;
+	//bool		onSkill;
 };
 
 struct SC_RUN
@@ -64,7 +64,13 @@ struct SC_RUN
 	byte			eMode[2];
 	COORD	pos[2];
 	USHORT	hp[2];
-	bool			onSkill;
+	//bool			onSkill;
+	bool			isEnable;
+	byte			skillIndex;
+	COORD	skillPos;
+	bool			isCrush;
+	byte			player;
+	bool			isRight;
 };
 
 

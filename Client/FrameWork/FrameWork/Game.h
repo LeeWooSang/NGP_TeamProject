@@ -52,14 +52,20 @@ struct SC_RUN
 	byte		eMode[2];
 	COORD		pos[2];
 	USHORT		hp[2];
-	bool        onSkill;
+	//bool        onSkill;
+	bool	   isEnable;
+	byte       skillIndex;
+	COORD      skillPos;
+	bool       isCrush;
+	byte       player;
+	bool       isRight;
 };
 
 struct CS_RUN
 {
 	byte        key;
 	byte        player;
-	bool        onSkill;
+	//bool        onSkill;
 };
 
 struct SC_SKILL
