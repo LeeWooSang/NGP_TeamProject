@@ -48,15 +48,32 @@ struct CS_RUN
 	bool		onSkill;
 };
 
-struct SC_RUN
+#define MAXSKILL 10
+struct SKILL_INFO
 {
-	byte			type;
-	COORD	pos[2];
-	USHORT	hp[2];
-	bool			onSkill;
+	bool			isEnable;
+	COORD			skillPos;
+	bool			isCrush;
+	byte			player;
+	bool			isRight;
+};
+struct SKILL
+{
+	byte			player1_skillIndex;
+	byte			player2_skillIndex;
+	SKILL_INFO      player1_skill[MAXSKILL];
+	SKILL_INFO		player2_skill[MAXSKILL];
 };
 
-
+struct SC_RUN
+{
+	byte		type;
+	byte		eMode[2];
+	COORD		pos[2];
+	USHORT		hp[2];
+	bool        onSkill;
+	SKILL		skillInfo;
+};
 struct SC_SKILL
 {
 	//byte			type;

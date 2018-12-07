@@ -4,6 +4,8 @@
 #include "Hero.h"
 #include "Fireball.h"
 
+#define MAXSKILL 10
+
 // PACKET_TYPE
 #define TYPE_INIT 0
 #define TYPE_START 1
@@ -27,9 +29,9 @@
 #define KEY_UP    	0X03
 #define KEY_SPACE	0X04
 
-//#define SERVERIP "127.0.0.1"
-//#define SERVERIP "192.168.206.48"
-#define SERVERIP "192.168.219.103"
+
+#define SERVERIP "127.0.0.1"
+//#define SERVERIP "192.168.121.212"
 #define SERVERPORT 9000
 
 #pragma pack(1)
@@ -46,36 +48,44 @@ struct CS_INIT
 	byte        player;
 };
 
+struct SKILL_INFO
+{
+	bool			isEnable;
+	COORD			skillPos;
+	bool			isCrush;
+	byte			player;
+	bool			isRight;
+};
+
+
+struct SKILL
+{
+	byte			player1_skillIndex;
+	byte			player2_skillIndex;
+	SKILL_INFO      player1_skill[MAXSKILL];
+	SKILL_INFO		player2_skill[MAXSKILL];
+};
+
 struct SC_RUN
 {
 	byte		type;
+	byte		eMode[2];
 	COORD		pos[2];
+	//float pos[2];
+	//float epos2[2];
 	USHORT		hp[2];
 	bool        onSkill;
+	SKILL		skillInfo;
 };
 
 struct CS_RUN
 {
 	byte        key;
 	byte        player;
-	bool        onSkill = true;
+	bool        onSkill;
 };
 
-struct SC_SKILL
-{
-	bool	   isEnable;
-	byte       skillIndex;
-	COORD      skillPos;
-	bool       isCrush;
-	byte       player;
-	bool       isRight;
-};
 
-struct CS_SKILL
-{
-	byte       skillIndex;
-	byte       player;
-};
 
 struct SC_END
 {
