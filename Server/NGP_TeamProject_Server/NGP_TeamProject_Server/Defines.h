@@ -4,6 +4,8 @@
 #include <WinSock2.h>
 #include <Windows.h>
 #include <vector>
+#include <map>
+#include <ctime>
 
 using namespace std;
 
@@ -15,7 +17,7 @@ using namespace std;
 #define KEY_SPACE	0X04
 
 // PACKET_TYPE
-enum PACKET_TYPE { TYPE_INIT, TYPE_RUN, TYPE_SKILL, TYPE_END };
+enum PACKET_TYPE { TYPE_INIT, TYPE_START, TYPE_RUN, TYPE_SKILL, TYPE_END };
 enum PLAYER { PLAYER_1, PLAYER_2 };
 // 키보드 아스키 번호 정의
 enum ASCII_KEY { RIGHT = 77, LEFT = 75, UP = 72, SPACE = 32 };
@@ -28,27 +30,54 @@ struct SC_INIT
 	byte			player;
 };
 
+struct CS_INIT
+{
+	//byte			type;
+	bool			isReady;
+	byte			player;
+};
+
 struct CS_RUN
 {
 	CS_RUN() {}
-	CS_RUN(byte t, byte k, byte p) : type(t), key(k), player(p) { }
+	CS_RUN(byte t, byte k,bool p) : key(t), player(k),onSkill(p) { }
 
-	byte        type;
+	//byte        type;
 	byte        key;
 	byte        player;
+	bool		onSkill;
+};
+
+#define MAXSKILL 10
+struct SKILL_INFO
+{
+	bool			isEnable;
+	COORD			skillPos;
+	bool			isCrush;
+	byte			player;
+	bool			isRight;
+};
+struct SKILL
+{
+	byte			player1_skillIndex;
+	byte			player2_skillIndex;
+	SKILL_INFO      player1_skill[MAXSKILL];
+	SKILL_INFO		player2_skill[MAXSKILL];
 };
 
 struct SC_RUN
 {
-	byte			type;
-	COORD	pos[2];
-	USHORT	hp[2];
-	bool			onSkill;
+	byte		type;
+	byte		eMode[2];
+	COORD		pos[2];
+	USHORT		hp[2];
+	bool        onSkill;
+	SKILL		skillInfo;
 };
-
 struct SC_SKILL
 {
-	byte			type;
+	//byte			type;
+	bool			isEnable;
 	byte			skillIndex;
 	COORD	skillPos;
 	bool			isCrush;
@@ -56,9 +85,18 @@ struct SC_SKILL
 	bool			isRight;
 };
 
+struct CS_SKILL
+{
+	byte       skillIndex;
+	byte       player;
+};
+
+
 struct SC_END
 {
 	byte			type;
 	byte			winner;
 };
 #pragma pack()
+
+

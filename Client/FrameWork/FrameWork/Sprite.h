@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+
  struct Data
 {
 	HBITMAP Bitmap;					// 이미지 자체

@@ -101,6 +101,7 @@ void Menu::KeyboardInput(int iMessage, int wParam)
 		switch (wParam)
 		{
 		case VK_RIGHT:
+
 			printf("업다운 %d\n", wParam);
 			break;
 		case VK_LEFT:
@@ -108,7 +109,12 @@ void Menu::KeyboardInput(int iMessage, int wParam)
 			FWMain::getMain().Warp(1);
 
 			break;
+		//case VK_SPACE:
+		//	//printf("파이어볼");
+		//	break;
 		}
+		
+
 	}
 	
 }

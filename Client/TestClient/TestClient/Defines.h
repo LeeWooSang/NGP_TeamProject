@@ -10,6 +10,7 @@
 using namespace std;
 
 #define SERVERIP "127.0.0.1"
+//#define SERVERIP "192.168.205.56"
 #define SERVERPORT 9000
 
 // 서버-클라간에 약속된 매크로
@@ -20,7 +21,7 @@ using namespace std;
 #define KEY_SPACE	0X04
 
 // PACKET_TYPE
-enum PACKET_TYPE { TYPE_INIT, TYPE_RUN, TYPE_SKILL, TYPE_END };
+enum PACKET_TYPE { TYPE_INIT, TYPE_START, TYPE_RUN, TYPE_SKILL, TYPE_END };
 // 플레이어 구분용
 enum PLAYER { PLAYER_1, PLAYER_2 };
 // 키보드 아스키 번호 정의
@@ -34,11 +35,20 @@ struct SC_INIT
 	byte			player;
 };
 
+struct CS_INIT
+{
+	//byte			type;
+	bool			isReady;
+	byte			player;
+};
+
 struct CS_RUN
 {
-	byte        type;
+	//byte        type;
 	byte        key;
-	byte        player;
+	byte		player;
+	bool        onSkill;
+	
 };
 
 struct SC_RUN
