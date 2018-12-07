@@ -27,9 +27,9 @@
 #define KEY_UP    	0X03
 #define KEY_SPACE	0X04
 
-#define SERVERIP "127.0.0.1"
+//#define SERVERIP "127.0.0.1"
 //#define SERVERIP "192.168.206.48"
-//#define SERVERIP "192.168.121.212"
+#define SERVERIP "192.168.219.103"
 #define SERVERPORT 9000
 
 #pragma pack(1)
