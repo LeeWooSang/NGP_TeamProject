@@ -32,14 +32,14 @@
     <Filter Include="Project\FrameWork\Sprite">
       <UniqueIdentifier>{d8e50ec3-3827-4a7b-b625-7454b86fbd75}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Project\MyGame\Menu">
-      <UniqueIdentifier>{6a9beb1a-d8f0-496c-87ef-863a17abb74e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Project\MyGame\Game">
       <UniqueIdentifier>{db54cf14-52f8-4cd0-ac73-296bd4a4bccc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Project\FrameWork\Collision">
       <UniqueIdentifier>{2f69e00c-a8d4-4766-812f-b95c34bde378}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project\MyGame\Game\Menu">
+      <UniqueIdentifier>{6a9beb1a-d8f0-496c-87ef-863a17abb74e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,7 +56,7 @@
       <Filter>Project\FrameWork\Sprite</Filter>
     </ClCompile>
     <ClCompile Include="Menu.cpp">
-      <Filter>Project\MyGame\Menu</Filter>
+      <Filter>Project\MyGame\Game\Menu</Filter>
     </ClCompile>
     <ClCompile Include="Collision.cpp">
       <Filter>Project\FrameWork\Collision</Filter>
@@ -98,7 +98,7 @@
     </ClInclude>
     <ClInclude Include="resource.h" />
     <ClInclude Include="Menu.h">
-      <Filter>Project\MyGame\Menu</Filter>
+      <Filter>Project\MyGame\Game\Menu</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Project\MyGame\Game</Filter>

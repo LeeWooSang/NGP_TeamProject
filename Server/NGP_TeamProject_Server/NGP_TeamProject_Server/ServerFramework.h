@@ -6,15 +6,13 @@
 
 struct Client_Info
 {
-	Client_Info(SOCKET socket, byte num, COORD p, bool skill, byte mode, bool back) : client_socket(socket), player(num), pos(p), onSkill(skill), eMode(mode), isBack(back) {}
+	Client_Info(SOCKET socket, byte num, COORD p, bool skill) : client_socket(socket), player(num), pos(p), onSkill(skill) {}
 
 	SOCKET	client_socket;
 	byte			player;
 	COORD	pos;
 	bool			onSkill;
 	COORD	skillPos;
-	byte eMode;		// 상대방의 애니메이션 상태
-	bool isBack;
 };
 
 class CServerFramework
@@ -27,52 +25,45 @@ public:
 	static void err_display(const char*);
 	static int recvn(SOCKET, char*, int, int);
 
-	void AcceptClient();
-	
+	SOCKET& AcceptClient();
 	static DWORD WINAPI RecvThread(LPVOID);
-	void TestRecv(SOCKET&);
-	void KeyDistribute(byte&, byte&);
-	static DWORD WINAPI SendThread(LPVOID);
+	static void KeyDistribute(byte&, byte&);
 
 	//static DWORD WINAPI SkillThread(LPVOID);
-	
-	void SendPacket(SOCKET&);
-	void Update(float);
+	static void Update();
+	static void SendPacket(SOCKET&);
 
 	void Destroy();
-private:
-	const char* serverIP = "127.0.0.1";
+//private:
+public:
 	const u_short	serverPort{ 9000 };
 	// 대기 소켓
 	SOCKET			m_listen_socket;
 
-	SkillManager *m_pSkillManager;
+	// 클라전용 소켓
+	SOCKET client_socket;
+	SOCKADDR_IN client_addr;
+	int addrlen = 0;
 
 	// 게임 상태를 저장한다
-	byte gameState;
-	// 0번째 인덱스는 PLAYER_1, 1번째 인덱스는 PLAYER_2
-	static COORD playerPos[2];
+	static byte gameState;
 
 	static	vector<Client_Info> vec_client_info;
 
+	static HANDLE hThread[2];
 
-	static HANDLE sendEvent;
-	static HANDLE recieveEvent[2];
-	static HANDLE recieveThread[2];
-	static HANDLE sendThread[2];
-	static u_short count;
-
+	static SkillManager* m_pSkillManager;
 	static CServerFramework* p;
-	bool check = false;
 
-	bool playerReady[2] = { false, false };
+
+	static bool playerReady[2];
 	// 클라이언트마다 TPYE_START를 한번만 받게하기 위해 검사하는 변수
 	// playerCheck[0]은 PLAYER_1
 	// playerCheck[1]은 PLAYER_2
-	bool playerCheck[2] = { false, false };
+	static bool playerCheck[2];
 
-	static DWORD lastTime;
 	static float FPS;
+	static float elapsedTime;
 
 	bool onSkill = false;
 };

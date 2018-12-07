@@ -29,8 +29,8 @@
 #define KEY_UP    	0X03
 #define KEY_SPACE	0X04
 
+
 #define SERVERIP "127.0.0.1"
-//#define SERVERIP "192.168.206.48"
 //#define SERVERIP "192.168.121.212"
 #define SERVERPORT 9000
 
@@ -71,6 +71,8 @@ struct SC_RUN
 	byte		type;
 	byte		eMode[2];
 	COORD		pos[2];
+	//float pos[2];
+	//float epos2[2];
 	USHORT		hp[2];
 	bool        onSkill;
 	SKILL		skillInfo;
