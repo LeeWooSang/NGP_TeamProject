@@ -5,49 +5,59 @@ int SkillManager::m_Player2_SkillCount = 0;
 
 SkillManager::SkillManager()
 {
-	player1_SkillArray = new SC_SKILL*[MAXSKILL];
-	player2_SkillArray = new SC_SKILL*[MAXSKILL];
+	
 
-	for (int i = 0; i < MAXSKILL; i++)
-	{
-		player1_SkillArray[i] = new SC_SKILL();
-		player2_SkillArray[i] = new SC_SKILL();
-	}
+	
+	player1 = new SKILL();
+	player2 = new SKILL();
+
 
 	//INITALIZE
 	for (int i = 0; i < MAXSKILL; i++)
 	{
-		player1_SkillArray[i]->isEnable = false;
-		player1_SkillArray[i]->isCrush = false;
-		player1_SkillArray[i]->isRight = true;
-		player1_SkillArray[i]->skillIndex = i;
-		player1_SkillArray[i]->player = PLAYER_1;
-		player1_SkillArray[i]->skillPos = { -100,-100 };
+		player1->player1_skill[i].isEnable = false;
+		player1->player1_skill[i].isCrush = false;
+		player1->player1_skill[i].isRight = true;
+		player1->player1_skill[i].player = PLAYER_1;
+		player1->player1_skill[i].skillPos = { -100,-100 };
+		player1->player1_skillIndex = i;
+
+
+		player2->player2_skill[i].isEnable = false;
+		player2->player2_skill[i].isCrush = false;
+		player2->player2_skill[i].isRight = false;
+		player2->player2_skill[i].player = PLAYER_2;
+		player2->player2_skill[i].skillPos = { -100 , -100 };
+		player2->player2_skillIndex = i;
+		/*player1_SkillArray->isEnable = false;
+		player1_SkillArray->isCrush = false;
+		player1_SkillArray->isRight = true;
+		player1_SkillArray->player1_skillIndex = i;
+		player1_SkillArray->player = PLAYER_1;
+		player1_SkillArray->player1_skillPos[i] = { -100,-100 };
 		
 
-		player2_SkillArray[i]->isEnable = false;
-		player2_SkillArray[i]->isCrush = false;
-		player2_SkillArray[i]->isRight = false;
-		player2_SkillArray[i]->skillIndex = i;
-		player2_SkillArray[i]->player = PLAYER_2;
-		player2_SkillArray[i]->skillPos = { -100,-100 };
+		player2_SkillArray->isEnable = false;
+		player2_SkillArray->isCrush = false;
+		player2_SkillArray->isRight = false;
+		player2_SkillArray->player2_skillIndex = i;
+		player2_SkillArray->player = PLAYER_2;
+		player2_SkillArray->player2_skillPos[i] = { -100,-100 };*/
+
 
 	}
 }
 
 SkillManager::~SkillManager()
 {
-	if (player1_SkillArray) {
-		for (int i = 0; i < MAXSKILL; i++) {
-			delete player1_SkillArray[i];
-		}
-		delete[] player1_SkillArray;
+	if (player1) {
+		player1 = nullptr;
+		delete player1;
 	}
-	if (player2_SkillArray) {
-		for (int i = 0; i < MAXSKILL; i++) {
-			delete player2_SkillArray[i];
-		}
-		delete[] player2_SkillArray;
+	if (player2) {
+		
+		player2 = nullptr;
+		delete player2;
 	}
 
 }
@@ -56,29 +66,12 @@ SkillManager::~SkillManager()
 void SkillManager::addSkill(byte& player,COORD& skillPos)
 {
 	
-	//SC_SKILL fireballInfo;
-	////fireballInfo.type = TYPE_SKILL;
-	//fireballInfo.player = player;
-	//if (player == PLAYER_1)
-	//{
-	//	fireballInfo.isRight = true;
-	//	fireballInfo.skillIndex = skillVector.size();
-	//}
-	//else {
-	//	fireballInfo.isRight = false;
-	//}
-	//fireballInfo.skillPos = skillPos;
-	//fireballInfo.isCrush = false;
-	//
-
-	////cout << "현재 스킬 발생 개수" <<skillVector.size()<< endl;
-	//skillVector.emplace_back(fireballInfo);
 	int index = 0;
 	if (player == PLAYER_1)
 	{	
 		for (int i = 0; i < MAXSKILL; i++)
 		{
-			if (player1_SkillArray[i]->isEnable == false)
+			if (player1->player1_skill[i].isEnable==false)
 			{
 				index = i;
 				break;
@@ -93,12 +86,12 @@ void SkillManager::addSkill(byte& player,COORD& skillPos)
 		}
 		
 
-		player1_SkillArray[index]->isEnable = true;
-		player1_SkillArray[index]->isCrush = false;
-		player1_SkillArray[index]->skillPos = skillPos;
-		player1_SkillArray[index]->isRight = true;
-		player1_SkillArray[index]->skillIndex = index;
-		player1_SkillArray[index]->player = player;
+		player1->player1_skill[index].isEnable = true;
+		player1->player1_skill[index].isCrush = false;
+		player1->player1_skill[index].skillPos = skillPos;
+		player1->player1_skill[index].isRight = true;
+		player1->player1_skill[index].player = player;
+		player1->player1_skillIndex = index;
 		SkillManager::m_Player1_SkillCount++;
 
 	}
@@ -106,7 +99,7 @@ void SkillManager::addSkill(byte& player,COORD& skillPos)
 	{
 		for (int i = 0; i < MAXSKILL; i++)
 		{
-			if (player2_SkillArray[i]->isEnable == false)
+			if (player1->player1_skill[i].isEnable == false)
 			{
 				index = i;
 				break;
@@ -119,12 +112,12 @@ void SkillManager::addSkill(byte& player,COORD& skillPos)
 				continue;
 			}
 		}
-		player2_SkillArray[index]->isEnable = true;
-		player2_SkillArray[index]->isCrush = false;
-		player2_SkillArray[index]->skillPos = skillPos;
-		player2_SkillArray[index]->isRight = false;
-		player2_SkillArray[index]->skillIndex = index;
-		player2_SkillArray[index]->player = player;
+		player2->player2_skill[index].isEnable = true;
+		player2->player2_skill[index].isCrush = false;
+		player2->player2_skill[index].skillPos = skillPos;
+		player2->player2_skill[index].isRight = false;
+		player2->player2_skill[index].player = player;
+		player2->player2_skillIndex = index;
 		SkillManager::m_Player2_SkillCount++;
 	}
 
@@ -132,7 +125,7 @@ void SkillManager::addSkill(byte& player,COORD& skillPos)
 
 
 
-void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
+void SkillManager::update(float fTimeElapsed,COORD& Player1,COORD& Player2)
 {
 	//if (skillVector.size() >= 1) {
 	//	checkCollision(player1, player2); //업데이트 전에 충돌검사를 미리 실시
@@ -161,18 +154,27 @@ void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
 
 	//	}
 	//}
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+
 	if (SkillManager::m_Player1_SkillCount > 0)
 	{
+				
+
 		for (int i = 0; i < MAXSKILL; i++)
 		{
-			checkCollision(player2,player1_SkillArray[i]);
-			if (player1_SkillArray[i]->isEnable == true)
+			
+			if (player1->player1_skill[i].isEnable == true)
 			{
-				if (player1_SkillArray[i]->isCrush == false)
+				checkCollision(Player2, player1->player1_skill[i]);
+				if (player1->player1_skill[i].isCrush == false)
 				{
-					player1_SkillArray[i]->skillPos.X += 10;
-					cout << "플레이어: " << (int)player1_SkillArray[i]->player << "->" << player1_SkillArray[i]->skillPos.X << "," << player1_SkillArray[i]->skillPos.Y << std::endl;
+					player1->player1_skill[i].skillPos.X += 10;
+					cout << "플레이어: " << (int)player1->player1_skill[i].player << "->" << player1->player1_skill[i].skillPos.X << "," << player1->player1_skill[i].skillPos.Y << std::endl;
 				}
+
+				//if(player1->player1_skill[i].skillPos)
 			}
 		}
 
@@ -183,13 +185,13 @@ void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
 	{
 		for (int i = 0; i < MAXSKILL; i++)
 		{
-			checkCollision(player1, player2_SkillArray[i]);
-			if (player2_SkillArray[i]->isEnable == true)
+			if (player2->player2_skill[i].isEnable == true)
 			{
-				if (player2_SkillArray[i]->isCrush == false)
+				checkCollision(Player1, player2->player2_skill[i]);
+				if (player2->player2_skill[i].isCrush == false)
 				{
-					player2_SkillArray[i]->skillPos.X -= 10;
-					cout << "플레이어: " << (int)player2_SkillArray[i]->player << "->" << player2_SkillArray[i]->skillPos.X << "," << player2_SkillArray[i]->skillPos.Y << std::endl;
+					player2->player2_skill[i].skillPos.X -= 10;
+					cout << "플레이어: " << (int)player2->player2_skill[i].player << "->" << player2->player2_skill[i].skillPos.X << "," << player2->player2_skill[i].skillPos.Y << std::endl;
 				}
 			}
 		}
@@ -197,39 +199,38 @@ void SkillManager::update(float fTimeElapsed,COORD& player1,COORD& player2)
 
 	
 }
-void SkillManager::checkCollision(COORD& player,SC_SKILL* skill)
+void SkillManager::checkCollision(COORD& player,SKILL_INFO& skill)
 {
 	float playerMinX = player.X;
 	float playerMaxX = player.X + PLAYER_WIDTH;
 	float playerMinY = player.Y;
 	float playerMaxY = player.Y + PLAYER_HEIGHT;
 
-	for (int i = 0; i < MAXSKILL; i++)
+	
+	if (Collision::RRCollision(playerMinX, playerMinY, playerMaxX, playerMaxY, skill.skillPos.X, skill.skillPos.Y,
+		skill.skillPos.X + FIREBALL_WIDTH, skill.skillPos.Y + FIREBALL_HEIGHT))
 	{
-		if (Collision::RRCollision(playerMinX, playerMinY, playerMaxX, playerMaxY, skill->skillPos.X, skill->skillPos.Y,
-			skill->skillPos.X + FIREBALL_WIDTH, skill->skillPos.Y + FIREBALL_HEIGHT))
+		skill.isCrush = true;
+		skill.skillPos.X = -100;
+		skill.skillPos.Y = -100;
+		skill.isEnable = false;
+		if (skill.player == PLAYER_1)
 		{
-			skill->isCrush = true;
-			skill->skillPos.X = -100;
-			skill->skillPos.Y = -100;
-			skill->isEnable = false;
-			if (skill->player == PLAYER_1)
-			{
-				if (SkillManager::m_Player1_SkillCount > 0) 
-				{
-					SkillManager::m_Player1_SkillCount--;
-				}
+			if (SkillManager::m_Player1_SkillCount > 0) {
+				SkillManager::m_Player1_SkillCount--;
 			}
-			else 
-			{
-				if (SkillManager::m_Player2_SkillCount > 0)
-				{
-					SkillManager::m_Player2_SkillCount--;
-				}
-			}
-			cout << "충돌" << endl;
 		}
+		else 
+		{
+			if (SkillManager::m_Player2_SkillCount > 0)
+			{
+				SkillManager::m_Player2_SkillCount--;
+			}
+		}
+
+		cout << "충돌" << endl;
 	}
+	
 
 
 	//std::cout << skill->skillPos.X << "," << skill->skillPos.Y << std::endl;

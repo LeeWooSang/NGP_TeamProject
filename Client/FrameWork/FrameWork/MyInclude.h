@@ -3,5 +3,3 @@
 //#include <WinSock2.h>
 #include <windows.h>
 #include <math.h>
-
-#pragma comment(lib,"msimg32.lib")

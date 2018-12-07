@@ -9,12 +9,23 @@
 
 using namespace std;
 
+#define MAXSKILL 10
 // 서버-클라간에 약속된 매크로
 #define KEY_IDLE    	0X00
 #define KEY_RIGHT 	0X01
 #define KEY_LEFT  	0X02
 #define KEY_UP    	0X03
 #define KEY_SPACE	0X04
+
+#define WALK 0
+#define WALK_B 1
+#define JUMP 2
+#define JUMP_B 3
+#define IDLE 4
+#define IDLE_B 5
+#define ATTACK 6
+#define ATTACK_B 7
+#define DEATH 8
 
 // PACKET_TYPE
 enum PACKET_TYPE { TYPE_INIT, TYPE_START, TYPE_RUN, TYPE_SKILL, TYPE_END };
@@ -47,8 +58,6 @@ struct CS_RUN
 	byte        player;
 	bool		onSkill;
 };
-
-#define MAXSKILL 10
 struct SKILL_INFO
 {
 	bool			isEnable;
@@ -57,40 +66,24 @@ struct SKILL_INFO
 	byte			player;
 	bool			isRight;
 };
+
 struct SKILL
 {
 	byte			player1_skillIndex;
 	byte			player2_skillIndex;
-	SKILL_INFO      player1_skill[MAXSKILL];
+	SKILL_INFO		player1_skill[MAXSKILL];
 	SKILL_INFO		player2_skill[MAXSKILL];
 };
 
 struct SC_RUN
 {
-	byte		type;
-	byte		eMode[2];
-	COORD		pos[2];
-	USHORT		hp[2];
-	bool        onSkill;
-	SKILL		skillInfo;
+	byte			type;
+	byte			eMode[2];
+	COORD			pos[2];
+	USHORT			hp[2];
+	bool			onSkill;
+	SKILL			skillInfo;
 };
-struct SC_SKILL
-{
-	//byte			type;
-	bool			isEnable;
-	byte			skillIndex;
-	COORD	skillPos;
-	bool			isCrush;
-	byte			player;
-	bool			isRight;
-};
-
-struct CS_SKILL
-{
-	byte       skillIndex;
-	byte       player;
-};
-
 
 struct SC_END
 {

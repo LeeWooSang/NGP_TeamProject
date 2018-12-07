@@ -279,7 +279,7 @@ void Hero::Render(HDC* cDC)
 			animCount[mode] = 0;
 		sPMode[mode]->setLocation(x, y);
 		sPMode[mode]->Render(cDC, animCount[mode], (UINT)RGB(255, 0, 255));
-		//animCount[mode]++;
+		animCount[mode]++;
 	}
 	else
 	{
@@ -287,7 +287,7 @@ void Hero::Render(HDC* cDC)
 			animCount[mode] = 0;
 		sEMode[mode]->setLocation(x, y);
 		sEMode[mode]->Render(cDC, animCount[mode], (UINT)RGB(255, 0, 255));
-		//animCount[mode]++;
+		animCount[mode]++;
 	}
 }
 
@@ -310,7 +310,8 @@ void Hero::setLocation(int x1, int y1)
 
 void Hero::setMode(int m)
 {
-	mode = m;
+	if(m <= ANIMNUM)
+		mode = m;
 }
 
 void Hero::setHP(USHORT h)

@@ -106,7 +106,7 @@ void Game::Enter()
 	memset(&pSCRun, 0, sizeof(SC_RUN));
 	memset(&pCSRun, 0, sizeof(CS_RUN));
 	gameState = TYPE_INIT;
-	pSCInit.type = -1;
+
 	//윈속 초기화
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
@@ -126,31 +126,32 @@ void Game::Enter()
 	retval = connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR)
 		err_quit("connect( )");
-
-	hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)sock, 0, NULL);
-	hThread2 = CreateThread(NULL, 0, RecvThread, (LPVOID)sock, 0, NULL);
 }
 
 
 void Game::Update()
 {
 	
-	
-	
-	
-}
-
-void Game::Destroy()
-{
+	hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)sock, 0, NULL);
 	if (hThread == NULL)
 		closesocket(sock);
 	else
 		CloseHandle(hThread);
 
-	if (hThread2 == NULL)
-		closesocket(sock);
-	else
-		CloseHandle(hThread2);
+	if (elapsedNum > 0)
+	{
+		elapsedNum = 0;
+		hThread2 = CreateThread(NULL, 0, RecvThread, (LPVOID)sock, 0, NULL);
+		if (hThread2 == NULL)
+			closesocket(sock);
+		else
+			CloseHandle(hThread2);
+	}
+	elapsedNum++;
+}
+
+void Game::Destroy()
+{
 	if (pHero)
 	{
 		pHero->Destroy();
@@ -172,64 +173,48 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 	SOCKET client_socket = (SOCKET)sock;
 	bool sent = false;
 
-	while (true)
+	switch (gameState)
 	{
-		switch (gameState)
+	case TYPE_START:
+		if (pCSInit.isReady && !sent)
 		{
-		case TYPE_START:
-			if (pCSInit.isReady && !sent)
+			retval = send((SOCKET)client_socket, (char*)&pCSInit, sizeof(CS_INIT), 0);
+			if (retval == SOCKET_ERROR)
 			{
-				retval = send((SOCKET)client_socket, (char*)&pCSInit, sizeof(CS_INIT), 0);
-				if (retval == SOCKET_ERROR)
-				{
-					err_display("send( )");
-					return 0;
-				}
-				cout << "Start 보냄\n";
-				pCSRun.player = pSCInit.player;
-				gameState = TYPE_RUN;
-				sent = true;
+				err_display("send( )");
+				return 0;
 			}
-			break;
-		case TYPE_RUN:
-			static int num = 0;
-			EnterCriticalSection(&cs);
-			if (pCSRun.key != KEY_IDLE)
-			{
-				if (num < 5)
-				{
-					retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
-					if (retval == SOCKET_ERROR)
-					{
-						err_display("send( )");
-						return 0;
-					}
-					++num;
-
-					//cout << "num - " << num << std::endl;
-				}
-				else
-				{
-					num = 0;
-					pCSRun.key = KEY_IDLE;
-				}
-				pCSRun.onSkill = false;
-				// TYPE_RUN일때, 데이터를 보내고 키 값을 바로 IDLE로 바꿈
-				// 키가 다운이 되고, 업이 될때까지 그 사이에 이상한 값이 들어가는 것을 막기위해
-
-			}
-			LeaveCriticalSection(&cs);
-			/*	if (pCSRun.key == KEY_SPACE)
-				{
-					retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
-					if (retval == SOCKET_ERROR)
-					{
-						err_display("send( )");
-						return 0;
-					}
-				}*/
-			break;
+			pCSRun.player = pSCInit.player;
+			gameState = TYPE_RUN;
+			sent = true;
 		}
+		break;
+	case TYPE_RUN:
+		EnterCriticalSection(&cs);
+		if (pCSRun.key != KEY_IDLE)
+		{
+			retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("send( )");
+				return 0;
+			}
+			pCSRun.onSkill = false;
+			// TYPE_RUN일때, 데이터를 보내고 키 값을 바로 IDLE로 바꿈
+			// 키가 다운이 되고, 업이 될때까지 그 사이에 이상한 값이 들어가는 것을 막기위해
+			pCSRun.key = KEY_IDLE;
+		}
+		LeaveCriticalSection(&cs);
+	/*	if (pCSRun.key == KEY_SPACE)
+		{
+			retval = send((SOCKET)client_socket, (char*)&pCSSkill, sizeof(CS_SKILL), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("send( )");
+				return 0;
+			}
+		}*/
+		break;
 	}
 	return 0;
 }
@@ -240,150 +225,147 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 	SOCKET client_socket = (SOCKET)sock;
 	int optval = 1;
 
-	while (true)
+	switch (gameState)
 	{
-		switch (gameState)
+	case TYPE_INIT:
+		
+		// 고정길이 : 패킷 받기
+		//optval = 1000;			//대기 시간 1초 -by 명진
+		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
+
+		retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
+		if (retval == SOCKET_ERROR)
 		{
-		case TYPE_INIT:
+			err_display("recvn( )");
+			return 0;
+		}
 
-			// 고정길이 : 패킷 받기
-			//optval = 1000;			//대기 시간 1초 -by 명진
-			//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
-			// SO_RCVTIMEO 0.1초로 타임아웃 지정 ,0.1초안에 데이터가 도착하지 않으면 오류 리턴
+		//cout << (int)pSCInit.player << "\n";
+		if (initSent == false)
+			pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다.
 
-			retval = recvn(client_socket, (char*)&pSCInit, sizeof(pSCInit), 0);
-			if (retval == SOCKET_ERROR)
+		if (pHero->player == PLAYER1)
+			eHero->player = PLAYER2;
+		else
+			eHero->player = PLAYER1;
+		for (int i = 0; i < MAXSKILL; ++i)
+		{
+			pFireball[i].player = pHero->player;
+			eFireball[i].player = eHero->player;
+		}
+		
+		if (pSCInit.type == TYPE_INIT)
+		{
+			if (pSCInit.isStart)
 			{
-				err_display("recvn( )");
-				return 0;
+				initSent = true;
+				cout << "상대방과 연결 성공!\n";
+				
+				pCSInit.player = pHero->player;
+				//std::cout <<(int)pCSInit.player << std::endl;
+				pCSInit.isReady = true;
+				gameState = TYPE_START;
+				break;
 			}
-			cout << "INIT 받음\n";
-			cout << (int)pSCInit.player << "\n";
-
-			if (pSCInit.type == TYPE_INIT)
+			else
 			{
-				if (pSCInit.isStart)
-				{
-					initSent = true;
-					cout << "상대방과 연결 성공!\n";
-					pHero->player = pSCInit.player;				//플레이어 자신의 정보를 갖고있는다.
-
-					if (pHero->player == PLAYER1)
-						eHero->player = PLAYER2;
-					else
-						eHero->player = PLAYER1;
-					for (int i = 0; i < MAXSKILL; ++i)
-					{
-						pFireball[i].player = pHero->player;
-						eFireball[i].player = eHero->player;
-					}
-
-					pCSInit.player = pHero->player;
-					//std::cout <<(int)pCSInit.player << std::endl;
-					pCSInit.isReady = true;
-					gameState = TYPE_START;
-					break;
-				}
-				else
-				{
-					cout << "상대 기다리는 중!\n";
-					break;
-				}
+				cout << "상대 기다리는 중!\n";
+				break;
 			}
+		}
+		
+		break;
+	case TYPE_RUN:
+		int x, y;
+		//optval = INFINITE;		//대기 소켓으로 변경	-by 명진
+		//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
+		//if (retval == SOCKET_ERROR)
+		//{
+		//	err_quit("setsockopt()");
+	//	}
 
+		retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
+		if (retval == SOCKET_ERROR)
+		{
+			err_display("recv()");
 			break;
-		case TYPE_RUN:
-			int x, y;
-			optval = INFINITE;		//대기 소켓으로 변경	-by 명진
-			//retval = setsockopt(client_socket, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
-			//if (retval == SOCKET_ERROR)
-			//{
-			//	err_quit("setsockopt()");
-			//}
+		}
+		pHero->getLocation(&x, &y);
+		
+		//for (int i = 0; i < MAXSKILL; i++)
+		//{
+		//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
+		//}
+		
+		if (pSCRun.onSkill)
+		{
 
-			retval = recvn((SOCKET)client_socket, (char*)&pSCRun, sizeof(SC_RUN), 0);
+			//for (int i = 0; i < MAXSKILL; i++)
+			//{
+			//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
+			//	std::cout << pSCRun.skillInfo.player2_skill[i].skillPos.X << pSCRun.skillInfo.player2_skill[i].skillPos.Y << std::endl;
+
+			//}
+			//std::cout << pSCRun.onSkill << std::endl;
+			/*
+			for (int i = 0; i < MAXSKILL; i++)
+			{
+				EnterCriticalSection(&cs);
+				std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
+				LeaveCriticalSection(&cs);
+			}*/
+			//std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::cout;
+		}
+
+		/*if (pSCRun.onSkill)
+		{
+			retval = recvn((SOCKET)client_socket, (char*)&pSCSkill, sizeof(SC_SKILL), 0);
 			if (retval == SOCKET_ERROR)
 			{
 				err_display("recv()");
 				break;
 			}
-			//cout << "플레이어1 : " << pSCRun.pos[PLAYER1].X << ", " << pSCRun.pos[PLAYER1].Y
-			//	<< " / 플레이어2 : " << pSCRun.pos[PLAYER2].X << ", " << pSCRun.pos[PLAYER2].Y << "\n";
-			pHero->getLocation(&x, &y);
-			//for (int i = 0; i < MAXSKILL; i++)
-			//{
-			//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
-			//}
-
-			if (pSCRun.onSkill)
+			pSCRun.onSkill = false;
+			EnterCriticalSection(&cs);
+			if (pSCSkill.player == pHero->player)
 			{
-
-				//for (int i = 0; i < MAXSKILL; i++)
-				//{
-				//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
-				//	std::cout << pSCRun.skillInfo.player2_skill[i].skillPos.X << pSCRun.skillInfo.player2_skill[i].skillPos.Y << std::endl;
-
-				//}
-				//std::cout << pSCRun.onSkill << std::endl;
-				/*
-				for (int i = 0; i < MAXSKILL; i++)
-				{
-					EnterCriticalSection(&cs);
-					std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
-					LeaveCriticalSection(&cs);
-				}*/
-				//std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::cout;
+				pFireball[pSCSkill.skillIndex].setLocation(pSCSkill.skillPos.X, pSCSkill.skillPos.Y);
+				if (pSCSkill.isCrush)
+					pFireball[pSCSkill.skillIndex].isCrush = true;
 			}
-
-			/*if (pSCRun.onSkill)
+			else
 			{
-				retval = recvn((SOCKET)client_socket, (char*)&pSCSkill, sizeof(SC_SKILL), 0);
-				if (retval == SOCKET_ERROR)
-				{
-					err_display("recv()");
-					break;
-				}
-				pSCRun.onSkill = false;
-				EnterCriticalSection(&cs);
-				if (pSCSkill.player == pHero->player)
-				{
-					pFireball[pSCSkill.skillIndex].setLocation(pSCSkill.skillPos.X, pSCSkill.skillPos.Y);
-					if (pSCSkill.isCrush)
-						pFireball[pSCSkill.skillIndex].isCrush = true;
-				}
-				else
-				{
-					eFireball[pSCSkill.skillIndex].setLocation(pSCSkill.skillPos.X, pSCSkill.skillPos.Y);
-					if (pSCSkill.isCrush)
-						eFireball[pSCSkill.skillIndex].isCrush = true;
-				}
-				LeaveCriticalSection(&cs);
-
-			}*/
-			if (sqrt(pow(pSCRun.pos[pHero->player].X - x, 2)) < 100 || sqrt(pow(pSCRun.pos[pHero->player].Y - y, 2)) < 100)
-			{
-				EnterCriticalSection(&cs);
-				if (pHero->player == PLAYER1)
-				{
-					pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
-					pHero->setHP(pSCRun.hp[PLAYER1]);
-					eHero->setMode(pSCRun.eMode[pHero->player]);
-					eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
-					eHero->setHP(pSCRun.hp[PLAYER2]);
-				}
-				else
-				{
-					pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
-					pHero->setHP(pSCRun.hp[PLAYER2]);
-					eHero->setMode(pSCRun.eMode[pHero->player]);
-					eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
-					eHero->setHP(pSCRun.hp[PLAYER1]);
-				}
-				LeaveCriticalSection(&cs);
+				eFireball[pSCSkill.skillIndex].setLocation(pSCSkill.skillPos.X, pSCSkill.skillPos.Y);
+				if (pSCSkill.isCrush)
+					eFireball[pSCSkill.skillIndex].isCrush = true;
 			}
+			LeaveCriticalSection(&cs);
 
-			break;
+		}*/
+		if (sqrt(pow(pSCRun.pos[pHero->player].X - x, 2)) < 100 || sqrt(pow(pSCRun.pos[pHero->player].Y - y, 2)) < 100)
+		{
+			EnterCriticalSection(&cs);
+			if (pHero->player == PLAYER1)
+			{
+				pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
+				pHero->setHP(pSCRun.hp[PLAYER1]);
+				eHero->setMode(pSCRun.eMode[pHero->player]);
+				eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
+				eHero->setHP(pSCRun.hp[PLAYER2]);
+			}
+			else
+			{
+				pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
+				pHero->setHP(pSCRun.hp[PLAYER2]);
+				eHero->setMode(pSCRun.eMode[pHero->player]);
+				eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
+				eHero->setHP(pSCRun.hp[PLAYER1]);
+			}
+			LeaveCriticalSection(&cs);
 		}
+		
+		break;
 	}
 	
 	return 0;
@@ -392,21 +374,23 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 void Game::Render(HDC* cDC)
 {
 	background->Render(cDC, 0);
-	if (pHero)
-		pHero->Render(cDC);
-	if (eHero)
-		eHero->Render(cDC);
-	if (pFireball.size() > 0 && eFireball.size() > 0)
+	if (elapsedNum>0)
 	{
-		for (int i = 0; i < MAXSKILL; ++i)
+		if (pHero)
+			pHero->Render(cDC);
+		if (eHero)
+			eHero->Render(cDC);
+		if (pFireball.size() > 0 && eFireball.size() > 0)
 		{
-			if (pFireball[i].isDraw)
-				pFireball[i].Render(cDC);
-			if (eFireball[i].isDraw)
-				eFireball[i].Render(cDC);
+			for (int i = 0; i < MAXSKILL; ++i)
+			{
+				if (pFireball[i].isDraw)
+					pFireball[i].Render(cDC);
+				if (eFireball[i].isDraw)
+					eFireball[i].Render(cDC);
+			}
 		}
 	}
-	
 }
 void Game::MouseInput(int iMessage, int x, int y)
 {
@@ -490,7 +474,6 @@ void Game::KeyboardInput(int iMessage, int wParam)
 					pHero->setMode(IDLE);
 
 				pCSRun.key = KEY_IDLE;
-				cout << "KEY UP\n";
 			}
 			break;
 		}
