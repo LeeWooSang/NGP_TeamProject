@@ -22,13 +22,16 @@ int main()
 		//{
 			elapsedTime = (timeGetTime() - lastTime) * 0.001f;
 			Server.elapsedTime = elapsedTime;
+			
 			if (elapsedTime >= FPS)
 			{
 				if (Server.vec_client_info.size() < 2)
 					client_socket = Server.AcceptClient();
+				Server.Update();
 				Server.SendPacket(client_socket);
 				lastTime = timeGetTime();
 			}
+			
 		//}
 		//else
 		//	cout << "주 스레드 wait*() 오류 발생\n";

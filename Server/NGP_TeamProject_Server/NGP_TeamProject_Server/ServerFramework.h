@@ -4,18 +4,6 @@
 
 //DWORD WINAPI RecvThread(LPVOID);
 
-struct Client_Info
-{
-	Client_Info(SOCKET socket, byte num, COORD p, bool skill, byte mode, bool back) : client_socket(socket), player(num), pos(p), onSkill(skill), eMode(mode), isBack(back) {}
-
-	SOCKET	client_socket;
-	byte			player;
-	COORD	pos;
-	bool			onSkill;
-	COORD	skillPos;
-	byte	eMode;				// 상대방의 애니메이션 상태
-	bool	isBack;				// false = Right			
-};
 
 class CServerFramework
 {
@@ -50,6 +38,8 @@ public:
 	// 게임 상태를 저장한다
 	static byte gameState;
 
+
+
 	static	vector<Client_Info> vec_client_info;
 
 	static HANDLE hThread[2];
@@ -66,6 +56,8 @@ public:
 
 	static float FPS;
 	static float elapsedTime;
+
+	static byte winPlayer;
 
 	bool onSkill = false;
 };
