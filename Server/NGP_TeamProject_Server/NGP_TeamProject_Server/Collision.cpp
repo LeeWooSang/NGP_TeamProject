@@ -38,7 +38,6 @@ bool Collision::CirCircle(int C1CenterX, int C1CenterY, int C1rad, int C2CenterX
 
 bool Collision::RRCollision(float minX, float minY, float maxX, float maxY, float minX1, float minY1, float maxX1, float maxY1)
 {
-
 	if (minX > maxX1)
 		return false;
 	if (maxX < minX1)
@@ -47,8 +46,6 @@ bool Collision::RRCollision(float minX, float minY, float maxX, float maxY, floa
 		return false;
 	if (maxY < minY1)
 		return false;
-
-	// calc collide
 
 	return true;
 }

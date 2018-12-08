@@ -2,19 +2,6 @@
 #include "Defines.h"
 #include "SkillManager.h"
 
-//DWORD WINAPI RecvThread(LPVOID);
-
-struct Client_Info
-{
-	Client_Info(SOCKET socket, byte num, COORD p, bool skill) : client_socket(socket), player(num), pos(p), onSkill(skill) {}
-
-	SOCKET	client_socket;
-	byte			player;
-	COORD	pos;
-	bool			onSkill;
-	COORD	skillPos;
-};
-
 class CServerFramework
 {
 public:
@@ -25,46 +12,39 @@ public:
 	static void err_display(const char*);
 	static int recvn(SOCKET, char*, int, int);
 
-	SOCKET& AcceptClient();
+	void AcceptClient();
 	static DWORD WINAPI RecvThread(LPVOID);
 	static void KeyDistribute(byte&, byte&);
-
-	//static DWORD WINAPI SkillThread(LPVOID);
 	static void Update();
-	static void SendPacket(SOCKET&);
+	static void SendPacket();
 
 	void Destroy();
-//private:
-public:
+
+	vector<Client_Info>& GetClientInfo()		const { return vec_client_info; }
+	void SetElapsedTime(float elapsedTime) { m_elapsedTime = elapsedTime; }
+
+private:
 	const u_short	serverPort{ 9000 };
 	// 대기 소켓
 	SOCKET			m_listen_socket;
-
 	// 클라전용 소켓
-	SOCKET client_socket;
+	SOCKET			client_socket;
 	SOCKADDR_IN client_addr;
-	int addrlen = 0;
+	int						addrlen = 0;
 
 	// 게임 상태를 저장한다
-	static byte gameState;
+	static byte								gameState;
+	// 클라이언트 정보를 저장함
+	static vector<Client_Info>		vec_client_info;
+	// 클라이언트 스레드 객체
+	static HANDLE						m_clientThread[2];
+	// 스킬관리 매니저
+	static SkillManager*				m_pSkillManager;
+	// 서버 시간 관리용
+	static float								m_elapsedTime;
+	// 클라이언트끼리 싱크를 맞추기 위한 변수
+	static bool							sync[2];
 
-	static	vector<Client_Info> vec_client_info;
-
-	static HANDLE hThread[2];
-
-	static SkillManager* m_pSkillManager;
-	static CServerFramework* p;
-
-
-	static bool playerReady[2];
-	// 클라이언트마다 TPYE_START를 한번만 받게하기 위해 검사하는 변수
-	// playerCheck[0]은 PLAYER_1
-	// playerCheck[1]은 PLAYER_2
-	static bool playerCheck[2];
-
-	static float FPS;
-	static float elapsedTime;
-
-	bool onSkill = false;
+	static byte								winPlayer;
 };
 

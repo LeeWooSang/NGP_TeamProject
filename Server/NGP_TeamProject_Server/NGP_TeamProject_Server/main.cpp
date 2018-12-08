@@ -1,24 +1,26 @@
 #include "Defines.h"
 #include "ServerFramework.h"
 
-DWORD lastTime = timeGetTime();
-float FPS = 0.03;
+DWORD	g_lastTime = timeGetTime();
+float			g_FPS = 0.03;
+
 int main()
 {
 	CServerFramework Server;
-
-	SOCKET client_socket;
 	float elapsedTime = 0.f;
+
 	while (true)
 	{
-		elapsedTime = (timeGetTime() - lastTime) * 0.001f;
-		Server.elapsedTime = elapsedTime;
-		if (elapsedTime >= FPS)
+		elapsedTime = (timeGetTime() - g_lastTime) * 0.001f;
+		Server.SetElapsedTime(elapsedTime);
+		if (Server.GetClientInfo().size() < 2)
+			Server.AcceptClient();
+
+		if (elapsedTime >= g_FPS)
 		{
-			if (Server.vec_client_info.size() < 2)
-				client_socket = Server.AcceptClient();
-			Server.SendPacket(client_socket);
-			lastTime = timeGetTime();
+			Server.Update();
+			Server.SendPacket();
+			g_lastTime = timeGetTime();
 		}
 	}
 }

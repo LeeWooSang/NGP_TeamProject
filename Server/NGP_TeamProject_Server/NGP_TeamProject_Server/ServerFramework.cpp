@@ -1,19 +1,15 @@
 #include "ServerFramework.h"
 
-CServerFramework* CServerFramework::p{ nullptr };
 CRITICAL_SECTION cs;
 
-vector<Client_Info> CServerFramework::vec_client_info;
 byte CServerFramework::gameState = TYPE_INIT;
-
-HANDLE CServerFramework::hThread[2];
-
-bool CServerFramework::playerCheck[2] = { false, false };
-bool CServerFramework::playerReady[2] = { false, false };
-
-float CServerFramework::FPS = 0.03;
-float CServerFramework::elapsedTime = 0.f;
+vector<Client_Info> CServerFramework::vec_client_info;
+HANDLE CServerFramework::m_clientThread[2];
 SkillManager* CServerFramework::m_pSkillManager{ nullptr };
+extern float g_FPS;
+float CServerFramework::m_elapsedTime = 0.f;
+bool CServerFramework::sync[2] = {false, false};
+byte CServerFramework::winPlayer = 0;
 
 CServerFramework::CServerFramework()
 {
@@ -59,7 +55,7 @@ CServerFramework::CServerFramework()
 	cout << "대기 소켓 생성 완료" << endl;
 
 	vec_client_info.reserve(2);
-	//m_pSkillManager = new SkillManager();
+	m_pSkillManager = new SkillManager;
 }
 
 CServerFramework::~CServerFramework()
@@ -131,15 +127,8 @@ int CServerFramework::recvn(SOCKET s, char* buf, int len, int flags)
 	return (len - left);
 }
 
-SOCKET& CServerFramework::AcceptClient()
+void CServerFramework::AcceptClient()
 {
-	//HANDLE hThread;
-	// 클라이언트 정보를 저장한 공간 예약
-	// 신호 상태
-	//readEvent = CreateEvent(NULL, FALSE, TRUE, NULL);
-	// 비신호 상태
-	//writeEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-
 	// accept( )
 	addrlen = sizeof(client_addr);
 	client_socket = accept(m_listen_socket, (SOCKADDR*)&client_addr, &addrlen);
@@ -149,31 +138,27 @@ SOCKET& CServerFramework::AcceptClient()
 	cout << endl << "[ TCP 서버 ] 클라이언트 접속 - IP : " << inet_ntoa(client_addr.sin_addr)
 		<< ", 포트 번호 : " << ntohs(client_addr.sin_port) << endl;
 
-	size_t packetSize = sizeof(SC_INIT);
-
 	// 클라이언트 주소정보, 무슨 플레이어인지 벡터에 저장한다.
 	if (vec_client_info.size() == 0)
 	{
 		COORD position;
 		position.X = 0;
 		position.Y = 550;
-		vec_client_info.emplace_back(client_socket, PLAYER_1, position, false);
+		vec_client_info.emplace_back(client_socket, PLAYER_1, position, false, IDLE, true,true,100);
 		// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
 		vec_client_info[PLAYER_1].skillPos = vec_client_info[PLAYER_1].pos;
-		hThread[PLAYER_1] = CreateThread(NULL, 0, RecvThread, (LPVOID)vec_client_info[PLAYER_1].client_socket, 0, NULL);
+		m_clientThread[PLAYER_1] = CreateThread(NULL, 0, RecvThread, (LPVOID)vec_client_info[PLAYER_1].client_socket, 0, NULL);
 	}
 	else if (vec_client_info.size() == 1)
 	{
 		COORD position;
 		position.X = 800;
 		position.Y = 550;
-		vec_client_info.emplace_back(client_socket, PLAYER_2, position, false);
+		vec_client_info.emplace_back(client_socket, PLAYER_2, position, false, IDLE, true,false,100);
 		// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
 		vec_client_info[PLAYER_2].skillPos = vec_client_info[PLAYER_2].pos;
-		hThread[PLAYER_2] = CreateThread(NULL, 0, RecvThread, (LPVOID)vec_client_info[PLAYER_2].client_socket, 0, NULL);
+		m_clientThread[PLAYER_2] = CreateThread(NULL, 0, RecvThread, (LPVOID)vec_client_info[PLAYER_2].client_socket, 0, NULL);
 	}
-
-	return client_socket;
 }
 
 DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
@@ -184,129 +169,59 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 
 	while (true)
 	{
-		if (elapsedTime >= FPS)
+		if (m_elapsedTime >= g_FPS)
 		{
-			cout << elapsedTime << endl;
 			switch (gameState)
 			{
-				case TYPE_START:
-				{
-					CS_INIT cs_initPacket;
-					// 벡터가 가지고 있는 소켓이랑 현재 recv한 client_socket으로 어떤 소켓인지 구분
-					// 만약, PLAYER_1 소켓일 때
-					if (vec_client_info[PLAYER_1].client_socket == client_socket)
-					{
-						if (playerCheck[PLAYER_1] == false)
-						{
-							// 처음으로 PLAYER_1이 TYPE_START를 보낸 것이므로 if문에 들어온다
-							// 만약 또 PLAYER_1이 TYPE_START를 보내면 playerCheck가 true이므로 recv 무시
-							retval = recvn(client_socket, (char*)&cs_initPacket, sizeof(cs_initPacket), 0);
-							if (retval == SOCKET_ERROR)
-							{
-								err_display("recvn( )");
-								return 0;
-							}
-							cout << "0번플레이어" << endl;
-							// PLAYER_1의 TYPE_START 패킷을 받았으므로 playerCheck[PLAYER_1]을 true로 하여
-							// 더이상 PLAYER_1의 TYPE_START를 못받게 함
-
-							if (cs_initPacket.isReady == true)
-							{
-								playerReady[PLAYER_1] = true;
-								playerCheck[PLAYER_1] = true;
-							}
-						}
-					}
-					else if (vec_client_info[PLAYER_2].client_socket == client_socket)
-					{
-						if (playerCheck[PLAYER_2] == false)
-						{
-							retval = recvn(client_socket, (char*)&cs_initPacket, sizeof(cs_initPacket), 0);
-							if (retval == SOCKET_ERROR)
-							{
-								err_display("recvn( )");
-								return 0;
-							}
-							cout << "1번플레이어" << endl;
-							if (cs_initPacket.isReady == true)
-							{
-								playerReady[PLAYER_2] = true;
-								playerCheck[PLAYER_2] = true;
-							}
-						}
-					}
-
-					if (playerReady[PLAYER_1] == true && playerReady[PLAYER_2] == true)
-					{
-						cout << "둘다 준비 됨" << endl;
-						gameState = TYPE_RUN;
-					}
-				}
-				break;
-
 				case TYPE_RUN:
 				{
-					static int num = 0;
 					CS_RUN cs_runPacket;
-					retval = recvn(client_socket, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
-					if (retval == SOCKET_ERROR)
+					if (client_socket == vec_client_info[PLAYER_1].client_socket)
 					{
-						err_display("recvn( )");
-						return 0;
+						retval = recvn(client_socket, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
+						if (retval == SOCKET_ERROR)
+						{
+							err_display("recvn( )");
+							return 0;
+						}
+						else
+							sync[PLAYER_1] = true;
 					}
-
+					else if (client_socket == vec_client_info[PLAYER_2].client_socket)
+					{
+						retval = recvn(client_socket, (char*)&cs_runPacket, sizeof(cs_runPacket), 0);
+						if (retval == SOCKET_ERROR)
+						{
+							err_display("recvn( )");
+							return 0;
+						}
+						else
+							sync[PLAYER_2] = true;
+					}
+					
+					EnterCriticalSection(&cs);
 					switch (cs_runPacket.player)
 					{
 						case PLAYER_1:
 							KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-							cout << "PLAYER_0 - X : " << vec_client_info[PLAYER_1].pos.X << ", Y : " << vec_client_info[PLAYER_1].pos.Y << endl;
+							sync[PLAYER_1] = false;
 							break;
 
 						case PLAYER_2:
 							KeyDistribute(cs_runPacket.player, cs_runPacket.key);
-							cout << "PLAYER_1 - X : " << vec_client_info[PLAYER_2].pos.X << ", Y : " << vec_client_info[PLAYER_2].pos.Y << endl;
+							sync[PLAYER_2] = false;
 							break;
 					}
+					LeaveCriticalSection(&cs);
 				}
 				break;
 			}
 		}
-		else
-			elapsedTime += elapsedTime;
 	}
+
 return 0;
 }
 
-//DWORD WINAPI CServerFramework::SkillThread(LPVOID socket)
-//{
-//	SOCKET client_socket = (SOCKET)socket;
-//
-//	if (p == nullptr)
-//	{
-//		p = new CServerFramework;
-//	}
-//
-//	int packetSize = sizeof(SC_SKILL);
-//	int retval = 0;
-//
-//	if (SkillManager::m_Player1_SkillCount > 0)
-//	{
-//		for (int i = 0; i < MAXSKILL; i++)
-//		{
-//			retval = send()
-//			p->m_pSkillManager->m_Player1_SkillCounT
-//		}
-//	}
-//	
-//	if (SkillManager::m_Player2_SkillCount > 0)
-//	{
-//		for (int i = 0; i < MAXSKILL; i++)
-//		{
-//
-//		}
-//
-//	return 0;
-//}
 
 void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 {
@@ -315,36 +230,125 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 	case KEY_IDLE:
 		break;
 	case KEY_RIGHT:
-		vec_client_info[player].pos.X += 1;
+		if (player == PLAYER_1)
+		{
+			vec_client_info[PLAYER_2].eMode = WALK;
+			vec_client_info[PLAYER_1].isRight = true;
+			vec_client_info[PLAYER_1].isSkillRight = true;
+		}
+		else
+		{
+			vec_client_info[PLAYER_1].eMode = WALK;
+			vec_client_info[PLAYER_2].isRight = true;
+			vec_client_info[PLAYER_2].isSkillRight = true;
+		}
+		vec_client_info[player].pos.X += 5;
+		if (vec_client_info[player].pos.X > 1000)
+		{
+			vec_client_info[player].pos.X = 1000;
+		}
 		break;
+
 	case KEY_LEFT:
-		vec_client_info[player].pos.X -= 1;
+		if (player == PLAYER_1)
+		{
+			vec_client_info[PLAYER_2].eMode = WALK_B;
+			vec_client_info[PLAYER_1].isRight = false;
+			vec_client_info[PLAYER_1].isSkillRight = false;
+		}
+		else
+		{
+			vec_client_info[PLAYER_1].eMode = WALK_B;
+			vec_client_info[PLAYER_2].isRight = false;
+			vec_client_info[PLAYER_2].isSkillRight = false;
+		}
+		vec_client_info[player].pos.X -= 5;
+		if (vec_client_info[player].pos.X < 0)
+		{
+			vec_client_info[player].pos.X = 0;
+		}
 		break;
+
 	case KEY_UP:
+		if (player == PLAYER_1)
+		{
+			if (vec_client_info[PLAYER_1].isRight)
+				vec_client_info[PLAYER_2].eMode = JUMP;
+			else
+				vec_client_info[PLAYER_2].eMode = JUMP_B;
+		}
+		else
+		{
+			if (vec_client_info[PLAYER_2].isRight)
+				vec_client_info[PLAYER_1].eMode = JUMP;
+			else
+				vec_client_info[PLAYER_1].eMode = JUMP_B;
+		}
 		if (vec_client_info[player].pos.Y > 300)
-			vec_client_info[player].pos.Y -= 30;
+			vec_client_info[player].pos.Y -= 150;
 		break;
+
 	case KEY_SPACE:
+		if (player == PLAYER_1)
+		{
+			if (vec_client_info[PLAYER_1].isRight)
+				vec_client_info[PLAYER_2].eMode = ATTACK;
+			else
+				vec_client_info[PLAYER_2].eMode = ATTACK_B;
+		}
+		else
+		{
+			if (vec_client_info[PLAYER_2].isRight)
+				vec_client_info[PLAYER_1].eMode = ATTACK;
+			else
+				vec_client_info[PLAYER_1].eMode = ATTACK_B;
+		}
+
 		for (int i = 0; i < 2; ++i)
 			vec_client_info[i].onSkill = true;
-		m_pSkillManager->addSkill(player, vec_client_info[player].pos);
-
-		if (player == vec_client_info[PLAYER_1].player)
-			cout << "플레이어1 - 스킬 발사" << endl;
-		else
-			cout << "플레이어2 - 스킬 발사" << endl;
-		//vec_client_info[player].skillPos = vec_client_info[player].pos;
-		//cout << "파이어볼 발사" << "," << player << endl;
-
-
-		//cout << "Key - SPACE" << endl;
+		m_pSkillManager->addSkill(player, vec_client_info[player].pos,vec_client_info[player].isSkillRight);
 		break;
 	}
 }
 
-void CServerFramework::SendPacket(SOCKET& client_socket)
+void CServerFramework::Update()
 {
-	Update();
+	for (int i = 0; i < vec_client_info.size(); i++)
+	{
+		if (vec_client_info[i].pos.Y < 550.0f)
+		{
+			EnterCriticalSection(&cs);
+			vec_client_info[i].pos.Y += 15;
+			LeaveCriticalSection(&cs);
+		}
+		if (vec_client_info[i].pos.Y > 550.0f)
+		{
+			EnterCriticalSection(&cs);
+			vec_client_info[i].pos.Y = 550.0f;
+			LeaveCriticalSection(&cs);
+		}
+	}
+	if (vec_client_info.size() > 1)
+	{
+		m_pSkillManager->update(vec_client_info[PLAYER_1], vec_client_info[PLAYER_2]);
+
+		if (vec_client_info[PLAYER_1].hp == 0 || vec_client_info[PLAYER_2].hp == 0)
+		{
+			for (int i = 0; i < MAXSKILL; i++) {
+				m_pSkillManager->player1_Skill[i]->isEnable = false;
+				m_pSkillManager->player1_Skill[i]->isCrush = true;
+				m_pSkillManager->player1_Skill[i]->skillPos = { -100,-100 };
+
+				m_pSkillManager->player2_Skill[i]->isEnable = false;
+				m_pSkillManager->player2_Skill[i]->isCrush = true;
+				m_pSkillManager->player2_Skill[i]->skillPos = { -100,-100 };
+			}
+		}
+	}
+}
+
+void CServerFramework::SendPacket()
+{
 	int retval = 0;
 	size_t packetSize = 0;
 
@@ -352,65 +356,118 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 	{
 		switch (gameState)
 		{
-		case TYPE_INIT:
-		{
-			packetSize = sizeof(SC_INIT);
-			SC_INIT sc_initPacket[2]{ 0 };
-			for (int i = 0; i < vec_client_info.size(); ++i)
+			case TYPE_INIT:
 			{
-				sc_initPacket[i].type = TYPE_INIT;
-				sc_initPacket[i].player = vec_client_info[i].player;
-				sc_initPacket[i].isStart = true;
-				// 모든 플레이어에게 SC_INIT 고정길이 전송
-				retval = send(vec_client_info[i].client_socket, (char*)&sc_initPacket[i], sizeof(SC_INIT), 0);
-				if (retval == SOCKET_ERROR)
+				packetSize = sizeof(SC_INIT);
+				SC_INIT sc_initPacket[2]{ 0 };
+				EnterCriticalSection(&cs);
+				for (int i = 0; i < vec_client_info.size(); ++i)
 				{
-					err_display("send( )");
-					return;
+					sc_initPacket[i].type = TYPE_INIT;
+					sc_initPacket[i].player = vec_client_info[i].player;
+					sc_initPacket[i].isStart = true;
+					// 모든 플레이어에게 SC_INIT 고정길이 전송
+					retval = send(vec_client_info[i].client_socket, (char*)&sc_initPacket[i], sizeof(SC_INIT), 0);
+					if (retval == SOCKET_ERROR)
+					{
+						err_display("send( )");
+						return;
+					}
+				}
+				gameState = TYPE_RUN;
+				LeaveCriticalSection(&cs);
+			}
+			break;
+
+			case TYPE_RUN:
+			{
+				SC_RUN sc_runPacket = { 0 };
+				packetSize = sizeof(SC_RUN);
+
+				EnterCriticalSection(&cs);
+				sc_runPacket.type = TYPE_RUN;
+				sc_runPacket.eMode[PLAYER_1] = vec_client_info[PLAYER_1].eMode;
+				sc_runPacket.eMode[PLAYER_2] = vec_client_info[PLAYER_2].eMode;
+				sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
+				sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
+
+				for (int i = 0; i < MAXSKILL; i++)
+				{
+					sc_runPacket.skillInfo.player1_skill[i] = *m_pSkillManager->player1_Skill[i];
+					sc_runPacket.skillInfo.player2_skill[i] = *m_pSkillManager->player2_Skill[i];
+				}
+				sc_runPacket.hp[PLAYER_1] = vec_client_info[PLAYER_1].hp;
+				sc_runPacket.hp[PLAYER_2] = vec_client_info[PLAYER_2].hp;
+				LeaveCriticalSection(&cs);
+
+				if (sync[PLAYER_1] == false && sync[PLAYER_2] == false)
+				{
+					for (int i = 0; i < vec_client_info.size(); ++i)
+					{
+						retval = send(vec_client_info[i].client_socket, (char*)&(sc_runPacket), sizeof(SC_RUN), 0);
+						if (retval == SOCKET_ERROR)
+						{
+							err_display("send( )");
+							return;
+						}
+
+						EnterCriticalSection(&cs);
+						if (vec_client_info[i].isRight)
+						{
+							if (i == PLAYER_1)
+								vec_client_info[PLAYER_2].eMode = IDLE;
+							else
+								vec_client_info[PLAYER_1].eMode = IDLE;
+						}
+						else
+						{
+							if (i == PLAYER_1)
+								vec_client_info[PLAYER_2].eMode = IDLE_B;
+							else
+								vec_client_info[PLAYER_1].eMode = IDLE_B;
+						}
+						LeaveCriticalSection(&cs);
+					}
+				}
+				if (sc_runPacket.hp[PLAYER_1]==0 || sc_runPacket.hp[PLAYER_2]==0)
+				{
+
+					if (sc_runPacket.hp[PLAYER_1] == 0)
+						winPlayer = 1;			//플레이어 2 우승
+					if (sc_runPacket.hp[PLAYER_2] == 0)
+
+					//END부분
+					gameState = TYPE_END;
+					cout << "끝내기과정 돌입" << endl;
 				}
 			}
-			cout << "둘다 TYPE_INIT 전송 됨" << endl;
-			gameState = TYPE_START;
-		}
-		break;
+			break;
 
-		case TYPE_RUN:
-		{
-			SC_RUN sc_runPacket = { 0 };
-			packetSize = sizeof(SC_RUN);
-			sc_runPacket.type = TYPE_RUN;
-			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
-			sc_runPacket.pos[PLAYER_2] = vec_client_info[PLAYER_2].pos;
+			case TYPE_END:
+			{
+				SC_END sc_endPacket = { 0 };
+				packetSize = sizeof(SC_END);
 
-			for (int i = 0; i < vec_client_info.size(); ++i)
-				send(vec_client_info[i].client_socket, (char*)&(sc_runPacket), sizeof(SC_RUN), 0);
-		}
-		break;
+				sc_endPacket.winner = CServerFramework::winPlayer;
+
+				for (int i = 0; i < vec_client_info.size(); i++) {
+					retval = send(vec_client_info[i].client_socket, (char*)&sc_endPacket, sizeof(SC_END), 0);
+					if (retval == SOCKET_ERROR)
+					{
+						err_display("send( )");
+						return;
+					}
+				}
+				break;
+			}		
 		}
 	}
-}
-
-void CServerFramework::Update()
-{
-	//m_pSkillManager->update(elapsedTime, vec_client_info[PLAYER_1].pos, vec_client_info[PLAYER_2].pos);
-	for (int i = 0; i < vec_client_info.size(); i++)
-	{
-		if (vec_client_info[i].pos.Y < 550.0f)
-		{
-			vec_client_info[i].pos.Y += 15;
-		}
-		if (vec_client_info[i].pos.Y > 550.0f)
-		{
-			vec_client_info[i].pos.Y = 550.0f;
-		}
-	}
-
 }
 
 void CServerFramework::Destroy()
 {
 	for (auto iter = vec_client_info.begin(); iter != vec_client_info.end(); ++iter)
-		closesocket(iter->client_socket);
+		closesocket((*iter).client_socket);
 	vec_client_info.clear();
 
 	closesocket(m_listen_socket);
