@@ -1,31 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="ServerFramework.cpp">
-      <Filter>ServerFramework</Filter>
-    </ClCompile>
     <ClCompile Include="SkillManager.cpp">
-      <Filter>SkillManager</Filter>
+      <Filter>소스\SkillManager</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>소스</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>소스\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerFramework.cpp">
+      <Filter>소스\ServerFramework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Collision.h" />
-    <ClInclude Include="Defines.h" />
-    <ClInclude Include="ServerFramework.h">
-      <Filter>ServerFramework</Filter>
-    </ClInclude>
     <ClInclude Include="SkillManager.h">
-      <Filter>SkillManager</Filter>
+      <Filter>소스\SkillManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>소스</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision.h">
+      <Filter>소스\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerFramework.h">
+      <Filter>소스\ServerFramework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="ServerFramework">
+    <Filter Include="소스">
+      <UniqueIdentifier>{304a49ac-eb70-4343-9ad4-19a82e0e0317}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스\ServerFramework">
       <UniqueIdentifier>{89066f31-aab6-4e19-96b2-1909850145c7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SkillManager">
+    <Filter Include="소스\SkillManager">
       <UniqueIdentifier>{7484ed58-c18a-41c7-a206-6df4a040fede}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스\Collision">
+      <UniqueIdentifier>{d8bdd7e8-f57f-4200-8b94-84bea1b0e5d0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
