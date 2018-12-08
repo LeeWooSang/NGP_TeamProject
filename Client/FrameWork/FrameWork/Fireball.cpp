@@ -140,13 +140,14 @@ void Fireball::Render(HDC* cDC)
 		if (isCrush)
 		{
 			if (animCount[CRUSH] >= sPFireball[CRUSH]->getIndex())
-				isDraw = false;
-			else
 			{
-				sPFireball[CRUSH]->setLocation(pos.X, pos.Y);
-				sPFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
-				animCount[CRUSH]++;
+				animCount[CRUSH] = 0;
+				isDraw = false;
+				isCrush = false;
 			}
+			sPFireball[CRUSH]->setLocation(pos.X, pos.Y);
+			sPFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
+			animCount[CRUSH]++;
 		}
 		else if (!isCrush)
 		{
@@ -173,13 +174,14 @@ void Fireball::Render(HDC* cDC)
 		if (isCrush)
 		{
 			if (animCount[CRUSH] >= sEFireball[CRUSH]->getIndex())
-				isDraw = false;
-			else
 			{
-				sEFireball[CRUSH]->setLocation(pos.X, pos.Y);
-				sEFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
-				animCount[CRUSH]++;
+				animCount[CRUSH] = 0;
+				isDraw = false;
+				isCrush = false;
 			}
+			sEFireball[CRUSH]->setLocation(pos.X, pos.Y);
+			sEFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
+			animCount[CRUSH]++;
 		}
 		else if (!isCrush)
 		{
