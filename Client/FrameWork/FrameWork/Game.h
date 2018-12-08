@@ -54,7 +54,7 @@ struct SKILL_INFO
 	COORD			skillPos;
 	bool			isCrush;
 	byte			player;
-	bool			isRight;
+	bool			isSkillRight;
 };
 
 
@@ -71,8 +71,6 @@ struct SC_RUN
 	byte		type;
 	byte		eMode[2];
 	COORD		pos[2];
-	//float pos[2];
-	//float epos2[2];
 	USHORT		hp[2];
 	bool        onSkill;
 	SKILL		skillInfo;
@@ -89,7 +87,6 @@ struct CS_RUN
 
 struct SC_END
 {
-	byte type;
 	byte winner;
 };
 #pragma pack()

@@ -1,4 +1,5 @@
 #pragma once
+
 #pragma comment(lib, "ws2_32")
 #include <iostream>
 #include <WinSock2.h>
@@ -11,10 +12,10 @@ using namespace std;
 
 // 서버-클라간에 약속된 매크로
 #define KEY_IDLE    	0X00
-#define KEY_RIGHT 	0X01
-#define KEY_LEFT  	0X02
-#define KEY_UP    	0X03
-#define KEY_SPACE	0X04
+#define KEY_RIGHT 		0X01
+#define KEY_LEFT		0X02
+#define KEY_UP    		0X03
+#define KEY_SPACE		0X04
 
 #define WALK 0
 #define WALK_B 1
@@ -25,6 +26,8 @@ using namespace std;
 #define ATTACK 6
 #define ATTACK_B 7
 #define DEATH 8
+
+#define MAXSKILL 10
 
 //HANDLE hEvent;
 
@@ -60,14 +63,14 @@ struct CS_RUN
 	bool		onSkill;
 };
 
-#define MAXSKILL 10
+
 struct SKILL_INFO
 {
 	bool			isEnable;
 	COORD			skillPos;
 	bool			isCrush;
 	byte			player;
-	bool			isRight;
+	bool			isSkillRight;
 };
 struct SKILL
 {
@@ -86,16 +89,6 @@ struct SC_RUN
 	bool        onSkill;
 	SKILL		skillInfo;
 };
-struct SC_SKILL
-{
-	//byte			type;
-	bool			isEnable;
-	byte			skillIndex;
-	COORD	skillPos;
-	bool			isCrush;
-	byte			player;
-	bool			isRight;
-};
 
 struct CS_SKILL
 {
@@ -106,9 +99,22 @@ struct CS_SKILL
 
 struct SC_END
 {
-	byte			type;
 	byte			winner;
 };
 #pragma pack()
 
+struct Client_Info
+{
+	Client_Info(SOCKET socket, byte num, COORD p, bool skill, byte mode, bool bRight,bool sRight,USHORT hp) : client_socket(socket), player(num), pos(p), onSkill(skill), eMode(mode), isRight(bRight),isSkillRight(sRight),hp(hp) {}
+
+	SOCKET			client_socket;
+	byte			player;
+	COORD			pos;
+	bool			onSkill;
+	COORD			skillPos;
+	byte			eMode;				// 상대방의 애니메이션 상태
+	bool			isRight;				// false = Right	
+	bool			isSkillRight; // right == true		
+	USHORT			hp;
+};
 

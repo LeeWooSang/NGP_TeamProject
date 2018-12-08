@@ -2,7 +2,7 @@
 
 Fireball::Fireball()
 {
-	for (int i = 0; i < ANIMNUM; ++i)
+	for (int i = 0; i < S_ANIMNUM; ++i)
 	{
 		sPFireball[i] = NULL;
 		sEFireball[i] = NULL;
@@ -16,7 +16,7 @@ Fireball::Fireball()
 
 Fireball::Fireball(int x, int y, bool r)
 {
-	for (int i = 0; i < ANIMNUM; ++i)
+	for (int i = 0; i < S_ANIMNUM; ++i)
 	{
 		sPFireball[i] = NULL;
 		sEFireball[i] = NULL;
@@ -30,9 +30,18 @@ Fireball::Fireball(int x, int y, bool r)
 	initSprite();
 }
 
+void Fireball::Destroy()
+{
+	for (int i = 0; i < S_ANIMNUM; ++i)
+	{
+		SAFE_DELETE(sPFireball[i]);
+		SAFE_DELETE(sEFireball[i]);
+	}
+}
+
 void Fireball::initSprite()
 {
-	for (int i = 0; i < ANIMNUM; ++i)
+	for (int i = 0; i < S_ANIMNUM; ++i)
 		animCount[i] = 0;
 
 	if (sPFireball[FIREBALL] == NULL && sEFireball[FIREBALL] == NULL)
@@ -126,10 +135,8 @@ Fireball::~Fireball()
 {
 	for (int i = 0; i < S_ANIMNUM; ++i)
 	{
-		if(sPFireball[i])
-			SAFE_DELETE_ARRAY(sPFireball[i]);
-		if (sEFireball[i])
-			SAFE_DELETE_ARRAY(sEFireball[i]);
+		SAFE_DELETE_ARRAY(sPFireball[i]);
+		SAFE_DELETE_ARRAY(sEFireball[i]);
 	}
 }
 
@@ -140,13 +147,14 @@ void Fireball::Render(HDC* cDC)
 		if (isCrush)
 		{
 			if (animCount[CRUSH] >= sPFireball[CRUSH]->getIndex())
-				isDraw = false;
-			else
 			{
-				sPFireball[CRUSH]->setLocation(pos.X, pos.Y);
-				sPFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
-				animCount[CRUSH]++;
+				animCount[CRUSH] = 0;
+				isDraw = false;
+				isCrush = false;
 			}
+			sPFireball[CRUSH]->setLocation(pos.X, pos.Y);
+			sPFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
+			animCount[CRUSH]++;
 		}
 		else if (!isCrush)
 		{
@@ -173,13 +181,14 @@ void Fireball::Render(HDC* cDC)
 		if (isCrush)
 		{
 			if (animCount[CRUSH] >= sEFireball[CRUSH]->getIndex())
-				isDraw = false;
-			else
 			{
-				sEFireball[CRUSH]->setLocation(pos.X, pos.Y);
-				sEFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
-				animCount[CRUSH]++;
+				animCount[CRUSH] = 0;
+				isDraw = false;
+				isCrush = false;
 			}
+			sEFireball[CRUSH]->setLocation(pos.X, pos.Y);
+			sEFireball[CRUSH]->Render(cDC, animCount[CRUSH], (UINT)RGB(255, 0, 255));
+			animCount[CRUSH]++;
 		}
 		else if (!isCrush)
 		{

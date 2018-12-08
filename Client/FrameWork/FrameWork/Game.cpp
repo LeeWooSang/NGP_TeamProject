@@ -8,7 +8,6 @@ Hero * pHero;
 Hero * eHero;
 SC_INIT pSCInit;
 SC_RUN pSCRun;
-SKILL pSCSkill;
 SC_END pSCEnd;
 CS_RUN pCSRun;
 CRITICAL_SECTION cs;
@@ -16,6 +15,9 @@ SOCKET sock;
 HANDLE hThread, hThread2;
 int elapsedNum = 0;
 byte createSkillIdx = 0;
+Sprite * winTEXT;
+Sprite * loseTEXT;
+bool isWin;
 std::vector<Fireball> pFireball;
 std::vector<Fireball> eFireball;
 
@@ -35,7 +37,20 @@ Game::~Game()
 		eHero->Destroy();
 		SAFE_DELETE(eHero);
 	}
+
+	if (pFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			pFireball[i].Destroy();
+	}
+	if (eFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			eFireball[i].Destroy();
+	}
 	SAFE_DELETE(background);
+	SAFE_DELETE(winTEXT);
+	SAFE_DELETE(loseTEXT);
 }
 
 int Game::recvn(SOCKET s, char* buf, int len, int flags)
@@ -74,6 +89,20 @@ void Game::Enter()
 	{
 		background = new Sprite;
 		background->Entry(0, "image/start.bmp", 0, 0);
+	}
+
+	if (winTEXT == NULL)
+	{
+		winTEXT = new Sprite;
+		winTEXT->Entry(0, "image/winText.bmp", 0, 0);
+		winTEXT->setLocation(150, 200);
+	}
+
+	if (loseTEXT == NULL)
+	{
+		loseTEXT = new Sprite;
+		loseTEXT->Entry(0, "image/loseText.bmp", 0, 0);
+		loseTEXT->setLocation(150, 200);
 	}
 	
 	if (pHero == NULL)
@@ -158,7 +187,19 @@ void Game::Destroy()
 		eHero->Destroy();
 		SAFE_DELETE(eHero);
 	}
+	if (pFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			pFireball[i].Destroy();
+	}
+	if (eFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			eFireball[i].Destroy();
+	}
 	SAFE_DELETE(background);
+	SAFE_DELETE(winTEXT);
+	SAFE_DELETE(loseTEXT);
 	DeleteCriticalSection(&cs);
 	WSACleanup();
 }
@@ -178,7 +219,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 			EnterCriticalSection(&cs);
 			if (pCSRun.key != KEY_IDLE)
 			{
-				if (num < 5)
+				if (num < 1)
 				{
 					retval = send((SOCKET)client_socket, (char*)&pCSRun, sizeof(CS_RUN), 0);
 					if (retval == SOCKET_ERROR)
@@ -281,75 +322,112 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 				break;
 			}
 			pHero->getLocation(&x, &y);
-			//for (int i = 0; i < MAXSKILL; i++)
-			//{
-			//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
-			//}
 
-			if (pSCRun.onSkill)
-			{
 
-				//for (int i = 0; i < MAXSKILL; i++)
-				//{
-				//	std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
-				//	std::cout << pSCRun.skillInfo.player2_skill[i].skillPos.X << pSCRun.skillInfo.player2_skill[i].skillPos.Y << std::endl;
-
-				//}
-				//std::cout << pSCRun.onSkill << std::endl;
-				/*
-				for (int i = 0; i < MAXSKILL; i++)
-				{
-					EnterCriticalSection(&cs);
-					std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::endl;
-					LeaveCriticalSection(&cs);
-				}*/
-				//std::cout << pSCRun.skillInfo.player1_skill[i].skillPos.X << pSCRun.skillInfo.player1_skill[i].skillPos.Y << std::cout;
-			}
-
-			/*if (pSCRun.onSkill)
-			{
-				retval = recvn((SOCKET)client_socket, (char*)&pSCSkill, sizeof(SC_SKILL), 0);
-				if (retval == SOCKET_ERROR)
-				{
-					err_display("recv()");
-					break;
-				}
-				pSCRun.onSkill = false;
-				EnterCriticalSection(&cs);
-				if (pSCSkill.player == pHero->player)
-				{
-					pFireball[pSCSkill.skillIndex].setLocation(pSCSkill.skillPos.X, pSCSkill.skillPos.Y);
-					if (pSCSkill.isCrush)
-						pFireball[pSCSkill.skillIndex].isCrush = true;
-				}
-				else
-				{
-					eFireball[pSCSkill.skillIndex].setLocation(pSCSkill.skillPos.X, pSCSkill.skillPos.Y);
-					if (pSCSkill.isCrush)
-						eFireball[pSCSkill.skillIndex].isCrush = true;
-				}
-				LeaveCriticalSection(&cs);
-
-			}*/
-			
 			EnterCriticalSection(&cs);
+			
 			if (pHero->player == PLAYER1)
 			{
 				pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 				pHero->setHP(pSCRun.hp[PLAYER1]);
+				std::cout << pSCRun.hp[PLAYER1] << std::endl;
 				eHero->setMode(pSCRun.eMode[pHero->player]);
 				eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
 				eHero->setHP(pSCRun.hp[PLAYER2]);
+
+				
+				for (int i = 0; i < MAXSKILL; ++i)
+				{
+					if (pFireball[i].isDraw)
+						pFireball[i].isCrush = pSCRun.skillInfo.player1_skill[i].isCrush;
+					if (pFireball[i].isDraw == false && pFireball[i].isCrush == false)
+					{
+						pFireball[i].isDraw = pSCRun.skillInfo.player1_skill[i].isEnable;
+						pFireball[i].player = pSCRun.skillInfo.player1_skill[i].player;
+						pFireball[i].isRight = pSCRun.skillInfo.player1_skill[i].isSkillRight;
+					}
+					if (pFireball[i].isCrush == false)
+						pFireball[i].setLocation(pSCRun.skillInfo.player1_skill[i].skillPos.X, pSCRun.skillInfo.player1_skill[i].skillPos.Y);
+
+					if (eFireball[i].isDraw)
+						eFireball[i].isCrush = pSCRun.skillInfo.player2_skill[i].isCrush;
+					if (eFireball[i].isDraw == false && eFireball[i].isCrush == false)
+					{
+						eFireball[i].player = pSCRun.skillInfo.player2_skill[i].player;
+						eFireball[i].isDraw = pSCRun.skillInfo.player2_skill[i].isEnable;
+						eFireball[i].isRight = pSCRun.skillInfo.player2_skill[i].isSkillRight;
+					}
+					if (eFireball[i].isCrush == false)
+						eFireball[i].setLocation(pSCRun.skillInfo.player2_skill[i].skillPos.X, pSCRun.skillInfo.player2_skill[i].skillPos.Y);
+				}
+				
+
 			}
 			else
 			{
 				pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
 				pHero->setHP(pSCRun.hp[PLAYER2]);
+				std::cout << pSCRun.hp[PLAYER2] << std::endl;
 				eHero->setMode(pSCRun.eMode[pHero->player]);
 				eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 				eHero->setHP(pSCRun.hp[PLAYER1]);
+
+				for (int i = 0; i < MAXSKILL; ++i)
+				{
+					if (eFireball[i].isDraw)
+						eFireball[i].isCrush = pSCRun.skillInfo.player1_skill[i].isCrush;
+					if (eFireball[i].isDraw == false && eFireball[i].isCrush == false)
+					{
+						eFireball[i].player = pSCRun.skillInfo.player1_skill[i].player;
+						eFireball[i].isDraw = pSCRun.skillInfo.player1_skill[i].isEnable;
+						eFireball[i].isRight = pSCRun.skillInfo.player1_skill[i].isSkillRight;
+					}
+					if(eFireball[i].isCrush == false)
+						eFireball[i].setLocation(pSCRun.skillInfo.player1_skill[i].skillPos.X, pSCRun.skillInfo.player1_skill[i].skillPos.Y);
+
+					if (pFireball[i].isDraw)
+						pFireball[i].isCrush = pSCRun.skillInfo.player2_skill[i].isCrush;
+					if (pFireball[i].isDraw == false && pFireball[i].isCrush == false)
+					{
+						pFireball[i].player = pSCRun.skillInfo.player2_skill[i].player;
+						pFireball[i].isDraw = pSCRun.skillInfo.player2_skill[i].isEnable;
+						pFireball[i].isRight = pSCRun.skillInfo.player2_skill[i].isSkillRight;
+					}
+					if (pFireball[i].isCrush == false)
+						pFireball[i].setLocation(pSCRun.skillInfo.player2_skill[i].skillPos.X, pSCRun.skillInfo.player2_skill[i].skillPos.Y);
+				}
 			}
 			LeaveCriticalSection(&cs);
+
+			if (pSCRun.hp[PLAYER1] == 0 || pSCRun.hp[PLAYER2] == 0)
+			{
+
+				gameState = TYPE_END;
+				std::cout << "끝내기 과정 돌입" << std::endl;
+
+			}
+			break;
+		case TYPE_END:
+
+			retval = recvn((SOCKET)client_socket, (char*)&pSCEnd, sizeof(SC_END), 0);
+			if (retval == SOCKET_ERROR)
+			{
+				err_display("recv()");
+				break;
+			}
+
+			if (pSCEnd.winner == pHero->player)
+			{
+				eHero->setMode(DEATH);
+				isWin = true;
+				std::cout << "이겼다!!     ESC를 눌러 종료해 주세요" << std::endl;
+				
+			}
+			else {
+				pHero->setMode(DEATH);
+				isWin = false;
+				std::cout << "졌다!!       ESC를 눌러 종료해 주세요" << std::endl;
+			}
 			
 
 			break;
@@ -366,6 +444,7 @@ void Game::Render(HDC* cDC)
 		pHero->Render(cDC, elapsedNum);
 	if (eHero)
 		eHero->Render(cDC, elapsedNum);
+
 	if (pFireball.size() > 0 && eFireball.size() > 0)
 	{
 		for (int i = 0; i < MAXSKILL; ++i)
@@ -376,7 +455,14 @@ void Game::Render(HDC* cDC)
 				eFireball[i].Render(cDC);
 		}
 	}
-	
+
+	if (gameState == TYPE_END)
+	{
+		if (isWin)
+			winTEXT->Render(cDC, 0, (UINT)RGB(255, 0, 255));
+		else
+			loseTEXT->Render(cDC, 0, (UINT)RGB(255, 0, 255));
+	}
 }
 void Game::MouseInput(int iMessage, int x, int y)
 {
@@ -447,9 +533,6 @@ void Game::KeyboardInput(int iMessage, int wParam)
 			
 			//cout << "SPACE key down\n";
 			break;
-		case VK_ESCAPE:
-			PostQuitMessage(0);
-			break;
 		}
 	}
 	if (iMessage == WM_KEYUP)
@@ -481,9 +564,10 @@ void Game::KeyboardCharInput(int wParam)
 	switch (wParam)
 	{
 	case VK_SPACE:
-		//printf("%d, %d\n", pHero->getX(), pHero->getY());
+		//printf("%d, %d\n", pHero->getX(), pHero->getY()); 
 		break;
 	case VK_ESCAPE:
+		Destroy();
 		PostQuitMessage(0);
 		break;
 	}
