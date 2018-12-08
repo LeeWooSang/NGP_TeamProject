@@ -108,6 +108,7 @@ void Game::Enter()
 	gameState = TYPE_INIT;
 	pSCInit.type = -1;
 	//윈속 초기화
+
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
