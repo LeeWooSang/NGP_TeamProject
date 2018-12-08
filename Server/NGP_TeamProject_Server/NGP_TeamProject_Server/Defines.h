@@ -16,6 +16,18 @@ using namespace std;
 #define KEY_UP    	0X03
 #define KEY_SPACE	0X04
 
+#define WALK 0
+#define WALK_B 1
+#define JUMP 2
+#define JUMP_B 3
+#define IDLE 4
+#define IDLE_B 5
+#define ATTACK 6
+#define ATTACK_B 7
+#define DEATH 8
+
+//HANDLE hEvent;
+
 // PACKET_TYPE
 enum PACKET_TYPE { TYPE_INIT, TYPE_START, TYPE_RUN, TYPE_SKILL, TYPE_END };
 enum PLAYER { PLAYER_1, PLAYER_2 };

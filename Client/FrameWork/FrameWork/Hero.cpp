@@ -271,7 +271,7 @@ void Hero::Enter()
 	}
 }
 
-void Hero::Render(HDC* cDC)
+void Hero::Render(HDC* cDC, int elapsedNum)
 {
 	if (player == PLAYER1)
 	{
@@ -279,7 +279,8 @@ void Hero::Render(HDC* cDC)
 			animCount[mode] = 0;
 		sPMode[mode]->setLocation(x, y);
 		sPMode[mode]->Render(cDC, animCount[mode], (UINT)RGB(255, 0, 255));
-		//animCount[mode]++;
+		if (elapsedNum % 3 == 0)
+			animCount[mode]++;
 	}
 	else
 	{
@@ -287,7 +288,8 @@ void Hero::Render(HDC* cDC)
 			animCount[mode] = 0;
 		sEMode[mode]->setLocation(x, y);
 		sEMode[mode]->Render(cDC, animCount[mode], (UINT)RGB(255, 0, 255));
-		//animCount[mode]++;
+		if (elapsedNum % 3 == 0)
+			animCount[mode]++;
 	}
 }
 

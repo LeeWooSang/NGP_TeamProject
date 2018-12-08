@@ -33,7 +33,7 @@ public:
 	Hero(int x, int y, int mode);
 	~Hero();
 
-	void Render(HDC* cDC);
+	void Render(HDC* cDC, int elapsedNum);
 	void Enter();
 	void Destroy();
 
