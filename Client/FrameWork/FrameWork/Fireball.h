@@ -25,6 +25,7 @@ public:
 	Fireball(int x, int y, bool isRight);
 	~Fireball();
 
+	void Destroy();
 	void Render(HDC* cDC);
 	void initSprite();
 

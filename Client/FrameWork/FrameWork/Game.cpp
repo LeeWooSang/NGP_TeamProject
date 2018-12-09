@@ -15,6 +15,9 @@ SOCKET sock;
 HANDLE hThread, hThread2;
 int elapsedNum = 0;
 byte createSkillIdx = 0;
+Sprite * winTEXT;
+Sprite * loseTEXT;
+bool isWin;
 std::vector<Fireball> pFireball;
 std::vector<Fireball> eFireball;
 
@@ -34,7 +37,20 @@ Game::~Game()
 		eHero->Destroy();
 		SAFE_DELETE(eHero);
 	}
+
+	if (pFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			pFireball[i].Destroy();
+	}
+	if (eFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			eFireball[i].Destroy();
+	}
 	SAFE_DELETE(background);
+	SAFE_DELETE(winTEXT);
+	SAFE_DELETE(loseTEXT);
 }
 
 int Game::recvn(SOCKET s, char* buf, int len, int flags)
@@ -73,6 +89,20 @@ void Game::Enter()
 	{
 		background = new Sprite;
 		background->Entry(0, "image/start.bmp", 0, 0);
+	}
+
+	if (winTEXT == NULL)
+	{
+		winTEXT = new Sprite;
+		winTEXT->Entry(0, "image/winText.bmp", 0, 0);
+		winTEXT->setLocation(150, 200);
+	}
+
+	if (loseTEXT == NULL)
+	{
+		loseTEXT = new Sprite;
+		loseTEXT->Entry(0, "image/loseText.bmp", 0, 0);
+		loseTEXT->setLocation(150, 200);
 	}
 	
 	if (pHero == NULL)
@@ -157,7 +187,19 @@ void Game::Destroy()
 		eHero->Destroy();
 		SAFE_DELETE(eHero);
 	}
+	if (pFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			pFireball[i].Destroy();
+	}
+	if (eFireball.size() > 0)
+	{
+		for (int i = 0; i < MAXSKILL; ++i)
+			eFireball[i].Destroy();
+	}
 	SAFE_DELETE(background);
+	SAFE_DELETE(winTEXT);
+	SAFE_DELETE(loseTEXT);
 	DeleteCriticalSection(&cs);
 	WSACleanup();
 }
@@ -376,10 +418,14 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 
 			if (pSCEnd.winner == pHero->player)
 			{
+				eHero->setMode(DEATH);
+				isWin = true;
 				std::cout << "이겼다!!     ESC를 눌러 종료해 주세요" << std::endl;
 				
 			}
 			else {
+				pHero->setMode(DEATH);
+				isWin = false;
 				std::cout << "졌다!!       ESC를 눌러 종료해 주세요" << std::endl;
 			}
 			
@@ -409,7 +455,14 @@ void Game::Render(HDC* cDC)
 				eFireball[i].Render(cDC);
 		}
 	}
-	
+
+	if (gameState == TYPE_END)
+	{
+		if (isWin)
+			winTEXT->Render(cDC, 0, (UINT)RGB(255, 0, 255));
+		else
+			loseTEXT->Render(cDC, 0, (UINT)RGB(255, 0, 255));
+	}
 }
 void Game::MouseInput(int iMessage, int x, int y)
 {
@@ -480,9 +533,6 @@ void Game::KeyboardInput(int iMessage, int wParam)
 			
 			//cout << "SPACE key down\n";
 			break;
-		case VK_ESCAPE:
-			PostQuitMessage(0);
-			break;
 		}
 	}
 	if (iMessage == WM_KEYUP)
@@ -514,9 +564,10 @@ void Game::KeyboardCharInput(int wParam)
 	switch (wParam)
 	{
 	case VK_SPACE:
-		//printf("%d, %d\n", pHero->getX(), pHero->getY());
+		//printf("%d, %d\n", pHero->getX(), pHero->getY()); 
 		break;
 	case VK_ESCAPE:
+		Destroy();
 		PostQuitMessage(0);
 		break;
 	}

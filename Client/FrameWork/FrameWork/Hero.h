@@ -24,6 +24,7 @@ private:
 	int animCount[ANIMNUM];
 	Sprite * sPMode[ANIMNUM];
 	Sprite * sEMode[ANIMNUM];
+	Sprite * sHpGaze;
 public:
 	byte player;
 	bool isBack;

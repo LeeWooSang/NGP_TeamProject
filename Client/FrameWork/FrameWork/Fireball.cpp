@@ -2,7 +2,7 @@
 
 Fireball::Fireball()
 {
-	for (int i = 0; i < ANIMNUM; ++i)
+	for (int i = 0; i < S_ANIMNUM; ++i)
 	{
 		sPFireball[i] = NULL;
 		sEFireball[i] = NULL;
@@ -16,7 +16,7 @@ Fireball::Fireball()
 
 Fireball::Fireball(int x, int y, bool r)
 {
-	for (int i = 0; i < ANIMNUM; ++i)
+	for (int i = 0; i < S_ANIMNUM; ++i)
 	{
 		sPFireball[i] = NULL;
 		sEFireball[i] = NULL;
@@ -30,9 +30,18 @@ Fireball::Fireball(int x, int y, bool r)
 	initSprite();
 }
 
+void Fireball::Destroy()
+{
+	for (int i = 0; i < S_ANIMNUM; ++i)
+	{
+		SAFE_DELETE(sPFireball[i]);
+		SAFE_DELETE(sEFireball[i]);
+	}
+}
+
 void Fireball::initSprite()
 {
-	for (int i = 0; i < ANIMNUM; ++i)
+	for (int i = 0; i < S_ANIMNUM; ++i)
 		animCount[i] = 0;
 
 	if (sPFireball[FIREBALL] == NULL && sEFireball[FIREBALL] == NULL)
@@ -126,10 +135,8 @@ Fireball::~Fireball()
 {
 	for (int i = 0; i < S_ANIMNUM; ++i)
 	{
-		if(sPFireball[i])
-			SAFE_DELETE_ARRAY(sPFireball[i]);
-		if (sEFireball[i])
-			SAFE_DELETE_ARRAY(sEFireball[i]);
+		SAFE_DELETE_ARRAY(sPFireball[i]);
+		SAFE_DELETE_ARRAY(sEFireball[i]);
 	}
 }
 

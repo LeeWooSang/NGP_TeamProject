@@ -2,9 +2,9 @@
 #include "Defines.h"
 #include "Collision.h"
 
-#define PLAYER_WIDTH 75
-#define PLAYER_HEIGHT 70
-#define FIREBALL_WIDTH 173
+#define PLAYER_WIDTH 45
+#define PLAYER_HEIGHT 75
+#define FIREBALL_WIDTH 133
 #define FIREBALL_HEIGHT 46
 //#define MAXSKILL 10
 

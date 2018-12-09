@@ -53,6 +53,7 @@ public:
 	// playerCheck[0]Àº PLAYER_1
 	// playerCheck[1]Àº PLAYER_2
 	static bool playerCheck[2];
+	static bool gameover;
 
 	static float FPS;
 	static float elapsedTime;

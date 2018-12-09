@@ -10,6 +10,7 @@ HANDLE CServerFramework::hThread[2];
 
 bool CServerFramework::playerCheck[2] = { false, false };
 bool CServerFramework::playerReady[2] = { false, false };
+bool CServerFramework::gameover = false;
 
 byte CServerFramework::winPlayer = 0;
 float CServerFramework::FPS = 0.03;
@@ -423,21 +424,24 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 		break;
 		case TYPE_END:
 		{
-			SC_END sc_endPacket = { 0 };
-			packetSize = sizeof(SC_END);
+			if (!gameover)
+			{
+				SC_END sc_endPacket = { 0 };
+				packetSize = sizeof(SC_END);
 
-			sc_endPacket.winner = CServerFramework::winPlayer;
+				sc_endPacket.winner = CServerFramework::winPlayer;
 
-			for (int i = 0; i < vec_client_info.size(); i++) {
-				retval = send(vec_client_info[i].client_socket, (char*)&sc_endPacket, sizeof(SC_END), 0);
-				if (retval == SOCKET_ERROR)
-				{
-					err_display("send( )");
-					return;
+				for (int i = 0; i < vec_client_info.size(); i++) {
+					retval = send(vec_client_info[i].client_socket, (char*)&sc_endPacket, sizeof(SC_END), 0);
+					if (retval == SOCKET_ERROR)
+					{
+						err_display("send( )");
+						return;
+					}
 				}
+				cout << "gameover\n";
+				gameover = true;
 			}
-
-
 			break;
 		}
 		

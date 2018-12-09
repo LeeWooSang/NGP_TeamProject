@@ -12,6 +12,7 @@ Hero::Hero()
 		sPMode[i] = NULL;
 		sEMode[i] = NULL;
 	}
+	sHpGaze = NULL;
 	/*sWalk = sWalk_b = sJump = sJump_b = sIdle = sIdle_b = sAttack = sAttack_b = NULL;
 	sFireball = sFireball_b = NULL;
 	sDeath = sCrushEffect = NULL;*/
@@ -30,6 +31,7 @@ Hero::Hero(int x1, int y1, int m)
 		sPMode[i] = NULL;
 		sEMode[i] = NULL;
 	}
+	sHpGaze = NULL;
 	/*sWalk = sWalk_b = sJump = sJump_b = sIdle = sIdle_b = sAttack = sAttack_b = NULL;
 	sFireball = sFireball_b = NULL;
 	sDeath = sCrushEffect = NULL;*/
@@ -44,16 +46,22 @@ Hero::~Hero()
 {
 	for (int i = 0; i < ANIMNUM; ++i)
 	{
-		SAFE_DELETE_ARRAY(sPMode[i]);
-		SAFE_DELETE_ARRAY(sEMode[i]);
+		SAFE_DELETE(sPMode[i]);
+		SAFE_DELETE(sEMode[i]);
 	}
+	SAFE_DELETE(sHpGaze);
 }
 
 void Hero::Enter()
 {
 	for (int i = 0; i < ANIMNUM; ++i)
 		animCount[i] = 0;
-	
+
+	sHpGaze = new Sprite;
+	sHpGaze->Entry(0, "image/hpgaze.bmp", 0, 0);
+	sHpGaze->setLocation(0, x, y);
+
+
 	if (sPMode[WALK] == NULL && sEMode[WALK] == NULL)
 	{
 		sPMode[WALK] = new Sprite;
@@ -273,6 +281,8 @@ void Hero::Enter()
 
 void Hero::Render(HDC* cDC, int elapsedNum)
 {
+	sHpGaze->setLocation(x - sHpGaze->getWidth(0) / 4, y - 40);
+	sHpGaze->Render(cDC, 0, (float)hp, 100.f);
 	if (player == PLAYER1)
 	{
 		if (animCount[mode] >= sPMode[mode]->getIndex())
@@ -301,6 +311,7 @@ void Hero::Destroy()
 		SAFE_DELETE(sPMode[i]);
 		SAFE_DELETE(sEMode[i]);
 	}
+	SAFE_DELETE(sHpGaze);
 #pragma endregion
 }
 
