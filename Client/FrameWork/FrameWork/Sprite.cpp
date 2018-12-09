@@ -44,6 +44,7 @@ void Sprite::Render(HDC* hdc, int Num, float wPer, float hPer)
 
 void Sprite::Render(HDC* hdc, int Num, UINT color)
 {
+
 	HDC TmpDC = CreateCompatibleDC(*hdc);
 	HBITMAP m_oldbitmap = (HBITMAP)SelectObject(TmpDC, BmpData[Num].Bitmap);
 	TransparentBlt(*hdc, BmpData[Num].x, BmpData[Num].y, BmpData[Num].width, BmpData[Num].height, TmpDC, 0, 0, BmpData[Num].width, BmpData[Num].height, color);

@@ -32,7 +32,7 @@ using namespace std;
 //HANDLE hEvent;
 
 // PACKET_TYPE
-enum PACKET_TYPE { TYPE_INIT, TYPE_START, TYPE_RUN, TYPE_SKILL, TYPE_END };
+enum PACKET_TYPE { TYPE_INIT, TYPE_RUN, TYPE_END };
 enum PLAYER { PLAYER_1, PLAYER_2 };
 // 키보드 아스키 번호 정의
 enum ASCII_KEY { RIGHT = 77, LEFT = 75, UP = 72, SPACE = 32 };
@@ -40,29 +40,17 @@ enum ASCII_KEY { RIGHT = 77, LEFT = 75, UP = 72, SPACE = 32 };
 #pragma pack(1)
 struct SC_INIT
 {
-	byte			type;
 	bool			isStart;
-	byte			player;
-};
-
-struct CS_INIT
-{
-	//byte			type;
-	bool			isReady;
 	byte			player;
 };
 
 struct CS_RUN
 {
 	CS_RUN() {}
-	CS_RUN(byte t, byte k,bool p) : key(t), player(k),onSkill(p) { }
-
-	//byte        type;
+	CS_RUN(byte t, byte k,bool p) : key(t), player(k) { }
 	byte        key;
 	byte        player;
-	bool		onSkill;
 };
-
 
 struct SKILL_INFO
 {
@@ -74,28 +62,17 @@ struct SKILL_INFO
 };
 struct SKILL
 {
-	byte			player1_skillIndex;
-	byte			player2_skillIndex;
 	SKILL_INFO      player1_skill[MAXSKILL];
 	SKILL_INFO		player2_skill[MAXSKILL];
 };
 
 struct SC_RUN
 {
-	byte		type;
 	byte		eMode[2];
 	COORD		pos[2];
 	USHORT		hp[2];
-	bool        onSkill;
 	SKILL		skillInfo;
 };
-
-struct CS_SKILL
-{
-	byte       skillIndex;
-	byte       player;
-};
-
 
 struct SC_END
 {
@@ -105,12 +82,11 @@ struct SC_END
 
 struct Client_Info
 {
-	Client_Info(SOCKET socket, byte num, COORD p, bool skill, byte mode, bool bRight,bool sRight,USHORT hp) : client_socket(socket), player(num), pos(p), onSkill(skill), eMode(mode), isRight(bRight),isSkillRight(sRight),hp(hp) {}
+	Client_Info(SOCKET socket, byte num, COORD p, byte mode, bool bRight,bool sRight,USHORT hp) : client_socket(socket), player(num), pos(p), eMode(mode), isRight(bRight),isSkillRight(sRight),hp(hp) {}
 
 	SOCKET			client_socket;
 	byte			player;
 	COORD			pos;
-	bool			onSkill;
 	COORD			skillPos;
 	byte			eMode;				// 상대방의 애니메이션 상태
 	bool			isRight;				// false = Right	

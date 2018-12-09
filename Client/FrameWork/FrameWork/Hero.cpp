@@ -13,15 +13,12 @@ Hero::Hero()
 		sEMode[i] = NULL;
 	}
 	sHpGaze = NULL;
-	/*sWalk = sWalk_b = sJump = sJump_b = sIdle = sIdle_b = sAttack = sAttack_b = NULL;
-	sFireball = sFireball_b = NULL;
-	sDeath = sCrushEffect = NULL;*/
 
 	x = 0;
 	y = 0;
 	mode = IDLE;
 	player = 1;
-	isBack = false;
+	isRight = false;
 }
 
 Hero::Hero(int x1, int y1, int m)
@@ -32,14 +29,11 @@ Hero::Hero(int x1, int y1, int m)
 		sEMode[i] = NULL;
 	}
 	sHpGaze = NULL;
-	/*sWalk = sWalk_b = sJump = sJump_b = sIdle = sIdle_b = sAttack = sAttack_b = NULL;
-	sFireball = sFireball_b = NULL;
-	sDeath = sCrushEffect = NULL;*/
 
 	x = x1;
 	y = y1;
 	mode = m;
-	isBack = false;
+	isRight = false;
 }
 
 Hero::~Hero()
@@ -305,14 +299,12 @@ void Hero::Render(HDC* cDC, int elapsedNum)
 
 void Hero::Destroy()
 {
-#pragma region SpriteDelete
 	for (int i = 0; i < ANIMNUM; ++i)
 	{
 		SAFE_DELETE(sPMode[i]);
 		SAFE_DELETE(sEMode[i]);
 	}
 	SAFE_DELETE(sHpGaze);
-#pragma endregion
 }
 
 void Hero::setLocation(int x1, int y1)

@@ -43,21 +43,12 @@ public:
 	static HANDLE hThread[2];
 
 	static SkillManager* m_pSkillManager;
-	static CServerFramework* p;
 
-
-	static bool playerReady[2];
-	// 클라이언트마다 TPYE_START를 한번만 받게하기 위해 검사하는 변수
-	// playerCheck[0]은 PLAYER_1
-	// playerCheck[1]은 PLAYER_2
-	static bool playerCheck[2];
 	static bool gameover;
 
 	static float FPS;
 	static float elapsedTime;
 
 	static byte winPlayer;
-
-	bool onSkill = false;
 };
 

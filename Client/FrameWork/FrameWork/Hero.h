@@ -27,7 +27,7 @@ private:
 	Sprite * sHpGaze;
 public:
 	byte player;
-	bool isBack;
+	bool isRight;
 
 public:
 	Hero();

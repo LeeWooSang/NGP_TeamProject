@@ -21,7 +21,6 @@ SkillManager::SkillManager()
 	{
 		player1_Skill[i]->isEnable = false;
 		player1_Skill[i]->isCrush = false;
-		//player1_Skill[i]->isRight = true;
 		player1_Skill[i]->isSkillRight = true;
 		player1_Skill[i]->player = PLAYER_1;
 		player1_Skill[i]->skillPos = { -100,-100 };
@@ -29,7 +28,6 @@ SkillManager::SkillManager()
 
 		player2_Skill[i]->isEnable = false;
 		player2_Skill[i]->isCrush = false;
-		//player2_Skill[i]->isRight = false;
 		player2_Skill[i]->isSkillRight = false;
 		player2_Skill[i]->player = PLAYER_2;
 		player2_Skill[i]->skillPos = { -100,-100 };
@@ -186,15 +184,10 @@ void SkillManager::checkCollision(COORD& player,SKILL_INFO* skill,Client_Info& c
 			if (client.hp > 0) {
 				client.hp -= 10;
 			}
-
-
-			
-			cout << "충돌" << endl;
 		}
 
 		if (skill->skillPos.X < 0.0f && skill->skillPos.X != -100)
 		{
-			cout << "밖에 나감" << endl;
 			skill->isCrush = true;
 			skill->skillPos.X = -100;
 			skill->skillPos.Y = -100;
@@ -219,7 +212,6 @@ void SkillManager::checkCollision(COORD& player,SKILL_INFO* skill,Client_Info& c
 
 		if (skill->skillPos.X > 1000.0f)
 		{
-			cout << "밖에 나감" << endl;
 			skill->isCrush = true;
 			skill->skillPos.X = -100;
 			skill->skillPos.Y = -100;
