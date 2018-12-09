@@ -330,7 +330,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			{
 				pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 				pHero->setHP(pSCRun.hp[PLAYER1]);
-				std::cout << pSCRun.hp[PLAYER1] << std::endl;
+				//std::cout << pSCRun.hp[PLAYER1] << std::endl;
 				eHero->setMode(pSCRun.eMode[pHero->player]);
 				eHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
 				eHero->setHP(pSCRun.hp[PLAYER2]);
@@ -367,7 +367,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			{
 				pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
 				pHero->setHP(pSCRun.hp[PLAYER2]);
-				std::cout << pSCRun.hp[PLAYER2] << std::endl;
+				//std::cout << pSCRun.hp[PLAYER2] << std::endl;
 				eHero->setMode(pSCRun.eMode[pHero->player]);
 				eHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
 				eHero->setHP(pSCRun.hp[PLAYER1]);
@@ -420,13 +420,13 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			{
 				eHero->setMode(DEATH);
 				isWin = true;
-				std::cout << "이겼다!!     ESC를 눌러 종료해 주세요" << std::endl;
+				//std::cout << "이겼다!!     ESC를 눌러 종료해 주세요" << std::endl;
 				
 			}
 			else {
 				pHero->setMode(DEATH);
 				isWin = false;
-				std::cout << "졌다!!       ESC를 눌러 종료해 주세요" << std::endl;
+				//std::cout << "졌다!!       ESC를 눌러 종료해 주세요" << std::endl;
 			}
 			
 
