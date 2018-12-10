@@ -438,7 +438,8 @@ void CServerFramework::Update()
 			vec_client_info[i].pos.Y = 550.0f;
 			LeaveCriticalSection(&cs);
 		}
-		
+	
+
 	}
 	if (vec_client_info.size() > 1)
 	{

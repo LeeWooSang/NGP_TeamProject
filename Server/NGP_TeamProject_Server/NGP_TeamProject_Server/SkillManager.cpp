@@ -158,8 +158,7 @@ void SkillManager::checkCollision(COORD& player,SKILL_INFO* skill,Client_Info& c
 	float playerMinY = player.Y;
 	float playerMaxY = player.Y + PLAYER_HEIGHT;
 
-	for (int i = 0; i < MAXSKILL; i++)
-	{
+
 		if (Collision::RRCollision(playerMinX, playerMinY, playerMaxX, playerMaxY, skill->skillPos.X, skill->skillPos.Y,
 			skill->skillPos.X + FIREBALL_WIDTH, skill->skillPos.Y + FIREBALL_HEIGHT))
 		{
@@ -231,6 +230,6 @@ void SkillManager::checkCollision(COORD& player,SKILL_INFO* skill,Client_Info& c
 				}
 			}
 		}
-	}
+	
 
 }

@@ -215,7 +215,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 		case TYPE_RUN:
 			static int num = 0;
 			EnterCriticalSection(&cs);
-			if (pCSRun.key != KEY_IDLE)
+			if(pCSRun.key != KEY_IDLE)
 			{
 				if (num < 1)
 				{
@@ -226,6 +226,7 @@ DWORD WINAPI Game::ClientThread(LPVOID sock)
 						return 0;
 					}
 					++num;
+					//std::cout << "Send: " << retval << "\n";
 				}
 				else
 				{
@@ -298,7 +299,9 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 				err_display("recv()");
 				break;
 			}
-
+			
+			//std::cout << retval << "\n";
+			//std::cout << pSCRun.pos[0].X << "," << pSCRun.pos[0].Y << "\n";
 			EnterCriticalSection(&cs);
 			if (pHero->player == PLAYER1)
 			{
