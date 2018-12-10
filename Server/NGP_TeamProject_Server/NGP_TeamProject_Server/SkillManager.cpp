@@ -1,10 +1,13 @@
 #include "SkillManager.h"
 
+
+
 int SkillManager::m_Player1_SkillCount = 0;
 int SkillManager::m_Player2_SkillCount = 0;
 
 SkillManager::SkillManager()
 {
+
 	player1_Skill = new SKILL_INFO*[MAXSKILL];
 	player2_Skill = new SKILL_INFO*[MAXSKILL];
 
@@ -18,7 +21,6 @@ SkillManager::SkillManager()
 	{
 		player1_Skill[i]->isEnable = false;
 		player1_Skill[i]->isCrush = false;
-		//player1_Skill[i]->isRight = true;
 		player1_Skill[i]->isSkillRight = true;
 		player1_Skill[i]->player = PLAYER_1;
 		player1_Skill[i]->skillPos = { -100,-100 };
@@ -35,30 +37,37 @@ SkillManager::SkillManager()
 
 SkillManager::~SkillManager()
 {
+	
 	if (player1_Skill)
 	{
 		for (int i = 0; i < MAXSKILL; i++)
+		{
 			delete player1_Skill[i];
+		}
 		delete[] player1_Skill;
 	}
 
 	if (player2_Skill)
 	{
 		for (int i = 0; i < MAXSKILL; i++)
+		{
 			delete player2_Skill[i];
+		}
 		delete[] player2_Skill;
 	}
+
 }
 
 
 void SkillManager::addSkill(byte& player,COORD& skillPos,bool isRight)
 {
-	if (player == PLAYER_1) 
-	{
+
+	if (player == PLAYER_1) {
 		for (int i = 0; i < MAXSKILL; i++)
 		{
 			if (player1_Skill[i]->isEnable == false)
-			{		
+			{
+				
 				player1_Skill[i]->isEnable = true;
 				player1_Skill[i]->isCrush = false;
 				player1_Skill[i]->skillPos = skillPos;
@@ -76,6 +85,7 @@ void SkillManager::addSkill(byte& player,COORD& skillPos,bool isRight)
 		{
 			if (player2_Skill[i]->isEnable == false)
 			{
+				
 				player2_Skill[i]->isEnable = true;
 				player2_Skill[i]->isCrush = false;
 				player2_Skill[i]->skillPos = skillPos;
@@ -86,10 +96,13 @@ void SkillManager::addSkill(byte& player,COORD& skillPos,bool isRight)
 			}
 		}
 	}
+
 }
+
 
 void SkillManager::update(Client_Info& client1,Client_Info &client2)
 {
+
 	if (SkillManager::m_Player1_SkillCount > 0)
 	{
 		for (int i = 0; i < MAXSKILL; i++)
@@ -99,14 +112,17 @@ void SkillManager::update(Client_Info& client1,Client_Info &client2)
 				checkCollision(client2.pos, player1_Skill[i],client2);
 				if (player1_Skill[i]->isCrush == false)
 				{
-					if (player1_Skill[i]->isSkillRight == true) 
+					if (player1_Skill[i]->isSkillRight == true) {
 						player1_Skill[i]->skillPos.X += 10;
-
-					else 
+					}
+					else {
 						player1_Skill[i]->skillPos.X -= 10;
+					}
 				}
 			}
 		}
+
+
 	}
 
 	if (SkillManager::m_Player2_SkillCount > 0)
@@ -119,15 +135,21 @@ void SkillManager::update(Client_Info& client1,Client_Info &client2)
 				if (player2_Skill[i]->isCrush == false)
 				{
 					if (player2_Skill[i]->isSkillRight == true)
+					{
 						player2_Skill[i]->skillPos.X += 10;
-
-					else 
+					}
+					else {
 						player2_Skill[i]->skillPos.X -= 10;
+					}
 				}
 			}
 		}
 	}
+
+	
 }
+
+
 
 void SkillManager::checkCollision(COORD& player,SKILL_INFO* skill,Client_Info& client)
 {
@@ -145,53 +167,70 @@ void SkillManager::checkCollision(COORD& player,SKILL_INFO* skill,Client_Info& c
 			skill->skillPos.X = -100;
 			skill->skillPos.Y = -100;
 			skill->isEnable = false;
-
 			if (skill->player == PLAYER_1)
+			{
 				if (SkillManager::m_Player1_SkillCount > 0) 
+				{
 					SkillManager::m_Player1_SkillCount--;
-
+				}
+			}
 			else 
+			{
 				if (SkillManager::m_Player2_SkillCount > 0)
+				{
 					SkillManager::m_Player2_SkillCount--;
-
-			if (client.hp > 0) 
+				}
+			}
+			if (client.hp > 0) {
 				client.hp -= 10;
-
-			cout << "충돌" << endl;
+			}
 		}
 
 		if (skill->skillPos.X < 0.0f && skill->skillPos.X != -100)
 		{
-			cout << "밖에 나감" << endl;
 			skill->isCrush = true;
 			skill->skillPos.X = -100;
 			skill->skillPos.Y = -100;
 			skill->isEnable = false;
-
 			if (skill->player == PLAYER_1)
+			{
 				if (SkillManager::m_Player1_SkillCount > 0)
+				{
 					SkillManager::m_Player1_SkillCount--;
-
+				}
+			}
 			else
+			{
 				if (SkillManager::m_Player2_SkillCount > 0)
+				{
 					SkillManager::m_Player2_SkillCount--;
+				}
+			}
+
+			
 		}
 
 		if (skill->skillPos.X > 1000.0f)
 		{
-			cout << "밖에 나감" << endl;
 			skill->isCrush = true;
 			skill->skillPos.X = -100;
 			skill->skillPos.Y = -100;
 			skill->isEnable = false;
-
 			if (skill->player == PLAYER_1)
+			{
 				if (SkillManager::m_Player1_SkillCount > 0)
+				{
 					SkillManager::m_Player1_SkillCount--;
-
+				}
+			}
 			else
+			{
 				if (SkillManager::m_Player2_SkillCount > 0)
+				{
 					SkillManager::m_Player2_SkillCount--;
+				}
+			}
 		}
 	}
+
 }

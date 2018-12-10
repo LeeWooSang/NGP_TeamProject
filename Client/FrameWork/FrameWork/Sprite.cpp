@@ -3,10 +3,11 @@
 Sprite::Sprite()
 {
 	Index = 0;				// 왜 초기화를 생성자에서?
+	
 }
 Sprite::~Sprite()
 {
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 30; ++i)
 	{
 		if (BmpData[i].Bitmap != NULL)
 			DeleteObject(BmpData[i].Bitmap);
@@ -32,9 +33,18 @@ void Sprite::Render(HDC* hdc, int Num)
 	DeleteDC(TmpDC);
 	DeleteObject(m_oldbitmap);
 }
+void Sprite::Render(HDC* hdc, int Num, float wPer, float hPer)
+{
+	HDC TmpDC = CreateCompatibleDC(*hdc);
+	HBITMAP m_oldbitmap = (HBITMAP)SelectObject(TmpDC, BmpData[Num].Bitmap);
+	BitBlt(*hdc, BmpData[Num].x, BmpData[Num].y, BmpData[Num].width * (wPer/100), BmpData[Num].height * (hPer / 100), TmpDC, 0, 0, SRCCOPY);
+	DeleteDC(TmpDC);
+	DeleteObject(m_oldbitmap);
+}
 
 void Sprite::Render(HDC* hdc, int Num, UINT color)
 {
+
 	HDC TmpDC = CreateCompatibleDC(*hdc);
 	HBITMAP m_oldbitmap = (HBITMAP)SelectObject(TmpDC, BmpData[Num].Bitmap);
 	TransparentBlt(*hdc, BmpData[Num].x, BmpData[Num].y, BmpData[Num].width, BmpData[Num].height, TmpDC, 0, 0, BmpData[Num].width, BmpData[Num].height, color);

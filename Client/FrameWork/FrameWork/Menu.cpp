@@ -37,7 +37,7 @@ void Menu::Render(HDC* cDC)
 {
 #pragma region LogoFadeIn
 	pSprite->Render(cDC, BACKGROUND);
-	pSprite->Render(cDC, LOGO, RGB(34, 31, 31), alpha);
+	pSprite->Render(cDC, LOGO, (UINT)RGB(34, 31, 31), alpha);
 #pragma endregion
 
 #pragma region Button

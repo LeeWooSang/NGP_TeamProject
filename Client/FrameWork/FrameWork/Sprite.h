@@ -23,6 +23,7 @@ public:
 
 public:
 	void Render(HDC* hdc, int Num);		// 애니메이션을 그리기 위한 렌더
+	void Render(HDC* hdc, int Num, float wPer, float hPer);
 	void Render(HDC* hdc, int Num, UINT color);
 	void Render(HDC* hdc, int Num, float a);
 	void Render(HDC* hdc, int Num, UINT color, float a);
