@@ -31,7 +31,7 @@
 
 
 #define SERVERIP "127.0.0.1"
-//#define SERVERIP "192.168.121.212"
+//#define SERVERIP "192.168.219.107"
 #define SERVERPORT 9000
 
 #pragma pack(1)
@@ -51,7 +51,7 @@ struct CS_INIT
 struct SKILL_INFO
 {
 	bool			isEnable;
-	COORD			skillPos;
+	COORD	skillPos;
 	bool			isCrush;
 	byte			player;
 	bool			isSkillRight;

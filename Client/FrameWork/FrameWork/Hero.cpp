@@ -320,7 +320,7 @@ void Hero::setHP(USHORT h)
 	hp = h;
 }
 
-void Hero::getLocation(int *x1, int *y1)
+void Hero::getLocation(int* x1, int* y1)
 {
 	*x1 = x;
 	*y1 = y;

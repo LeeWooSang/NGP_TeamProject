@@ -68,6 +68,7 @@ void Game::Enter()
 	int retval = 0;
 	int x = 0;
 	int y = 0;
+
 	//static FWMain* main = &(FWMain::getMain());
 	if (background == NULL)
 	{
@@ -287,6 +288,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			if (pHero->player == PLAYER1)
 			{
 				pHero->setLocation(pSCRun.pos[PLAYER1].X, pSCRun.pos[PLAYER1].Y);
+				//cout << "플레0 : " << pSCRun.pos2[PLAYER1].X << ", " << pSCRun.pos2[PLAYER1].Y << std::endl;
 				pHero->setHP(pSCRun.hp[PLAYER1]);
 				//std::cout << pSCRun.hp[PLAYER1] << std::endl;
 				eHero->setMode(pSCRun.eMode[pHero->player]);
@@ -324,6 +326,7 @@ DWORD WINAPI Game::RecvThread(LPVOID sock)
 			else
 			{
 				pHero->setLocation(pSCRun.pos[PLAYER2].X, pSCRun.pos[PLAYER2].Y);
+				//cout << "플레0 : " << pSCRun.pos2[PLAYER2].X << ", " << pSCRun.pos2[PLAYER2].Y << std::endl;
 				pHero->setHP(pSCRun.hp[PLAYER2]);
 				//std::cout << pSCRun.hp[PLAYER2] << std::endl;
 				eHero->setMode(pSCRun.eMode[pHero->player]);

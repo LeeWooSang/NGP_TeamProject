@@ -19,6 +19,7 @@ class Hero
 private:
 	int x;
 	int y;
+
 	int mode;
 	USHORT hp;
 	int animCount[ANIMNUM];
@@ -42,7 +43,6 @@ public:
 	void setMode(int mode);
 
 	void getLocation(int *x, int *y);
-
 	int getMode();
 };
 
