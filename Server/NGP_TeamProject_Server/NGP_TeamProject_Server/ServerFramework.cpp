@@ -187,7 +187,7 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 						err_display("recvn( )");
 						return 0;
 					}
-					EnterCriticalSection(&cs);
+					//EnterCriticalSection(&cs);
 					switch (cs_runPacket.player)
 					{
 						case PLAYER_1:
@@ -197,7 +197,7 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 							KeyDistribute(cs_runPacket.player, cs_runPacket.key);
 							break;
 					}
-					LeaveCriticalSection(&cs);
+					//LeaveCriticalSection(&cs);
 				}
 				break;
 			}
@@ -307,10 +307,10 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			SC_INIT sc_initPacket[2]{ 0 };
 			for (int i = 0; i < vec_client_info.size(); ++i)
 			{
-				EnterCriticalSection(&cs);
+				
 				sc_initPacket[i].player = vec_client_info[i].player;
 				sc_initPacket[i].isStart = true;
-				LeaveCriticalSection(&cs);
+			
 				// 모든 플레이어에게 SC_INIT 고정길이 전송
 				retval = send(vec_client_info[i].client_socket, (char*)&sc_initPacket[i], sizeof(SC_INIT), 0);
 				if (retval == SOCKET_ERROR)
@@ -327,7 +327,6 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 		{
 			SC_RUN sc_runPacket = { 0 };
 
-			EnterCriticalSection(&cs);
 			sc_runPacket.eMode[PLAYER_1] = vec_client_info[PLAYER_1].eMode;
 			sc_runPacket.eMode[PLAYER_2] = vec_client_info[PLAYER_2].eMode;
 			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
@@ -339,7 +338,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			}
 			sc_runPacket.hp[PLAYER_1] = vec_client_info[PLAYER_1].hp;
 			sc_runPacket.hp[PLAYER_2] = vec_client_info[PLAYER_2].hp;
-			LeaveCriticalSection(&cs);
+			
 
 			
 			for (int i = 0; i < vec_client_info.size(); ++i)
@@ -351,7 +350,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 					return;
 				}
 
-				EnterCriticalSection(&cs);
+			
 				if (vec_client_info[i].isRight)
 				{
 					if (i == PLAYER_1)
@@ -372,7 +371,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 						vec_client_info[PLAYER_1].eMode = IDLE_B;
 					}
 				}
-				LeaveCriticalSection(&cs);
+				
 			
 			}
 
@@ -428,15 +427,15 @@ void CServerFramework::Update()
 		
 		if (vec_client_info[i].pos.Y < 550.0f)
 		{
-			EnterCriticalSection(&cs);
+			//EnterCriticalSection(&cs);
 			vec_client_info[i].pos.Y += 15;
-			LeaveCriticalSection(&cs);
+			//LeaveCriticalSection(&cs);
 		}
 		if (vec_client_info[i].pos.Y > 550.0f)
 		{
-			EnterCriticalSection(&cs);
+			//EnterCriticalSection(&cs);
 			vec_client_info[i].pos.Y = 550.0f;
-			LeaveCriticalSection(&cs);
+			//LeaveCriticalSection(&cs);
 		}
 	
 

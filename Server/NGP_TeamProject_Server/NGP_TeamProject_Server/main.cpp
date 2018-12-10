@@ -5,7 +5,7 @@ DWORD lastTime = timeGetTime();
 float FPS = 0.03;
 int main()
 {
-	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+	//SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 
 	CServerFramework Server;
 
