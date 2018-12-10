@@ -144,6 +144,7 @@ SOCKET& CServerFramework::AcceptClient()
 	// 클라이언트 주소정보, 무슨 플레이어인지 벡터에 저장한다.
 	if (vec_client_info.size() == 0)
 	{
+		EnterCriticalSection(&cs);
 		COORD position;
 		position.X = 0;
 		position.Y = 550;
@@ -151,9 +152,11 @@ SOCKET& CServerFramework::AcceptClient()
 		// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
 		vec_client_info[PLAYER_1].skillPos = vec_client_info[PLAYER_1].pos;
 		hThread[PLAYER_1] = CreateThread(NULL, 0, RecvThread, (LPVOID)vec_client_info[PLAYER_1].client_socket, 0, NULL);
+		LeaveCriticalSection(&cs);
 	}
 	else if (vec_client_info.size() == 1)
 	{
+		EnterCriticalSection(&cs);
 		COORD position;
 		position.X = 800;
 		position.Y = 550;
@@ -161,6 +164,7 @@ SOCKET& CServerFramework::AcceptClient()
 		// 스킬의 좌표에 플레이어의 좌표를 넣어준다.
 		vec_client_info[PLAYER_2].skillPos = vec_client_info[PLAYER_2].pos;
 		hThread[PLAYER_2] = CreateThread(NULL, 0, RecvThread, (LPVOID)vec_client_info[PLAYER_2].client_socket, 0, NULL);
+		LeaveCriticalSection(&cs);
 	}
 
 	return client_socket;
@@ -187,7 +191,6 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 						err_display("recvn( )");
 						return 0;
 					}
-					//EnterCriticalSection(&cs);
 					switch (cs_runPacket.player)
 					{
 						case PLAYER_1:
@@ -197,7 +200,6 @@ DWORD WINAPI CServerFramework::RecvThread(LPVOID socket)
 							KeyDistribute(cs_runPacket.player, cs_runPacket.key);
 							break;
 					}
-					//LeaveCriticalSection(&cs);
 				}
 				break;
 			}
@@ -218,76 +220,100 @@ void CServerFramework::KeyDistribute(byte& player, byte& keyType)
 	case KEY_RIGHT:
 		if (player == PLAYER_1)
 		{
+			EnterCriticalSection(&cs);
 			vec_client_info[PLAYER_2].eMode = WALK;
 			vec_client_info[PLAYER_1].isRight = true;
 			vec_client_info[PLAYER_1].isSkillRight = true;
+			LeaveCriticalSection(&cs);
 		}
 		else
 		{
+			EnterCriticalSection(&cs);
 			vec_client_info[PLAYER_1].eMode = WALK;
 			vec_client_info[PLAYER_2].isRight = true;
 			vec_client_info[PLAYER_2].isSkillRight = true;
+			LeaveCriticalSection(&cs);
 		}
 
+		EnterCriticalSection(&cs);
 		vec_client_info[player].pos.X += 10;
 		if (vec_client_info[player].pos.X > 1000)
 		{
 			vec_client_info[player].pos.X = 1000;
 		}
+		LeaveCriticalSection(&cs);
 		break;
 	case KEY_LEFT:
 		if (player == PLAYER_1)
 		{
+			EnterCriticalSection(&cs);
 			vec_client_info[PLAYER_2].eMode = WALK_B;
 			vec_client_info[PLAYER_1].isRight = false;
 			vec_client_info[PLAYER_1].isSkillRight = false;
+			LeaveCriticalSection(&cs);
 		}
 		else
 		{
+			EnterCriticalSection(&cs);
 			vec_client_info[PLAYER_1].eMode = WALK_B;
 			vec_client_info[PLAYER_2].isRight = false;
 			vec_client_info[PLAYER_2].isSkillRight = false;
+			LeaveCriticalSection(&cs);
 		}
+		EnterCriticalSection(&cs);
 		vec_client_info[player].pos.X -= 10;
 		if (vec_client_info[player].pos.X < 0)
 		{
 			vec_client_info[player].pos.X = 0;
 		}
+		LeaveCriticalSection(&cs);
 		break;
 	case KEY_UP:
 		if (player == PLAYER_1)
 		{
+			EnterCriticalSection(&cs);
 			if (vec_client_info[PLAYER_1].isRight)
 				vec_client_info[PLAYER_2].eMode = JUMP;
 			else
 				vec_client_info[PLAYER_2].eMode = JUMP_B;
+			LeaveCriticalSection(&cs);
 		}
 		else
 		{
+			EnterCriticalSection(&cs);
 			if (vec_client_info[PLAYER_2].isRight)
 				vec_client_info[PLAYER_1].eMode = JUMP;
 			else
 				vec_client_info[PLAYER_1].eMode = JUMP_B;
+			LeaveCriticalSection(&cs);
 		}
+		EnterCriticalSection(&cs);
 		if (vec_client_info[player].pos.Y > 300)
 			vec_client_info[player].pos.Y -= 150;
+		LeaveCriticalSection(&cs);
 		break;
 	case KEY_SPACE:
 		if (player == PLAYER_1)
 		{
+			EnterCriticalSection(&cs);
 			if (vec_client_info[PLAYER_1].isRight)
 				vec_client_info[PLAYER_2].eMode = ATTACK;
 			else
 				vec_client_info[PLAYER_2].eMode = ATTACK_B;
+			LeaveCriticalSection(&cs);
 		}
 		else
 		{
+			EnterCriticalSection(&cs);
 			if (vec_client_info[PLAYER_2].isRight)
 				vec_client_info[PLAYER_1].eMode = ATTACK;
 			else
 				vec_client_info[PLAYER_1].eMode = ATTACK_B;
+			LeaveCriticalSection(&cs);
 		}
+		EnterCriticalSection(&cs);
 		m_pSkillManager->addSkill(player, vec_client_info[player].pos,vec_client_info[player].isSkillRight);
+		LeaveCriticalSection(&cs);
 
 
 		break;
@@ -307,10 +333,10 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			SC_INIT sc_initPacket[2]{ 0 };
 			for (int i = 0; i < vec_client_info.size(); ++i)
 			{
-				
+				EnterCriticalSection(&cs);
 				sc_initPacket[i].player = vec_client_info[i].player;
 				sc_initPacket[i].isStart = true;
-			
+				LeaveCriticalSection(&cs);
 				// 모든 플레이어에게 SC_INIT 고정길이 전송
 				retval = send(vec_client_info[i].client_socket, (char*)&sc_initPacket[i], sizeof(SC_INIT), 0);
 				if (retval == SOCKET_ERROR)
@@ -327,6 +353,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 		{
 			SC_RUN sc_runPacket = { 0 };
 
+			EnterCriticalSection(&cs);
 			sc_runPacket.eMode[PLAYER_1] = vec_client_info[PLAYER_1].eMode;
 			sc_runPacket.eMode[PLAYER_2] = vec_client_info[PLAYER_2].eMode;
 			sc_runPacket.pos[PLAYER_1] = vec_client_info[PLAYER_1].pos;
@@ -338,7 +365,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 			}
 			sc_runPacket.hp[PLAYER_1] = vec_client_info[PLAYER_1].hp;
 			sc_runPacket.hp[PLAYER_2] = vec_client_info[PLAYER_2].hp;
-			
+			LeaveCriticalSection(&cs);
 
 			
 			for (int i = 0; i < vec_client_info.size(); ++i)
@@ -350,7 +377,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 					return;
 				}
 
-			
+				EnterCriticalSection(&cs);
 				if (vec_client_info[i].isRight)
 				{
 					if (i == PLAYER_1)
@@ -371,7 +398,7 @@ void CServerFramework::SendPacket(SOCKET& client_socket)
 						vec_client_info[PLAYER_1].eMode = IDLE_B;
 					}
 				}
-				
+				LeaveCriticalSection(&cs);
 			
 			}
 
@@ -427,22 +454,21 @@ void CServerFramework::Update()
 		
 		if (vec_client_info[i].pos.Y < 550.0f)
 		{
-			//EnterCriticalSection(&cs);
+			EnterCriticalSection(&cs);
 			vec_client_info[i].pos.Y += 15;
-			//LeaveCriticalSection(&cs);
+			LeaveCriticalSection(&cs);
 		}
 		if (vec_client_info[i].pos.Y > 550.0f)
 		{
-			//EnterCriticalSection(&cs);
+			EnterCriticalSection(&cs);
 			vec_client_info[i].pos.Y = 550.0f;
-			//LeaveCriticalSection(&cs);
+			LeaveCriticalSection(&cs);
 		}
-	
-
+		
 	}
 	if (vec_client_info.size() > 1)
 	{
-		
+		EnterCriticalSection(&cs);
 		m_pSkillManager->update(vec_client_info[PLAYER_1], vec_client_info[PLAYER_2]);
 		
 		if (vec_client_info[PLAYER_1].hp ==0 || vec_client_info[PLAYER_2].hp==0)
@@ -459,6 +485,7 @@ void CServerFramework::Update()
 
 			}
 		}
+		LeaveCriticalSection(&cs);
 	}
 }
 
